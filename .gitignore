@@ -1,0 +1,34 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
+
+# Visual Studio
+.vs/
+*.csproj.user
+
+# ASP.NET Core
+appsettings.Development.json
+*.log
+
+# Node modules (for React client)
+client-app/node_modules/
+client-app/build/
+client-app/.env.local
+client-app/.env.development.local
+client-app/.env.test.local
+client-app/.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
