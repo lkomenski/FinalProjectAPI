@@ -146,6 +146,37 @@ namespace FinalProjectAPI.Controllers
             var results = await _repo.GetDataAsync("DeactivateProduct", parameters);
             return Ok(results.FirstOrDefault());
         }
+
+        // GET: api/products/featured
+        [HttpGet("featured")]
+        public async Task<IActionResult> GetFeaturedProducts()
+        {
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetFeaturedProducts");
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Failed to load featured products.");
+            }
+        }
+
+        // GET: api/products/best-sellers
+        [HttpGet("best-sellers")]
+        public async Task<IActionResult> GetBestSellers()
+        {
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetBestSellers");
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Failed to load best sellers.");
+            }
+}
+
         // Helper method to map data row to Product object
         private static Product MapRowToProduct(IDictionary<string, object?> row)
         {

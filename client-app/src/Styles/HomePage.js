@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
+import Slider from "react-slick";
 import "./HomePage.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -16,6 +19,22 @@ function HomePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Slider Settings
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    autoplay: true,
+    speed: 600,
+    autoplaySpeed: 3000,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    responsive: [
+      { breakpoint: 1200, settings: { slidesToShow: 3 }},
+      { breakpoint: 900, settings: { slidesToShow: 2 }},
+      { breakpoint: 600, settings: { slidesToShow: 1 }},
+    ],
+  };
+
   // Load Recently Viewed Items
   useEffect(() => {
     const stored = localStorage.getItem("recentlyViewed");
@@ -30,34 +49,30 @@ function HomePage() {
       try {
         const productRes = await fetch("http://localhost:5077/api/products");
         const categoryRes = await fetch("http://localhost:5077/api/categories");
+        const featuredRes = await fetch("http://localhost:5077/api/products/featured");
+        const bestRes = await fetch("http://localhost:5077/api/products/best-sellers");
 
-        if (!productRes.ok || !categoryRes.ok)
+        if (!productRes.ok || !categoryRes.ok || !featuredRes.ok || !bestRes.ok)
           throw new Error("Failed to load data");
 
         const productData = await productRes.json();
         const categoryData = await categoryRes.json();
+        const featuredData = await featuredRes.json();
+        const bestSellerData = await bestRes.json();
 
         setProducts(productData);
         setFilteredProducts(productData);
         setCategories(categoryData);
-
-        // FEATURED = first 4 active items
-        setFeatured(productData.filter(p => p.isActive).slice(0, 4));
-
-        // BEST SELLERS (sorted by quantity sold)
-        setBestSellers(
-          [...productData]
-            .filter(p => p.totalSold !== undefined)
-            .sort((a, b) => b.totalSold - a.totalSold)
-            .slice(0, 4)
-        );
-
+        setFeatured(featuredData);
+        setBestSellers(bestSellerData);
       } catch (err) {
+        console.error(err);
         setError("Error loading data. Please try again later.");
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
   }, []);
 
@@ -82,7 +97,6 @@ function HomePage() {
     setFilteredProducts(filtered);
   }, [searchTerm, selectedCategory, products]);
 
-
   if (loading) {
     return <div className="homepage-loading">Loading products...</div>;
   }
@@ -93,25 +107,18 @@ function HomePage() {
 
   return (
     <div className="homepage-container">
-      
+
       {/* -------------------------------- */}
       {/* HERO CAROUSEL                    */}
       {/* -------------------------------- */}
       <div className="carousel-container">
-        <div className="carousel-slide">
-          <img src="/hero1.jpg" alt="Hero 1" />
-        </div>
-        <div className="carousel-slide">
-          <img src="/hero2.jpg" alt="Hero 2" />
-        </div>
-        <div className="carousel-slide">
-          <img src="/hero3.jpg" alt="Hero 3" />
-        </div>
+        <div className="carousel-slide"><img src="/hero1.jpg" /></div>
+        <div className="carousel-slide"><img src="/hero2.jpg" /></div>
+        <div className="carousel-slide"><img src="/hero3.jpg" /></div>
 
         <div className="carousel-overlay">
           <h1>Find Your Sound</h1>
           <p>Premium guitars, accessories & more.</p>
-
           <input
             className="hero-search"
             type="text"
@@ -147,45 +154,38 @@ function HomePage() {
       </div>
 
       {/* -------------------------------- */}
-      {/* FEATURED CATEGORIES              */}
-      {/* -------------------------------- */}
-      <h2 className="section-title">Shop by Category</h2>
-      <div className="featured-category-grid">
-        {categories.map((c) => (
-          <div
-            key={c.categoryID}
-            className="featured-category-card"
-            onClick={() => setSelectedCategory(String(c.categoryID))}
-          >
-            <div className="featured-category-img">
-              <img src={`/category-icons/${c.categoryID}.png`} alt="" />
-            </div>
-            <p>{c.categoryName}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* -------------------------------- */}
-      {/* FEATURED PRODUCTS                */}
+      {/* FEATURED PRODUCTS CAROUSEL       */}
       {/* -------------------------------- */}
       <h2 className="section-title">Featured Products ⭐</h2>
 
-      <div className="product-grid">
-        {featured.map((p) => (
-          <ProductCard key={p.productID} product={p} />
-        ))}
-      </div>
+      {featured.length > 0 ? (
+        <Slider {...sliderSettings} className="product-slider">
+          {featured.map((p) => (
+            <div key={p.productID}>
+              <ProductCard product={p} />
+            </div>
+          ))}
+        </Slider>
+      ) : (
+        <p>No featured products available.</p>
+      )}
 
       {/* -------------------------------- */}
-      {/* BEST SELLERS                     */}
+      {/* BEST SELLERS CAROUSEL            */}
       {/* -------------------------------- */}
       <h2 className="section-title">Best Sellers 🔥</h2>
 
-      <div className="product-grid">
-        {bestSellers.map((p) => (
-          <ProductCard key={p.productID} product={p} />
-        ))}
-      </div>
+      {bestSellers.length > 0 ? (
+        <Slider {...sliderSettings} className="product-slider">
+          {bestSellers.map((p) => (
+            <div key={p.productID}>
+              <ProductCard product={p} />
+            </div>
+          ))}
+        </Slider>
+      ) : (
+        <p>No best sellers available.</p>
+      )}
 
       {/* -------------------------------- */}
       {/* RECENTLY VIEWED                  */}
