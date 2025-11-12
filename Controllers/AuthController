@@ -1,0 +1,126 @@
+using Microsoft.AspNetCore.Mvc;
+using FinalProjectAPI.Infrastructure.Interfaces;
+using FinalProjectAPI.Models;
+
+namespace FinalProjectAPI.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
+    {
+        private readonly IDataRepositoryFactory _factory;
+
+        public AuthController(IDataRepositoryFactory factory)
+        {
+            _factory = factory;
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+                return BadRequest("Email and password are required.");
+
+            var role = request.Role.ToLower();
+
+            try
+            {
+                switch (role)
+                {
+                    case "customer":
+                        return await LoginCustomerAsync(request);
+                    case "vendor":
+                        return await LoginVendorAsync(request);
+                    case "admin":
+                    case "employee":
+                        return await LoginAdminAsync(request);
+                    default:
+                        return BadRequest("Invalid role.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error during login: {ex.Message}");
+            }
+        }
+
+        private async Task<IActionResult> LoginCustomerAsync(LoginRequest request)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", request.Email },
+                { "@Password", request.Password }
+            };
+
+            var results = await repo.GetDataAsync("spCustomerLogin", parameters);
+            var row = results.FirstOrDefault();
+            if (row == null) return Unauthorized("Invalid customer credentials.");
+
+            var response = new LoginResponse
+            {
+                UserID = Convert.ToInt32(row["CustomerID"]),
+                Role = "customer",
+                FirstName = row["FirstName"]?.ToString() ?? "",
+                LastName = row["LastName"]?.ToString() ?? "",
+                Email = row["EmailAddress"]?.ToString() ?? "",
+                Dashboard = "customer"
+            };
+
+            return Ok(response);
+        }
+
+        private async Task<IActionResult> LoginVendorAsync(LoginRequest request)
+        {
+            var repo = _factory.Create("AP");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", request.Email },
+                { "@Password", request.Password }
+            };
+
+            var results = await repo.GetDataAsync("spVendorLogin", parameters);
+            var row = results.FirstOrDefault();
+            if (row == null) return Unauthorized("Invalid vendor credentials.");
+
+            var response = new LoginResponse
+            {
+                UserID = Convert.ToInt32(row["VendorID"]),
+                Role = "vendor",
+                FirstName = row["VendorContactFName"]?.ToString() ?? "",
+                LastName = row["VendorContactLName"]?.ToString() ?? "",
+                Dashboard = "vendor"
+            };
+
+            return Ok(response);
+        }
+
+        private async Task<IActionResult> LoginAdminAsync(LoginRequest request)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", request.Email },
+                { "@Password", request.Password }
+            };
+
+            var results = await repo.GetDataAsync("spAdminLogin", parameters);
+            var row = results.FirstOrDefault();
+            if (row == null) return Unauthorized("Invalid admin credentials.");
+
+            var response = new LoginResponse
+            {
+                UserID = Convert.ToInt32(row["AdminID"]),
+                Role = "admin",
+                FirstName = row["FirstName"]?.ToString() ?? "",
+                LastName = row["LastName"]?.ToString() ?? "",
+                Dashboard = "admin"
+            };
+
+            return Ok(response);
+        }
+    }
+}

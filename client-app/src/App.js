@@ -1,24 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './components/Home';
-import Login from './components/Login';
-import About from './components/About';
-
-import { BrowserRouter, Link, Route, Routes } from 'react-router';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginForm from "./LoginForm";
+import ProtectedRoute from "./ProtectedRoute";
+import CustomerDashboard from "./CustomerDashboard";
+import VendorDashboard from "./VendorDashboard";
+import AdminDashboard from "./AdminDashboard";
 
 function App() {
   return (
-    <BrowserRouter>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/about">About</Link> |{' '}
-        <Link to="/login">Login</Link> | <Link to="/weather">Weather</Link>
-      </nav>
+    <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<LoginForm />} />
+
+        <Route
+          path="/customer-dashboard"
+          element={
+            <ProtectedRoute requiredRole="customer">
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/vendor-dashboard"
+          element={
+            <ProtectedRoute requiredRole="vendor">
+              <VendorDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default route */}
+        <Route path="*" element={<LoginForm />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
