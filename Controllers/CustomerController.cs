@@ -58,5 +58,22 @@ namespace FinalProjectAPI.Controllers
             var result = await _repo.GetDataAsync("CheckCustomerExists", parameters);
             return Ok(result.FirstOrDefault());
         }
+
+        [HttpGet("{customerId}")]
+        public async Task<IActionResult> GetCustomerProfile(int customerId)
+        {
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@CustomerID", customerId }
+            };
+
+            var result = await _repo.GetDataAsync("GetCustomerProfile", parameters);
+
+            if (!result.Any())
+                return NotFound("Customer not found.");
+
+            return Ok(result.First());
+        }
+
     }
 }
