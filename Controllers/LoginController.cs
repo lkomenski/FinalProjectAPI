@@ -23,7 +23,7 @@ namespace FinalProjectAPI.Controllers
 
             // Try Customer (MyGuitarShop)
             var customerRepo = _factory.Create("MyGuitarShop");
-            var customerResult = await customerRepo.GetDataAsync("spCustomerLogin", new Dictionary<string, object?>
+            var customerResult = await customerRepo.GetDataAsync("CustomerLogin", new Dictionary<string, object?>
             {
                 { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }
@@ -45,7 +45,7 @@ namespace FinalProjectAPI.Controllers
             }
 
             // Try Employee (MyGuitarShop)
-            var adminResult = await customerRepo.GetDataAsync("spAdminLogin", new Dictionary<string, object?>
+            var adminResult = await customerRepo.GetDataAsync("EmployeeLogin", new Dictionary<string, object?>
             {
                 { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }
@@ -68,7 +68,7 @@ namespace FinalProjectAPI.Controllers
 
             // Try Vendor (AP)
             var vendorRepo = _factory.Create("AP");
-            var vendorResult = await vendorRepo.GetDataAsync("spVendorLogin", new Dictionary<string, object?>
+            var vendorResult = await vendorRepo.GetDataAsync("VendorLogin", new Dictionary<string, object?>
             {
                 { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }

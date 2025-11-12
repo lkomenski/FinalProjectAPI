@@ -143,7 +143,7 @@ namespace FinalProjectAPI.Controllers
                 { "@LastName", request.LastName }
             };
 
-            var results = await repo.GetDataAsync("spCustomerRegister", parameters);
+            var results = await repo.GetDataAsync("CustomerRegister", parameters);
             var row = results.FirstOrDefault();
 
             if (row == null) return StatusCode(500, "Registration failed.");
