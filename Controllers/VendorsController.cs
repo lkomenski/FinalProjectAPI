@@ -6,11 +6,11 @@ namespace FinalProjectAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VendorController : ControllerBase
+    public class VendorsController : ControllerBase
     {
         private readonly IDataRepository _repo;
 
-        public VendorController(IDataRepositoryFactory factory)
+        public VendorsController(IDataRepositoryFactory factory)
         {
             _repo = factory.Create("AP"); // use AP database for vendors
         }

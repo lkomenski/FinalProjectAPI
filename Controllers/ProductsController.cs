@@ -6,11 +6,11 @@ namespace FinalProjectAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IDataRepository _repo;
 
-        public ProductController(IDataRepositoryFactory factory)
+        public ProductsController(IDataRepositoryFactory factory)
         {
             _repo = factory.Create("MyGuitarShop");
         }
