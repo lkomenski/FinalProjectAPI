@@ -36,7 +36,10 @@ function NavigationBar() {
         {user && (
           <>
             {user.role === "customer" && (
-              <Link to="/customer-dashboard" className="nav-link">My Dashboard</Link>
+              <>
+                <Link to="/customer-dashboard" className="nav-link">My Dashboard</Link>
+                <Link to="/customer-profile" className="nav-link">My Profile</Link>
+              </>
             )}
             {user.role === "vendor" && (
               <Link to="/vendor-dashboard" className="nav-link">Vendor Dashboard</Link>

@@ -42,7 +42,8 @@ export default function EmployeeDashboard() {
     loadDashboard();
     loadVendors();
     loadProducts();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadDashboard() {
     try {

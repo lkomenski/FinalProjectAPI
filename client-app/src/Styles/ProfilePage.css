@@ -1,0 +1,81 @@
+.profile-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+
+.profile-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.profile-subtitle {
+  font-size: 1.25rem;
+  margin-top: 26px;
+  font-weight: 600;
+}
+
+.profile-message {
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.profile-message.error {
+  color: #dc2626;
+}
+
+.profile-message.success {
+  color: #16a34a;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.profile-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-row label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.profile-input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+}
+
+.profile-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 4px rgba(37, 99, 235, 0.4);
+}
+
+.profile-save-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-save-btn:hover {
+  background: #1e40af;
+}

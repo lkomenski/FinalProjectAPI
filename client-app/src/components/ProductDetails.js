@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import { fetchData } from "./Api";
 import { CartContext } from "../context/CartContext";
-import { useContext } from "react";
+import "../Styles/ProductDetails.css";   // ⭐ NEW STYLING FILE
 
 export default function ProductDetails() {
   const { productId } = useParams();
@@ -30,44 +30,46 @@ export default function ProductDetails() {
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
-
   if (!product) return <ErrorMessage message="Product not found." />;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Product Image */}
+    <div className="product-details-container">
+      {/* ------- IMAGE SECTION ------- */}
+      <div className="product-details-image">
         <img
           src={product.imageUrl || "/placeholder.png"}
           alt={product.productName}
-          className="w-full md:w-1/2 rounded-lg shadow"
         />
+      </div>
 
-        {/* Product Info */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-4">
-            {product.productName}
-          </h1>
+      {/* ------- INFO SECTION ------- */}
+      <div className="product-details-info">
+        <h1 className="product-title">{product.productName}</h1>
 
-          <p className="text-xl text-green-700 font-semibold mb-2">
-            ${product.listPrice?.toFixed(2)}
+        <p className="product-price">
+          ${product.listPrice?.toFixed(2)}
+        </p>
+
+        <p className="product-category">
+          Category: <span>{product.categoryName}</span>
+        </p>
+
+        {product.discountPercent > 0 && (
+          <p className="product-discount">
+            Save {product.discountPercent}% Today!
           </p>
+        )}
 
-          <p className="text-gray-600 mb-4">
-            Category: {product.categoryName}
-          </p>
+        <p className="product-description">
+          {product.description || "No description available."}
+        </p>
 
-          <p className="text-gray-700 mb-6">{product.description}</p>
-
-          {/* Add to Cart button */}
-
-         <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            onClick={() => addToCart(product)}
-            >
-            Add to Cart
-         </button>
-        </div>
+        <button
+          className="product-add-btn"
+          onClick={() => addToCart(product)}
+        >
+          Add to Cart
+        </button>
       </div>
     </div>
   );

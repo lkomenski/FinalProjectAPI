@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../Styles/Dashboard.css";
-import "./Modal.css";
+import "../Styles/modal.css";
 
 export default function ProductForm({ product, onClose }) {
   const isEditing = !!product;

@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import "../Styles/CartPage.css";  // ⭐ Add this
 
 export default function CartPage() {
   const { cart, removeFromCart, decreaseQuantity, addToCart, clearCart } = useContext(CartContext);
@@ -11,70 +12,90 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
-      <div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md text-center">
-        <h2 className="text-2xl font-bold">Your Cart is Empty</h2>
-        <p className="text-gray-500">Browse products to add items.</p>
+      <div className="cart-empty-container">
+        <h2>Your Cart is Empty</h2>
+        <p>Browse products to add items.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Shopping Cart</h2>
+    <div className="cart-container">
 
-      {cart.map((item) => (
-        <div
-          key={item.productID}
-          className="flex justify-between items-center border-b py-4"
-        >
-          <div>
-            <h3 className="font-semibold">{item.productName}</h3>
-            <p>${item.listPrice.toFixed(2)}</p>
-            <div className="flex gap-2 mt-2">
+      <h2 className="cart-title">Your Shopping Cart</h2>
+
+      <div className="cart-items">
+        {cart.map((item) => (
+          <div key={item.productID} className="cart-item">
+
+            {/* Thumbnail */}
+            <img
+              src={item.imageUrl || "/placeholder.png"}
+              alt={item.productName}
+              className="cart-item-img"
+            />
+
+            {/* Info */}
+            <div className="cart-item-info">
+              <h3 className="cart-item-name">{item.productName}</h3>
+              <p className="cart-item-price">${item.listPrice.toFixed(2)}</p>
+
+              <div className="cart-qty-row">
+                <button
+                  className="qty-btn"
+                  onClick={() => decreaseQuantity(item.productID)}
+                >
+                  -
+                </button>
+
+                <span className="cart-qty">{item.quantity}</span>
+
+                <button
+                  className="qty-btn"
+                  onClick={() => addToCart(item)}
+                >
+                  +
+                </button>
+              </div>
+
               <button
-                className="px-2 bg-gray-300 rounded"
-                onClick={() => decreaseQuantity(item.productID)}
+                className="remove-btn"
+                onClick={() => removeFromCart(item.productID)}
               >
-                -
-              </button>
-
-              <span>{item.quantity}</span>
-
-              <button
-                className="px-2 bg-gray-300 rounded"
-                onClick={() => addToCart(item)}
-              >
-                +
+                Remove
               </button>
             </div>
+
+            {/* Item Total */}
+            <div className="cart-item-total">
+              ${(item.listPrice * item.quantity).toFixed(2)}
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* Summary */}
+      <div className="cart-summary">
+        <h3 className="cart-summary-total">Total: ${total.toFixed(2)}</h3>
+
+        <div className="cart-summary-buttons">
+          <button
+            className="checkout-btn"
+            onClick={() => (window.location.href = "/checkout")}
+          >
+            Proceed to Checkout
+          </button>
+
 
           <button
-            className="text-red-600"
-            onClick={() => removeFromCart(item.productID)}
+            className="clear-btn"
+            onClick={clearCart}
           >
-            Remove
+            Clear Cart
           </button>
         </div>
-      ))}
+      </div>
 
-      <h3 className="text-xl font-bold mt-6">
-        Total: ${total.toFixed(2)}
-      </h3>
-
-      <button
-        className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-        onClick={() => alert("Checkout is not implemented")}
-      >
-        Checkout
-      </button>
-
-      <button
-        className="mt-4 ml-4 px-4 py-2 bg-red-600 text-white rounded"
-        onClick={clearCart}
-      >
-        Clear Cart
-      </button>
     </div>
   );
 }

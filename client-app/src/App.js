@@ -11,6 +11,9 @@ import ProductDetails from "./components/ProductDetails";
 import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
 import RegisterForm from "./components/RegisterForm";
+import CustomerProfile from "./components/CustomerProfile";
+import CheckoutPage from "./components/CheckoutPage";
+
 
 function App() {
   return (
@@ -31,6 +34,26 @@ function App() {
 
         {/* Customer register page */}
         <Route path="/register" element={<RegisterForm />} />
+
+        {/* Customer profile page */}
+        <Route
+          path="/customer-profile"
+          element={
+            <ProtectedRoute requiredRole="customer">
+              <CustomerProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Checkout page */}
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute requiredRole="customer">
+              <CheckoutPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Product details page */}
         <Route path="/product/:productId" element={<ProductDetails />} />

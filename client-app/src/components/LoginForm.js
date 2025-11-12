@@ -1,25 +1,29 @@
 import React, { useState } from "react";
+import "../Styles/Auth.css";   // ⭐ Make sure this exists
 
-function LoginForm() {
-  const [email, setEmail] = useState("");
+export default function LoginForm() {
+  const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");   // NEW: user role
+  const [role, setRole] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const validateForm = () => {
-    if (!email || !password) {
+    if (!emailAddress || !password) {
       setError("Email and password are required.");
       return false;
     }
-    if (!email.includes("@")) {
+
+    if (!emailAddress.includes("@")) {
       setError("Please enter a valid email address.");
       return false;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return false;
     }
+
     if (!role) {
       setError("Please select a role.");
       return false;
@@ -37,7 +41,7 @@ function LoginForm() {
       const response = await fetch("https://localhost:5001/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ emailAddress, password, role }),
       });
 
       if (!response.ok) {
@@ -48,21 +52,21 @@ function LoginForm() {
 
       const data = await response.json();
 
-      // Save user info in localStorage
+      // Save user info
       localStorage.setItem(
         "user",
         JSON.stringify({
           id: data.userID,
           role: data.role,
           firstName: data.firstName,
-          email: data.email
+          emailAddress: data.emailAddress
         })
       );
 
       setSuccess(`Welcome back, ${data.firstName}!`);
       setError("");
 
-      // Redirect based on dashboard value
+      // Redirect
       if (data.dashboard === "customer") {
         window.location.href = "/customer-dashboard";
       } else if (data.dashboard === "vendor") {
@@ -78,45 +82,49 @@ function LoginForm() {
   };
 
   return (
-    <div style={{ textAlign: "center", paddingTop: "40px" }}>
+    <div className="auth-container">
+
       <h2>Login</h2>
 
-      <form onSubmit={handleLogin}>
+      {error && <p className="auth-message error">{error}</p>}
+      {success && <p className="auth-message success">{success}</p>}
 
-        {/* Email */}
+      <form onSubmit={handleLogin} className="auth-form">
+
         <input
           type="email"
+          name="emailAddress"
+          className="auth-input"
           placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        /><br/>
+          value={emailAddress}
+          onChange={(e) => setEmailAddress(e.target.value)}
+        />
 
-        {/* Password */}
         <input
           type="password"
+          className="auth-input"
+          name="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-        /><br/>
+        />
 
-        {/* Role Selector */}
-        <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <select
+          className="auth-input"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        >
           <option value="">Select Role</option>
           <option value="customer">Customer</option>
           <option value="vendor">Vendor</option>
-          <option value="admin">Employee/Admin</option>
+          <option value="admin">Employee / Admin</option>
         </select>
-        <br/>
 
-        <button type="submit">Login</button>
+        <button className="auth-btn" type="submit">
+          Login
+        </button>
 
       </form>
-
-      {/* Display messages */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
     </div>
   );
 }
-
-export default LoginForm;
