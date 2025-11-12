@@ -2,32 +2,139 @@ using Microsoft.AspNetCore.Mvc;
 using FinalProjectAPI.Models;
 using FinalProjectAPI.Infrastructure.Interfaces;
 
-namespace FinalProjectAPI.Controllers;
-
-
-[ApiController]
-[Route("api/[controller]")]
-public class ProductController : ControllerBase
+namespace FinalProjectAPI.Controllers
 {
-    private readonly IProductRepository _productRepo;
-
-    public ProductController(IProductRepository productRepo)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductController : ControllerBase
     {
-        _productRepo = productRepo;
-    }
+        private readonly IDataRepository _repo;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var products = await _productRepo.GetAllProductsAsync();
-        return Ok(products);
-    }
+        public ProductController(IDataRepositoryFactory factory)
+        {
+            _repo = factory.Create("MyGuitarShop");
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> AddProduct([FromBody] Product product)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
-        var result = await _productRepo.AddProductAsync(product);
-        return result > 0 ? Ok(new { ProductID = result }) : BadRequest("Failed to add product");
+        // HTTP GET to retrieve all products
+        [HttpGet]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetAllProducts");
+                var products = rows.Select(MapRowToProduct).ToList();
+                return Ok(products);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve products.");
+            }
+        }
+
+        // HTTP GET to retrieve product by ID
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(int productId)
+        {
+            try
+            {
+                if (productId <= 0) {
+                    return BadRequest("Invalid ProductID.");
+                }
+                var parameters = new Dictionary<string, object?>{
+                    {"@ProductID", productId}
+                };
+                
+                var result = await _repo.GetDataAsync("GetProductById", parameters);
+                return Ok(result.FirstOrDefault());
+            } catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve product.");
+            }
+        }
+
+        // HTTP POST to add new product
+        [HttpPost]
+        public async Task<IActionResult> AddProduct([FromBody] Product product)
+        {
+            if (product == null)
+                return BadRequest("Product data is required.");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                {"@CategoryID", product.CategoryID},
+                {"@ProductCode", product.ProductCode},
+                {"@ProductName", product.ProductName},
+                {"@Description", product.Description},
+                {"@ListPrice", product.ListPrice},
+                {"@DiscountPercent", product.DiscountPercent}
+            };
+
+            var result = await _repo.GetDataAsync("AddProduct", parameters);
+            return Ok(result.FirstOrDefault());
+        }
+
+        // HTTP PUT to update existing product
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateProduct(int productId, [FromBody] Product product)
+        {
+            if (product == null)
+                return BadRequest("Product data is required.");
+
+            product.ProductID = productId;
+
+            var parameters = new Dictionary<string, object?>
+            {
+                {"@ProductID", product.ProductID},
+                {"@CategoryID", product.CategoryID},
+                {"@ProductCode", product.ProductCode},
+                {"@ProductName", product.ProductName},
+                {"@Description", product.Description},
+                {"@ListPrice", product.ListPrice},
+                {"@DiscountPercent", product.DiscountPercent}
+            };
+
+            var result = await _repo.GetDataAsync("UpdateProduct", parameters);
+            return Ok(result.FirstOrDefault());
+        }
+
+        // HTTP DELETE to remove product by ID
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> DeleteProduct(int productId)
+        {
+            try
+            {
+                if (productId <= 0) //
+                {
+                    return BadRequest("Invalid ProductID.");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to delete product.");
+            }
+            var parameters = new Dictionary<string, object?>
+            {
+                {"@ProductID", productId}
+            };
+
+            await _repo.GetDataAsync("DeleteProduct", parameters);
+            return Ok($"Product {productId} deleted successfully.");
+        }
+        
+        // Helper method to map data row to Product object
+        private static Product MapRowToProduct(IDictionary<string, object?> row)
+        {
+            return new Product
+            {
+                ProductID = Convert.ToInt32(row["ProductID"]),
+                CategoryID = Convert.ToInt32(row["CategoryID"]),
+                ProductCode = row["ProductCode"]?.ToString() ?? string.Empty,
+                ProductName = row["ProductName"]?.ToString() ?? string.Empty,
+                Description = row["Description"]?.ToString() ?? string.Empty,
+                ListPrice = Convert.ToDecimal(row["ListPrice"]),
+                DiscountPercent = Convert.ToDecimal(row["DiscountPercent"]),
+                DateUpdated = row["DateUpdated"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(row["DateUpdated"])
+            };
+        }
     }
 }

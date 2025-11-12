@@ -1,6 +1,6 @@
-using FinalProjectAPI.Infrastructure.Interfaces;
 using FinalProjectAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using FinalProjectAPI.Infrastructure.Interfaces;
 
 namespace FinalProjectAPI.Controllers
 {
@@ -8,53 +8,170 @@ namespace FinalProjectAPI.Controllers
     [Route("api/[controller]")]
     public class VendorController : ControllerBase
     {
-        private readonly IVendorRepository _vendorRepo;
+        private readonly IDataRepository _repo;
 
-        public VendorController(IVendorRepository vendorRepo)
+        public VendorController(IDataRepositoryFactory factory)
         {
-            _vendorRepo = vendorRepo;
+            _repo = factory.Create("AP"); // use AP database for vendors
         }
 
+        // HTTP GET to retrieve all vendors
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllVendors()
         {
-            var vendors = await _vendorRepo.GetAllVendorsAsync();
-            return Ok(vendors);
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetAllVendors");
+                var vendors = rows.Select(MapRowToVendor).ToList();
+                return Ok(vendors);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, $"Internal server error: Failed to retrieve vendors.");
+            }
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        // HTTP GET to retrieve vendor by ID
+        [HttpGet("{id}", Name = "GetVendorById")]
+        public async Task<IActionResult> GetVendorById(int id)
         {
-            var vendor = await _vendorRepo.GetVendorByIdAsync(id);
-            if (vendor == null) return NotFound();
-            return Ok(vendor);
+            try
+            {
+                if (id <= 0) // edit this later based on valid VendorID criteria
+                {
+                    return BadRequest("Invalid VendorID.");
+                }
+
+                var rows = await _repo.GetDataAsync("GetVendorById", new Dictionary<string, object?>
+                {
+                    { "@VendorID", id }
+                });
+
+                var vendor = rows.Select(MapRowToVendor).FirstOrDefault();
+                if (vendor == null)
+                {
+                    return NotFound($"Vendor with ID {id} not found.");
+                }
+
+                return Ok(vendor);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, $"Internal server error: Failed to retrieve vendor.");
+            }
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateVendor(int id, [FromBody] Vendor vendor)
-        {
-            if (id != vendor.VendorID)
-                return BadRequest("VendorID mismatch.");
-
-            var rowsAffected = await _vendorRepo.UpdateVendorAsync(vendor);
-            return rowsAffected > 0 ? NoContent() : NotFound();
-        }
-
-        [HttpPost]
+        // HTTP POST to add new vendor
+        [HttpPost("add")]
         public async Task<IActionResult> AddVendor([FromBody] Vendor vendor)
         {
-            var newId = await _vendorRepo.AddVendorAsync(vendor);
-            if (newId == 0) return BadRequest("Failed to add vendor.");
-            return CreatedAtAction(nameof(GetById), new { id = newId }, vendor);
-        }
+            try
+            {
+                if (vendor == null)
+                {
+                    return BadRequest("Vendor object is null.");
+                }
 
+                var rows = await _repo.GetDataAsync("AddVendor", new Dictionary<string, object?>
+                {
+                    { "@VendorName", vendor.VendorName },
+                    { "@VendorAddress1", vendor.VendorAddress1 },
+                    { "@VendorAddress2", vendor.VendorAddress2 },
+                    { "@VendorCity", vendor.VendorCity },
+                    { "@VendorState", vendor.VendorState },
+                    { "@VendorZipCode", vendor.VendorZipCode },
+                    { "@VendorPhone", vendor.VendorPhone },
+                    { "@VendorContactLName", vendor.VendorContactLName },
+                    { "@VendorContactFName", vendor.VendorContactFName },
+                    { "@DefaultTermsID", vendor.DefaultTermsID },
+                    { "@DefaultAccountNo", vendor.DefaultAccountNo }
+                });
+
+                return Ok(rows);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to add vendor.");
+            }
+        }
+        
+
+        // HTTP DELETE to remove vendor by ID
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteVendor(int id)
+        public async Task<IActionResult> DeleteVendorById(int id)
         {
-            var deleted = await _vendorRepo.DeleteVendorAsync(id);
-            if (!deleted) return NotFound();
-            return NoContent();
+            try
+            {
+                if (id <= 0) // edit this later based on valid VendorID criteria
+                {
+                    return BadRequest("Invalid VendorID.");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to delete vendor.");
+            }
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@VendorID", id }
+            };
+
+            var result = await _repo.GetDataAsync("DeleteVendorById", parameters);
+            return Ok(result);
         }
 
+        // HTTP PUT to update existing vendor
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateVendor([FromBody] Vendor vendor)
+        {
+            try
+            {
+                if (vendor == null) // edit this later based on valid Vendor criteria
+                {
+                    return BadRequest("Vendor object is null.");
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to update vendor.");
+            }
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@VendorID", vendor.VendorID },
+                { "@VendorName", vendor.VendorName },
+                { "@VendorAddress1", vendor.VendorAddress1 },
+                { "@VendorAddress2", vendor.VendorAddress2 },
+                { "@VendorCity", vendor.VendorCity },
+                { "@VendorState", vendor.VendorState },
+                { "@VendorZipCode", vendor.VendorZipCode },
+                { "@VendorPhone", vendor.VendorPhone },
+                { "@VendorContactLName", vendor.VendorContactLName },
+                { "@VendorContactFName", vendor.VendorContactFName },
+                { "@DefaultTermsID", vendor.DefaultTermsID },
+                { "@DefaultAccountNo", vendor.DefaultAccountNo }
+            };
+
+            var result = await _repo.GetDataAsync("UpdateVendor", parameters);
+            return Ok(result);
+        }
+
+        public static Vendor MapRowToVendor(IDictionary<string, object?> row)
+        {
+            return new Vendor
+            {
+                VendorID = Convert.ToInt32(row["VendorID"]),
+                VendorName = row["VendorName"]?.ToString() ?? string.Empty,
+                VendorAddress1 = row["VendorAddress1"]?.ToString() ?? string.Empty,
+                VendorAddress2 = row["VendorAddress2"]?.ToString(),
+                VendorCity = row["VendorCity"]?.ToString() ?? string.Empty,
+                VendorState = row["VendorState"]?.ToString() ?? string.Empty,
+                VendorZipCode = row["VendorZipCode"]?.ToString() ?? string.Empty,
+                VendorPhone = row["VendorPhone"]?.ToString() ?? string.Empty,
+                VendorContactLName = row["VendorContactLName"]?.ToString() ?? string.Empty,
+                VendorContactFName = row["VendorContactFName"]?.ToString() ?? string.Empty,
+                DefaultTermsID = Convert.ToInt32(row["DefaultTermsID"]),
+                DefaultAccountNo = Convert.ToInt32(row["DefaultAccountNo"])
+            };
+        }
     }
 }
