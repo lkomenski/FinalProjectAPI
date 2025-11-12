@@ -8,7 +8,9 @@ import CustomerDashboard from "./components/CustomerDashboard";
 import VendorDashboard from "./components/VendorDashboard";
 import AdminDashboard from "./components/EmployeeDashboard";
 import ProductDetails from "./components/ProductDetails";
+import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
+import RegisterForm from "./components/RegisterForm";
 
 function App() {
   return (
@@ -26,6 +28,9 @@ function App() {
 
         {/* Public login page */}
         <Route path="/login" element={<LoginForm />} />
+
+        {/* Customer register page */}
+        <Route path="/register" element={<RegisterForm />} />
 
         {/* Product details page */}
         <Route path="/product/:productId" element={<ProductDetails />} />

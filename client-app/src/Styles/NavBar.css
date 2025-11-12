@@ -1,31 +1,91 @@
+/* NAVBAR CONTAINER */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #1e1e1e;
-  padding: 1rem 2rem;
+
+  background: #1f2937; /* dark gray */
+  color: white;
+
+  padding: 12px 24px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
-.navbar-logo a {
-  color: #f4a261;
+/* LEFT AREA (logo/home) */
+.navbar-left .navbar-logo {
+  font-size: 1.35rem;
   font-weight: bold;
-  font-size: 1.4rem;
   text-decoration: none;
+  color: white;
 }
 
-.navbar-links {
-  list-style: none;
+.navbar-logo:hover {
+  color: #9ca3af; /* lighter gray */
+}
+
+/* RIGHT AREA (links) */
+.navbar-right {
   display: flex;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 18px;
 }
 
-.navbar-links a {
+/* STANDARD NAV LINKS */
+.nav-link {
   color: white;
   text-decoration: none;
   font-size: 1rem;
-  transition: color 0.2s ease;
 }
 
-.navbar-links a:hover {
-  color: #f4a261;
+.nav-link:hover {
+  color: #93c5fd; /* light blue */
+}
+
+/* REGISTER BUTTON */
+.nav-register {
+  background: #10b981; /* Emerald green */
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.nav-register:hover {
+  background: #059669; /* darker emerald */
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+  background: #ef4444; /* red */
+  border: none;
+  padding: 6px 12px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #dc2626; /* darker red */
+}
+
+/* CART LINK */
+.cart-link {
+  font-weight: bold;
+}
+
+.cart-link:hover {
+  color: #fbbf24; /* warm gold */
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  .navbar {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .navbar-right {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }

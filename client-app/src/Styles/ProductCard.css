@@ -45,3 +45,29 @@
 .product-card button:hover {
   background-color: #0056b3;
 }
+
+/* Make inactive products faded */
+.inactive-product {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Admin override — allow interaction even when inactive */
+.inactive-product.admin {
+  cursor: pointer;
+}
+
+/* Inactive badge */
+.inactive-label {
+  color: #b30000;
+  font-weight: bold;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Optional: Remove underline from Link */
+.no-underline {
+  text-decoration: none;
+}
+

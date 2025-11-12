@@ -1,0 +1,44 @@
+/* Modal background overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 900;
+}
+
+/* White popup box */
+.modal-content {
+  background: white;
+  padding: 24px;
+  width: 450px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  animation: fadeIn 0.25s;
+}
+
+/* Title */
+.modal-title {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Form grid layout */
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+}

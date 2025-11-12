@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
+import "../Styles/Dashboard.css";
 
 export default function VendorDashboard() {
-  const [vendor, setVendor] = useState(null);
-  const [invoiceSummary, setInvoiceSummary] = useState(null);
+  const [vendorInfo, setVendorInfo] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
@@ -24,9 +25,10 @@ export default function VendorDashboard() {
 
         const data = await fetchData(`dashboard/vendor/${vendorId}`);
 
-        setVendor(data.vendor);
-        setInvoiceSummary(data.invoiceSummary);
-        setRecentInvoices(data.recentInvoices);
+        setVendorInfo(data.vendor);
+        setSummary(data.invoiceSummary);
+        setRecentInvoices(data.recentInvoices || []);
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -41,55 +43,72 @@ export default function VendorDashboard() {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto bg-white rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Vendor Dashboard
-      </h2>
+    <div className="dashboard-container">
 
-      {/* Vendor Information */}
-      {vendor && (
-        <div className="mb-6 border p-4 rounded-md bg-gray-50">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
-            {vendor.VendorContactFName} {vendor.VendorContactLName}
-          </h3>
-          <p>Company: {vendor.VendorName}</p>
-          <p>Location: {vendor.VendorCity}, {vendor.VendorState}</p>
-          <p>Phone: {vendor.VendorPhone}</p>
-          <p>Last Updated: {vendor.DateUpdated ? 
-            new Date(vendor.DateUpdated).toLocaleString() : "N/A"}
-          </p>
+      <h2 className="dashboard-title">Vendor Dashboard</h2>
+
+      {/* -------------------- Vendor Info -------------------- */}
+      <h3 className="dashboard-subtitle">Vendor Information</h3>
+
+      <div className="dashboard-grid">
+        <div className="dashboard-card">
+          <h3>Business Name</h3>
+          <div className="value">{vendorInfo?.VendorName}</div>
         </div>
-      )}
 
-      {/* Invoice Summary */}
-      {invoiceSummary && (
-        <div className="mb-6 border p-4 rounded-md bg-gray-50">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">Invoice Summary</h3>
-          <p>Total Invoices: {invoiceSummary.TotalInvoices}</p>
-          <p>Total Invoiced: ${invoiceSummary.TotalInvoiced?.toFixed(2)}</p>
-          <p>Total Paid: ${invoiceSummary.TotalPaid?.toFixed(2)}</p>
-          <p>Outstanding: ${invoiceSummary.TotalOutstanding?.toFixed(2)}</p>
+        <div className="dashboard-card">
+          <h3>Location</h3>
+          <div className="value">{vendorInfo?.VendorCity}, {vendorInfo?.VendorState}</div>
         </div>
-      )}
 
-      {/* Recent Invoices */}
-      <h3 className="text-xl font-bold text-gray-800 mb-3">Recent Invoices</h3>
+        <div className="dashboard-card">
+          <h3>Phone</h3>
+          <div className="value">{vendorInfo?.VendorPhone}</div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Main Contact</h3>
+          <div className="value">
+            {vendorInfo?.VendorContactFName} {vendorInfo?.VendorContactLName}
+          </div>
+        </div>
+      </div>
+
+      {/* -------------------- Invoice Summary -------------------- */}
+      <h3 className="dashboard-subtitle">Invoice Summary</h3>
+
+      <div className="dashboard-grid">
+        <div className="dashboard-card">
+          <h3>Total Invoices</h3>
+          <div className="value">{summary?.TotalInvoices}</div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Total Outstanding</h3>
+          <div className="value">${summary?.TotalOutstanding?.toFixed(2)}</div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Total Paid</h3>
+          <div className="value">${summary?.TotalPaid?.toFixed(2)}</div>
+        </div>
+      </div>
+
+      {/* -------------------- Recent Invoices -------------------- */}
+      <h3 className="dashboard-subtitle">Recent Invoices</h3>
+
       {recentInvoices.length === 0 ? (
-        <p className="text-gray-500">No invoices available.</p>
+        <p>No recent invoices found.</p>
       ) : (
-        <div className="space-y-4">
-          {recentInvoices.map((inv, idx) => (
-            <div key={idx} className="border p-4 rounded-md">
-              <p className="font-semibold">
-                Invoice #{inv.InvoiceNumber}
-              </p>
-              <p>Date: {new Date(inv.InvoiceDate).toLocaleDateString()}</p>
-              <p>Total: ${inv.InvoiceTotal?.toFixed(2)}</p>
-              <p>Payment Total: ${inv.PaymentTotal?.toFixed(2)}</p>
-              <p>Credit Total: ${inv.CreditTotal?.toFixed(2)}</p>
+        recentInvoices.map((inv, idx) => (
+          <div key={idx} className="dashboard-list-item">
+            <div>
+              <strong>Invoice #{inv.InvoiceNumber}</strong><br />
+              Date: {new Date(inv.InvoiceDate).toLocaleDateString()}<br />
+              Total: ${inv.InvoiceTotal?.toFixed(2)}
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
     </div>
   );

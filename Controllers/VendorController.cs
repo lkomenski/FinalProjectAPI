@@ -155,6 +155,24 @@ namespace FinalProjectAPI.Controllers
             return Ok(result);
         }
 
+        // HTTP PUT to deactivate vendor
+        [HttpPut("deactivate/{vendorId}")]
+        public async Task<IActionResult> DeactivateVendor(int vendorId)
+        {
+            var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
+            var results = await _repo.GetDataAsync("spDeactivateVendor", parameters);
+            return Ok(results.FirstOrDefault());
+        }
+        
+        // HTTP PUT to activate vendor
+        [HttpPut("activate/{vendorId}")]
+        public async Task<IActionResult> ActivateVendor(int vendorId)
+        {
+            var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
+            var results = await _repo.GetDataAsync("spActivateVendor", parameters);
+            return Ok(results.FirstOrDefault());
+        }
+
         public static Vendor MapRowToVendor(IDictionary<string, object?> row)
         {
             return new Vendor

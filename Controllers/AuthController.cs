@@ -121,5 +121,47 @@ namespace FinalProjectAPI.Controllers
 
             return Ok(response);
         }
+
+        [HttpPost("register-customer")]
+        public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequest request)
+        {
+            if (string.IsNullOrEmpty(request.EmailAddress) ||
+                string.IsNullOrEmpty(request.Password) ||
+                string.IsNullOrEmpty(request.FirstName) ||
+                string.IsNullOrEmpty(request.LastName))
+            {
+                return BadRequest("All fields are required.");
+            }
+
+            var repo = _factory.Create("MyGuitarShop");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", request.EmailAddress },
+                { "@Password", request.Password },
+                { "@FirstName", request.FirstName },
+                { "@LastName", request.LastName }
+            };
+
+            var results = await repo.GetDataAsync("spCustomerRegister", parameters);
+            var row = results.FirstOrDefault();
+
+            if (row == null) return StatusCode(500, "Registration failed.");
+
+            int customerId = Convert.ToInt32(row["CustomerID"]);
+            if (customerId == -1)
+                return BadRequest("An account with this email already exists.");
+
+            return Ok(new
+            {
+                UserID = customerId,
+                EmailAddress = row["EmailAddress"]?.ToString(),
+                FirstName = row["FirstName"]?.ToString(),
+                LastName = row["LastName"]?.ToString(),
+                Role = "customer",
+                Dashboard = "customer"
+            });
+        }
+
     }
 }

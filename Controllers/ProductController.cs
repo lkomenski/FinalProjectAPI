@@ -120,7 +120,32 @@ namespace FinalProjectAPI.Controllers
             await _repo.GetDataAsync("DeleteProduct", parameters);
             return Ok($"Product {productId} deleted successfully.");
         }
-        
+
+        // HTTP PUT to activate product by ID
+        [HttpPut("activate/{productId}")]
+        public async Task<IActionResult> ActivateProduct(int productId)
+        {
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@ProductID", productId }
+            };
+
+            var results = await _repo.GetDataAsync("ActivateProduct", parameters);
+            return Ok(results.FirstOrDefault());
+        }
+
+        // HTTP PUT to deactivate product by ID
+        [HttpPut("deactivate/{productId}")]
+        public async Task<IActionResult> DeactivateProduct(int productId)
+        {
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@ProductID", productId }
+            };
+
+            var results = await _repo.GetDataAsync("DeactivateProduct", parameters);
+            return Ok(results.FirstOrDefault());
+        }
         // Helper method to map data row to Product object
         private static Product MapRowToProduct(IDictionary<string, object?> row)
         {
