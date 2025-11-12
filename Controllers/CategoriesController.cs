@@ -19,7 +19,7 @@ namespace FinalProjectAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var rows = await _repo.GetDataAsync("GetAllCategories");
+            var rows = await _repo.GetDataAsync("GetCategories");
 
             var categories = rows
                 .Select(row => new Category
