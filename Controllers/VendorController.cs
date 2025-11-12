@@ -160,7 +160,7 @@ namespace FinalProjectAPI.Controllers
         public async Task<IActionResult> DeactivateVendor(int vendorId)
         {
             var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
-            var results = await _repo.GetDataAsync("spDeactivateVendor", parameters);
+            var results = await _repo.GetDataAsync("DeactivateVendor", parameters);
             return Ok(results.FirstOrDefault());
         }
         
@@ -169,7 +169,7 @@ namespace FinalProjectAPI.Controllers
         public async Task<IActionResult> ActivateVendor(int vendorId)
         {
             var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
-            var results = await _repo.GetDataAsync("spActivateVendor", parameters);
+            var results = await _repo.GetDataAsync("ActivateVendor", parameters);
             return Ok(results.FirstOrDefault());
         }
 
