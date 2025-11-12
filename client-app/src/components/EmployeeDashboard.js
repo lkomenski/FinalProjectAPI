@@ -53,7 +53,7 @@ export default function EmployeeDashboard() {
         return;
       }
 
-      const data = await fetchData("dashboard/employee");
+      const data = await fetchData("dashboard/admin");
       setStats(data);
     } catch (err) {
       setError(err.message);
@@ -64,7 +64,7 @@ export default function EmployeeDashboard() {
 
   async function loadVendors() {
     try {
-      const res = await fetch("http://localhost:5077/api/vendor/all");
+      const res = await fetch("http://localhost:5077/api/vendors");
       const data = await res.json();
       setVendors(data);
       setFilteredVendors(data);
@@ -75,7 +75,7 @@ export default function EmployeeDashboard() {
 
   async function loadProducts() {
     try {
-      const res = await fetch("http://localhost:5077/api/product/all");
+      const res = await fetch("http://localhost:5077/api/product");
       const data = await res.json();
       setProducts(data);
       setFilteredProducts(data);

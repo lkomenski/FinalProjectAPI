@@ -117,7 +117,7 @@ namespace FinalProjectAPI.Controllers
         [HttpGet("admin")]
         public async Task<IActionResult> GetAdminDashboard()
         {
-            var results = await _repo.GetDataAsync("GetEmployeeSalesDashboard");
+            var results = await _repo.GetDataAsync("GetEmployeeDashboard");
 
             if (!results.Any())
                 return NotFound("No admin data available.");
