@@ -18,25 +18,24 @@ namespace FinalProjectAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            if (string.IsNullOrEmpty(request.EmailAddress) || string.IsNullOrEmpty(request.Password))
                 return BadRequest("Email and password are required.");
 
-            var role = request.Role.ToLower();
+            if (string.IsNullOrEmpty(request.Role))
+                return BadRequest("Role is required.");
+
+            string role = request.Role.ToLower();
 
             try
             {
-                switch (role)
-                {
-                    case "customer":
-                        return await LoginCustomerAsync(request);
-                    case "vendor":
-                        return await LoginVendorAsync(request);
-                    case "admin":
-                    case "employee":
-                        return await LoginAdminAsync(request);
-                    default:
-                        return BadRequest("Invalid role.");
-                }
+                if (role == "customer")
+                    return await LoginCustomerAsync(request);
+                else if (role == "vendor")
+                    return await LoginVendorAsync(request);
+                else if (role == "admin" || role == "employee")
+                    return await LoginAdminAsync(request);
+                else
+                    return BadRequest("Invalid role.");
             }
             catch (Exception ex)
             {
@@ -50,11 +49,11 @@ namespace FinalProjectAPI.Controllers
 
             var parameters = new Dictionary<string, object?>
             {
-                { "@EmailAddress", request.Email },
+                { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }
             };
 
-            var results = await repo.GetDataAsync("spCustomerLogin", parameters);
+            var results = await repo.GetDataAsync("CustomerLogin", parameters);
             var row = results.FirstOrDefault();
             if (row == null) return Unauthorized("Invalid customer credentials.");
 
@@ -64,7 +63,7 @@ namespace FinalProjectAPI.Controllers
                 Role = "customer",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
-                Email = row["EmailAddress"]?.ToString() ?? "",
+                EmailAddress = row["EmailAddress"]?.ToString() ?? "",
                 Dashboard = "customer"
             };
 
@@ -77,11 +76,11 @@ namespace FinalProjectAPI.Controllers
 
             var parameters = new Dictionary<string, object?>
             {
-                { "@EmailAddress", request.Email },
+                { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }
             };
 
-            var results = await repo.GetDataAsync("spVendorLogin", parameters);
+            var results = await repo.GetDataAsync("VendorLogin", parameters);
             var row = results.FirstOrDefault();
             if (row == null) return Unauthorized("Invalid vendor credentials.");
 
@@ -103,11 +102,11 @@ namespace FinalProjectAPI.Controllers
 
             var parameters = new Dictionary<string, object?>
             {
-                { "@EmailAddress", request.Email },
+                { "@EmailAddress", request.EmailAddress },
                 { "@Password", request.Password }
             };
 
-            var results = await repo.GetDataAsync("spAdminLogin", parameters);
+            var results = await repo.GetDataAsync("EmployeeLogin", parameters);
             var row = results.FirstOrDefault();
             if (row == null) return Unauthorized("Invalid admin credentials.");
 

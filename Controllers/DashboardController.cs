@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using FinalProjectAPI.Models;
-using FinalProjectAPI.Infrastructure.Interfaces.Repositories;
+using FinalProjectAPI.Infrastructure.Interfaces;
 
 namespace FinalProjectAPI.Controllers
 {
