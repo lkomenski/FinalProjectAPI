@@ -1,14 +1,14 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginForm from "./LoginForm";
-import ProtectedRoute from "./ProtectedRoute";
-import CustomerDashboard from "./CustomerDashboard";
-import VendorDashboard from "./VendorDashboard";
-import AdminDashboard from "./AdminDashboard";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import LoginForm from "./components/LoginForm";
+import ProtectedRoute from "./components/ProtectedRoute";
+import CustomerDashboard from "./components/CustomerDashboard";
+import VendorDashboard from "./components/VendorDashboard";
+import AdminDashboard from "./components/EmployeeDashboard";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginForm />} />
 
@@ -42,7 +42,7 @@ function App() {
         {/* Default route */}
         <Route path="*" element={<LoginForm />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 

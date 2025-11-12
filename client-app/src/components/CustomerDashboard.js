@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "../../api/api";
-import LoadingSpinner from "../Shared/LoadingSpinner";
-import ErrorMessage from "../Shared/ErrorMessage";
+import { fetchData } from "./Api";
+import LoadingSpinner from "./shared/LoadingSpinner";
+import ErrorMessage from "./shared/ErrorMessage";
 
 export default function CustomerDashboard({ customerId }) {
   const [orders, setOrders] = useState([]);
