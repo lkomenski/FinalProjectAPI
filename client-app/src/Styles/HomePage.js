@@ -4,22 +4,27 @@ import "./HomePage.css";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [featured, setFeatured] = useState([]);
+  const [bestSellers, setBestSellers] = useState([]);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
 
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // NEW — admin-only toggle
-  const [showInactive, setShowInactive] = useState(false);
+  // Load Recently Viewed Items
+  useEffect(() => {
+    const stored = localStorage.getItem("recentlyViewed");
+    if (stored) setRecentlyViewed(JSON.parse(stored));
+  }, []);
 
-  // detect logged-in user & role
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const isAdmin = user?.role === "admin";
-
+  // -----------------------------
+  // LOAD PRODUCTS + CATEGORIES
+  // -----------------------------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,43 +37,42 @@ function HomePage() {
         const productData = await productRes.json();
         const categoryData = await categoryRes.json();
 
-        // Customers ONLY see active products
-        if (!isAdmin) {
-          const activeOnly = productData.filter((p) => p.isActive);
-          setProducts(activeOnly);
-          setFilteredProducts(activeOnly);
-        } else {
-          // Admin sees everything (toggle applied in separate effect)
-          setProducts(productData);
-          setFilteredProducts(productData);
-        }
-
+        setProducts(productData);
+        setFilteredProducts(productData);
         setCategories(categoryData);
+
+        // FEATURED = first 4 active items
+        setFeatured(productData.filter(p => p.isActive).slice(0, 4));
+
+        // BEST SELLERS (sorted by quantity sold)
+        setBestSellers(
+          [...productData]
+            .filter(p => p.totalSold !== undefined)
+            .sort((a, b) => b.totalSold - a.totalSold)
+            .slice(0, 4)
+        );
+
       } catch (err) {
         setError("Error loading data. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchData();
-  }, [isAdmin]);
+  }, []);
 
-  // Apply search, category filter, and active toggle (admin only)
+  // -----------------------------
+  // SEARCH + CATEGORY FILTERING
+  // -----------------------------
   useEffect(() => {
     let filtered = [...products];
 
-    // Admin toggle: hide inactive if switch OFF
-    if (isAdmin && !showInactive) {
-      filtered = filtered.filter((p) => p.isActive);
-    }
-
-    // Search filter
-    if (searchTerm) {
+    if (searchTerm.trim() !== "") {
       filtered = filtered.filter((p) =>
         p.productName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Category filter
     if (selectedCategory) {
       filtered = filtered.filter(
         (p) => p.categoryID === parseInt(selectedCategory)
@@ -76,55 +80,141 @@ function HomePage() {
     }
 
     setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory, products, showInactive, isAdmin]);
+  }, [searchTerm, selectedCategory, products]);
+
+
+  if (loading) {
+    return <div className="homepage-loading">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="homepage-error">{error}</div>;
+  }
 
   return (
-    <div className="homepage">
-      <h1>Shop Our Guitars 🎶</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      {/* ADMIN-ONLY TOGGLE */}
-      {isAdmin && (
-        <div className="admin-toggle">
-          <label>
-            <input
-              type="checkbox"
-              checked={showInactive}
-              onChange={() => setShowInactive(!showInactive)}
-            />
-            <span style={{ marginLeft: "8px" }}>
-              Show inactive products (admin only)
-            </span>
-          </label>
+    <div className="homepage-container">
+      
+      {/* -------------------------------- */}
+      {/* HERO CAROUSEL                    */}
+      {/* -------------------------------- */}
+      <div className="carousel-container">
+        <div className="carousel-slide">
+          <img src="/hero1.jpg" alt="Hero 1" />
         </div>
-      )}
+        <div className="carousel-slide">
+          <img src="/hero2.jpg" alt="Hero 2" />
+        </div>
+        <div className="carousel-slide">
+          <img src="/hero3.jpg" alt="Hero 3" />
+        </div>
 
-      <div className="filter-bar">
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="carousel-overlay">
+          <h1>Find Your Sound</h1>
+          <p>Premium guitars, accessories & more.</p>
 
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          {categories.map((c) => (
-            <option key={c.categoryID} value={c.categoryID}>
-              {c.categoryName}
-            </option>
-          ))}
-        </select>
+          <input
+            className="hero-search"
+            type="text"
+            placeholder="Search guitars, amps, pedals…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
+      {/* -------------------------------- */}
+      {/* CATEGORY STRIP                   */}
+      {/* -------------------------------- */}
+      <div className="category-strip">
+        <button
+          className={`category-btn ${selectedCategory === "" ? "active" : ""}`}
+          onClick={() => setSelectedCategory("")}
+        >
+          All
+        </button>
+
+        {categories.map((c) => (
+          <button
+            key={c.categoryID}
+            className={`category-btn ${
+              selectedCategory === String(c.categoryID) ? "active" : ""
+            }`}
+            onClick={() => setSelectedCategory(String(c.categoryID))}
+          >
+            {c.categoryName}
+          </button>
+        ))}
+      </div>
+
+      {/* -------------------------------- */}
+      {/* FEATURED CATEGORIES              */}
+      {/* -------------------------------- */}
+      <h2 className="section-title">Shop by Category</h2>
+      <div className="featured-category-grid">
+        {categories.map((c) => (
+          <div
+            key={c.categoryID}
+            className="featured-category-card"
+            onClick={() => setSelectedCategory(String(c.categoryID))}
+          >
+            <div className="featured-category-img">
+              <img src={`/category-icons/${c.categoryID}.png`} alt="" />
+            </div>
+            <p>{c.categoryName}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* -------------------------------- */}
+      {/* FEATURED PRODUCTS                */}
+      {/* -------------------------------- */}
+      <h2 className="section-title">Featured Products ⭐</h2>
+
       <div className="product-grid">
-        {filteredProducts.map((p) => (
+        {featured.map((p) => (
           <ProductCard key={p.productID} product={p} />
         ))}
       </div>
+
+      {/* -------------------------------- */}
+      {/* BEST SELLERS                     */}
+      {/* -------------------------------- */}
+      <h2 className="section-title">Best Sellers 🔥</h2>
+
+      <div className="product-grid">
+        {bestSellers.map((p) => (
+          <ProductCard key={p.productID} product={p} />
+        ))}
+      </div>
+
+      {/* -------------------------------- */}
+      {/* RECENTLY VIEWED                  */}
+      {/* -------------------------------- */}
+      {recentlyViewed.length > 0 && (
+        <>
+          <h2 className="section-title">Recently Viewed 👀</h2>
+          <div className="product-grid">
+            {recentlyViewed.map((p) => (
+              <ProductCard key={p.productID} product={p} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* -------------------------------- */}
+      {/* ALL PRODUCTS                     */}
+      {/* -------------------------------- */}
+      <h2 className="section-title">Browse All Products</h2>
+
+      {filteredProducts.length === 0 ? (
+        <p className="no-results">No products match your search.</p>
+      ) : (
+        <div className="product-grid">
+          {filteredProducts.map((p) => (
+            <ProductCard key={p.productID} product={p} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
