@@ -31,8 +31,8 @@ export default function VendorForm({ vendor, onClose }) {
     e.preventDefault();
 
     const endpoint = isEditing
-      ? "https://localhost:5001/api/vendor/update"
-      : "https://localhost:5001/api/vendor/add";
+      ? "https://localhost:5077/api/vendor/update"
+      : "https://localhost:5077/api/vendor/add";
 
     await fetch(endpoint, {
       method: "POST",

@@ -28,8 +28,8 @@ function HomePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productRes = await fetch("https://localhost:5001/api/products");
-        const categoryRes = await fetch("https://localhost:5001/api/categories");
+        const productRes = await fetch("https://localhost:5077/api/products");
+        const categoryRes = await fetch("https://localhost:5077/api/categories");
 
         if (!productRes.ok || !categoryRes.ok)
           throw new Error("Failed to load data");

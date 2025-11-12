@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../Styles/Auth.css";   // ⭐ Make sure this exists
+import "../Styles/Auth.css";
 
 export default function LoginForm() {
   const [emailAddress, setEmailAddress] = useState("");
@@ -38,27 +38,30 @@ export default function LoginForm() {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch("https://localhost:5001/api/auth/login", {
+      const response = await fetch("https://localhost:5077/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emailAddress, password, role }),
       });
 
+      // Show REAL backend messages
       if (!response.ok) {
-        setError("Invalid email, password, or role.");
+        const msg = await response.text();
+        setError(msg || "Login failed.");
         setSuccess("");
         return;
       }
 
       const data = await response.json();
 
-      // Save user info
+      // Save user info (fixed)
       localStorage.setItem(
         "user",
         JSON.stringify({
           id: data.userID,
           role: data.role,
           firstName: data.firstName,
+          lastName: data.lastName,      // ⭐ ADDED
           emailAddress: data.emailAddress
         })
       );
@@ -83,7 +86,6 @@ export default function LoginForm() {
 
   return (
     <div className="auth-container">
-
       <h2>Login</h2>
 
       {error && <p className="auth-message error">{error}</p>}

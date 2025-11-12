@@ -53,7 +53,7 @@ export default function RegisterForm() {
     if (!validate()) return;
 
     try {
-      const res = await fetch("https://localhost:5001/api/auth/register-customer", {
+      const res = await fetch("https://localhost:5077/api/auth/register-customer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
