@@ -25,8 +25,8 @@ export default function ProductForm({ product, onClose }) {
     e.preventDefault();
 
     const endpoint = isEditing
-      ? "https://localhost:5077/api/product/update"
-      : "https://localhost:5077/api/product/add";
+      ? "http://localhost:5077/api/product/update"
+      : "http://localhost:5077/api/product/add";
 
     await fetch(endpoint, {
       method: "POST",

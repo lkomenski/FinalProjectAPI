@@ -1,14 +1,17 @@
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "http://localhost:5077/api";
 
 export async function fetchData(endpoint) {
   try {
-    const response = await fetch(`${API_BASE}/${endpoint}`);
+    const response = await fetch(`http://localhost:5077/api/${endpoint}`);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      throw new Error(`API responded with status ${response.status}`);
     }
+
     return await response.json();
-  } catch (error) {
-    console.error("API Error:", error);
-    throw error;
+  } catch (err) {
+    console.error("API Error:", err);
+    throw err;
   }
 }
+

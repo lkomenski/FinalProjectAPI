@@ -27,29 +27,49 @@ namespace FinalProjectAPI.Controllers
 
             var results = await _repo.GetDataAsync("GetCustomerDashboard", parameters);
 
-            if (!results.Any())
-                return NotFound("No customer data found.");
+            if (results.Count() == 0)
+                return NotFound("Customer not found.");
 
-            var customer = new CustomerDashboardModel
+            // First row = customer info
+            var header = results.First();
+
+            var dashboard = new CustomerDashboard
             {
                 CustomerID = customerId,
-                FirstName = results.First()["FirstName"]?.ToString(),
-                LastName = results.First()["LastName"]?.ToString(),
-                EmailAddress = results.First()["EmailAddress"]?.ToString(),
-                Orders = results
-                    .Select(row => new CustomerOrderSummary
+                FirstName = header["FirstName"]?.ToString(),
+                LastName = header["LastName"]?.ToString(),
+                EmailAddress = header["EmailAddress"]?.ToString(),
+                ShippingCity = header["ShippingCity"]?.ToString(),
+                ShippingState = header["ShippingState"]?.ToString(),
+                ShippingZip = header["ShippingZip"]?.ToString(),
+                Orders = new List<CustomerOrderSummary>()
+            };
+
+            // Order rows = everything AFTER the first row
+            foreach (var row in results.Skip(1))
+            {
+                // Protect against no orders
+                if (row.ContainsKey("OrderID"))
+                {
+                    var order = new CustomerOrderSummary
                     {
                         OrderID = Convert.ToInt32(row["OrderID"]),
                         OrderDate = Convert.ToDateTime(row["OrderDate"]),
-                        ShipAmount = Convert.ToDecimal(row["ShipAmount"]),
+                        Subtotal = Convert.ToDecimal(row["Subtotal"]),
+                        TotalDiscount = Convert.ToDecimal(row["TotalDiscount"]),
                         TaxAmount = Convert.ToDecimal(row["TaxAmount"]),
-                        ShipDate = row["ShipDate"] == DBNull.Value ? null : Convert.ToDateTime(row["ShipDate"]),
-                        OrderTotal = Convert.ToDecimal(row["OrderTotal"])
-                    }).ToList()
-            };
+                        ShipAmount = Convert.ToDecimal(row["ShipAmount"]),
+                        OrderTotal = Convert.ToDecimal(row["TotalAmount"]),
+                        ItemsCount = Convert.ToInt32(row["ItemsCount"])
+                    };
 
-            return Ok(customer);
+                    dashboard.Orders.Add(order);
+                }
+            }
+
+            return Ok(dashboard);
         }
+
 
         // GET api/dashboard/vendor/{vendorId}
         [HttpGet("vendor/{vendorId}")]

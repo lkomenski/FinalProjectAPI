@@ -94,7 +94,7 @@ export default function CustomerProfile() {
     };
 
     try {
-      const res = await fetch("https://localhost:5077/api/customer/update-profile", {
+      const res = await fetch("http://localhost:5077/api/customer/update-profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)

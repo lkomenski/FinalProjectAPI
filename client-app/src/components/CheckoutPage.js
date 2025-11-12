@@ -34,7 +34,7 @@ export default function CheckoutPage() {
     async function loadCustomer() {
       try {
         const res = await fetch(
-          `https://localhost:5077/api/customer/${user.id}`
+          `http://localhost:5077/api/customer/${user.id}`
         );
         const data = await res.json();
 
@@ -118,7 +118,7 @@ export default function CheckoutPage() {
     };
 
     try {
-      const res = await fetch("https://localhost:5077/api/orders/create", {
+      const res = await fetch("http://localhost:5077/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
