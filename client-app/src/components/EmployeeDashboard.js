@@ -318,8 +318,8 @@ export default function EmployeeDashboard() {
         <div key={p.ProductID} className="dashboard-list-item">
           <div>
             <strong>{p.ProductName}</strong><br />
-            Price: ${p.ListPrice.toFixed(2)}<br />
-            Discount: {p.DiscountPercent}%<br />
+              Price: ${ (p.ListPrice ?? 0).toFixed(2) }
+              Discount: { p.DiscountPercent ?? 0 }%
             <span className={p.IsActive ? "text-green-700" : "text-red-600"}>
               {p.IsActive ? "Active" : "Inactive"}
             </span>

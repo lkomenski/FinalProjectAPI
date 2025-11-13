@@ -187,8 +187,12 @@ namespace FinalProjectAPI.Controllers
                 ProductCode = row["ProductCode"]?.ToString() ?? "",
                 ProductName = row["ProductName"]?.ToString() ?? "",
                 Description = row["Description"]?.ToString() ?? "",
-                ListPrice = Convert.ToDecimal(row["ListPrice"]),
-                DiscountPercent = Convert.ToDecimal(row["DiscountPercent"]),
+                ListPrice = row["ListPrice"] == DBNull.Value
+                    ? 0
+                    : Convert.ToDecimal(row["ListPrice"]),
+                DiscountPercent = row["DiscountPercent"] == DBNull.Value
+                    ? 0
+                    : Convert.ToDecimal(row["DiscountPercent"]),
                 DateUpdated = row["DateUpdated"] == DBNull.Value 
                     ? null 
                     : Convert.ToDateTime(row["DateUpdated"])
