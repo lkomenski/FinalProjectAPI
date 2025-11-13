@@ -23,11 +23,11 @@ export default function EmployeeDashboard() {
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [isAddingVendor, setIsAddingVendor] = useState(false);
-  const [search, setSearch] = useState("");
-  const [sortField, setSortField] = useState("");
-  const [filter, setFilter] = useState("");
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [vendorSort, setVendorSort] = useState("");
+  const [vendorFilter, setVendorFilter] = useState("");
 
-  // UI state
+  // ---------- UI ----------
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,12 +35,11 @@ export default function EmployeeDashboard() {
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  // --------------------------------------
-  // LOAD DASHBOARD + VENDORS + PRODUCTS
-  // --------------------------------------
+  // ---------------------------------------------------------
+  // LOAD DASHBOARD (summary + vendors + products)
+  // ---------------------------------------------------------
   useEffect(() => {
-    Promise.all([loadDashboard(), loadVendors(), loadProducts()])
-      .finally(() => setLoading(false));
+    loadDashboard();
   }, []);
 
   async function loadDashboard() {
@@ -52,194 +51,157 @@ export default function EmployeeDashboard() {
       }
 
       const data = await fetchData("dashboard/admin");
-      setStats(data);
+
+      setStats({
+        totalCustomers: data.totalCustomers,
+        totalVendors: data.totalVendors,
+        activeVendors: data.activeVendors,
+        totalProducts: data.totalProducts,
+        totalSales: data.totalSales,
+        totalOutstandingInvoices: data.totalOutstandingInvoices,
+      });
+
+      setVendors(data.vendors);
+      setFilteredVendors(data.vendors);
+
+      setProducts(data.products);
+      setFilteredProducts(data.products);
+
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to load dashboard.");
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadVendors() {
-    try {
-      const res = await fetch("http://localhost:5077/api/vendors");
-      const data = await res.json();
-      setVendors(data);
-      setFilteredVendors(data);
-    } catch (err) {
-      setError("Failed to load vendors.");
-    }
-  }
-
-  async function loadProducts() {
-    try {
-      const res = await fetch("http://localhost:5077/api/products");
-      const data = await res.json();
-      setProducts(data);
-      setFilteredProducts(data);
-    } catch (err) {
-      setError("Failed to load products.");
-    }
-  }
-
-  // -------------------------------
+  // ---------------------------------------------------------
   // VENDOR FILTERING
-  // -------------------------------
+  // ---------------------------------------------------------
   useEffect(() => {
-    let result = [...vendors];
+    let list = [...vendors];
 
-    // Active / inactive filter
-    if (filter === "active") {
-      result = result.filter((v) => v.IsActive);
-    } else if (filter === "inactive") {
-      result = result.filter((v) => !v.IsActive);
-    }
+    if (vendorFilter === "active") list = list.filter(v => v.IsActive);
+    if (vendorFilter === "inactive") list = list.filter(v => !v.IsActive);
 
-    // Search
-    if (search.trim() !== "") {
-      const s = search.toLowerCase();
-      result = result.filter(
-        (v) =>
-          v.VendorName.toLowerCase().includes(s) ||
-          v.VendorCity.toLowerCase().includes(s) ||
-          v.VendorContactFName.toLowerCase().includes(s) ||
-          v.VendorContactLName.toLowerCase().includes(s)
+    if (vendorSearch.trim() !== "") {
+      const s = vendorSearch.toLowerCase();
+      list = list.filter(v =>
+        v.VendorName.toLowerCase().includes(s) ||
+        v.VendorCity.toLowerCase().includes(s) ||
+        v.VendorContactFName.toLowerCase().includes(s) ||
+        v.VendorContactLName.toLowerCase().includes(s)
       );
     }
 
-    // Sort
-    if (sortField) {
-      result.sort((a, b) => (a[sortField] > b[sortField] ? 1 : -1));
+    if (vendorSort) {
+      list.sort((a, b) => (a[vendorSort] > b[vendorSort] ? 1 : -1));
     }
 
-    setFilteredVendors(result);
-  }, [vendors, search, filter, sortField]);
+    setFilteredVendors(list);
+  }, [vendors, vendorSearch, vendorSort, vendorFilter]);
 
-  // -------------------------------
+  // ---------------------------------------------------------
   // PRODUCT FILTERING
-  // -------------------------------
+  // ---------------------------------------------------------
   useEffect(() => {
-    let result = [...products];
+    let list = [...products];
 
-    // Filter
-    if (productFilter === "active") {
-      result = result.filter((p) => p.IsActive);
-    } else if (productFilter === "inactive") {
-      result = result.filter((p) => !p.IsActive);
-    }
+    if (productFilter === "active") list = list.filter(p => p.IsActive);
+    if (productFilter === "inactive") list = list.filter(p => !p.IsActive);
 
-    // Search
     if (productSearch.trim() !== "") {
       const s = productSearch.toLowerCase();
-      result = result.filter((p) =>
-        p.ProductName.toLowerCase().includes(s)
-      );
+      list = list.filter(p => p.ProductName.toLowerCase().includes(s));
     }
 
-    // Sort
     if (productSort) {
-      result.sort((a, b) => (a[productSort] > b[productSort] ? 1 : -1));
+      list.sort((a, b) => (a[productSort] > b[productSort] ? 1 : -1));
     }
 
-    setFilteredProducts(result);
-  }, [productSearch, productSort, productFilter, products]);
+    setFilteredProducts(list);
+  }, [products, productSearch, productSort, productFilter]);
 
-  // -------------------------------
-  // Vendor Activate/Deactivate
-  // -------------------------------
+  // ---------------------------------------------------------
+  // Vendor Activation / Deactivation
+  // ---------------------------------------------------------
   async function toggleVendorStatus(id, activate) {
     const endpoint = activate
       ? `http://localhost:5077/api/vendors/activate/${id}`
       : `http://localhost:5077/api/vendors/deactivate/${id}`;
 
     await fetch(endpoint, { method: "PUT" });
-    loadVendors();
+    loadDashboard();
   }
 
-  // -------------------------------
-  // Product Activate/Deactivate
-  // -------------------------------
+  // ---------------------------------------------------------
+  // Product Activation / Deactivation
+  // ---------------------------------------------------------
   async function activateProduct(id) {
-    await fetch(
-      `http://localhost:5077/api/products/activate/${id}`,
-      { method: "PUT" }
-    );
-    loadProducts();
+    await fetch(`http://localhost:5077/api/products/activate/${id}`, { method: "PUT" });
+    loadDashboard();
   }
 
   async function deactivateProduct(id) {
-    await fetch(
-      `http://localhost:5077/api/products/deactivate/${id}`,
-      { method: "PUT" }
-    );
-    loadProducts();
+    await fetch(`http://localhost:5077/api/products/deactivate/${id}`, { method: "PUT" });
+    loadDashboard();
   }
 
-  // -------------------------------
-  // RENDER UI
-  // -------------------------------
+  // ---------------------------------------------------------
+  // RENDER
+  // ---------------------------------------------------------
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
   return (
     <div className="dashboard-container">
-      {/* TITLE */}
       <h2 className="dashboard-title">Admin Dashboard</h2>
 
-      {/* ------- STATS SECTION ------- */}
+      {/* ---------- SYSTEM METRICS ---------- */}
       <h3 className="dashboard-subtitle">System Metrics</h3>
 
       <div className="dashboard-grid">
         <div className="dashboard-card">
           <h3>Total Customers</h3>
-          <div className="value">{stats?.TotalCustomers ?? 0}</div>
+          <div className="value">{stats.totalCustomers}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Vendors</h3>
-          <div className="value">{stats?.TotalVendors ?? 0}</div>
+          <div className="value">{stats.totalVendors}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Active Vendors</h3>
-          <div className="value">{stats?.ActiveVendors ?? 0}</div>
+          <div className="value">{stats.activeVendors}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Products</h3>
-          <div className="value">{stats?.TotalProducts ?? 0}</div>
+          <div className="value">{stats.totalProducts}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Sales</h3>
-          <div className="value">
-            ${stats?.TotalSales?.toFixed(2) ?? "0.00"}
-          </div>
+          <div className="value">${stats.totalSales.toFixed(2)}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Outstanding Invoices</h3>
-          <div className="value">
-            ${stats?.TotalOutstandingInvoices?.toFixed(2) ?? "0.00"}
-          </div>
+          <div className="value">${stats.totalOutstandingInvoices.toFixed(2)}</div>
         </div>
       </div>
 
-      {/* ------- VENDOR MANAGEMENT ------- */}
+      {/* ---------- VENDOR MANAGEMENT ---------- */}
       <h3 className="dashboard-subtitle">Vendor Management</h3>
 
-      {/* Search + Filter + Sort Controls */}
       <div className="filters-row">
         <input
           placeholder="Search vendors..."
           className="dashboard-input"
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => setVendorSearch(e.target.value)}
         />
 
-        <select
-          onChange={(e) => setSortField(e.target.value)}
-          className="dashboard-select"
-        >
+        <select className="dashboard-select" onChange={(e) => setVendorSort(e.target.value)}>
           <option value="">Sort By</option>
           <option value="VendorName">Name</option>
           <option value="VendorCity">City</option>
@@ -247,10 +209,7 @@ export default function EmployeeDashboard() {
           <option value="IsActive">Status</option>
         </select>
 
-        <select
-          onChange={(e) => setFilter(e.target.value)}
-          className="dashboard-select"
-        >
+        <select className="dashboard-select" onChange={(e) => setVendorFilter(e.target.value)}>
           <option value="">Show All</option>
           <option value="active">Active Only</option>
           <option value="inactive">Inactive Only</option>
@@ -267,21 +226,14 @@ export default function EmployeeDashboard() {
         </button>
       </div>
 
-      {/* Vendor List */}
+      {/* VENDOR LIST */}
       {filteredVendors.map((v) => (
-        <div
-          key={v.VendorID}
-          className="dashboard-list-item"
-        >
+        <div key={v.VendorID} className="dashboard-list-item">
           <div>
-            <p><strong>{v.VendorName}</strong></p>
+            <strong>{v.VendorName}</strong>
             <p>{v.VendorCity}, {v.VendorState}</p>
             <p>Contact: {v.VendorContactFName} {v.VendorContactLName}</p>
-            <span
-              className={
-                v.IsActive ? "text-green-700" : "text-red-600"
-              }
-            >
+            <span className={v.IsActive ? "text-green-700" : "text-red-600"}>
               {v.IsActive ? "Active" : "Inactive"}
             </span>
           </div>
@@ -316,22 +268,20 @@ export default function EmployeeDashboard() {
         </div>
       ))}
 
-      {/* Vendor Form Modal */}
       {(selectedVendor || isAddingVendor) && (
         <VendorForm
           vendor={selectedVendor}
           onClose={() => {
             setSelectedVendor(null);
             setIsAddingVendor(false);
-            loadVendors();
+            loadDashboard();
           }}
         />
       )}
 
-      {/* ------- PRODUCT MANAGEMENT ------- */}
+      {/* ---------- PRODUCT MANAGEMENT ---------- */}
       <h3 className="dashboard-subtitle">Product Management</h3>
 
-      {/* SEARCH + SORT + FILTER */}
       <div className="filters-row">
         <input
           placeholder="Search products..."
@@ -339,10 +289,7 @@ export default function EmployeeDashboard() {
           onChange={(e) => setProductSearch(e.target.value)}
         />
 
-        <select
-          onChange={(e) => setProductSort(e.target.value)}
-          className="dashboard-select"
-        >
+        <select className="dashboard-select" onChange={(e) => setProductSort(e.target.value)}>
           <option value="">Sort By</option>
           <option value="ProductName">Name</option>
           <option value="ListPrice">Price</option>
@@ -350,10 +297,7 @@ export default function EmployeeDashboard() {
           <option value="IsActive">Status</option>
         </select>
 
-        <select
-          onChange={(e) => setProductFilter(e.target.value)}
-          className="dashboard-select"
-        >
+        <select className="dashboard-select" onChange={(e) => setProductFilter(e.target.value)}>
           <option value="">Show All</option>
           <option value="active">Active Only</option>
           <option value="inactive">Inactive Only</option>
@@ -370,21 +314,13 @@ export default function EmployeeDashboard() {
         </button>
       </div>
 
-      {/* PRODUCT LIST */}
       {filteredProducts.map((p) => (
-        <div
-          key={p.ProductID}
-          className="dashboard-list-item"
-        >
+        <div key={p.ProductID} className="dashboard-list-item">
           <div>
             <strong>{p.ProductName}</strong><br />
-            Price: ${p.ListPrice?.toFixed(2)}<br />
+            Price: ${p.ListPrice.toFixed(2)}<br />
             Discount: {p.DiscountPercent}%<br />
-            <span
-              className={
-                p.IsActive ? "text-green-700" : "text-red-600"
-              }
-            >
+            <span className={p.IsActive ? "text-green-700" : "text-red-600"}>
               {p.IsActive ? "Active" : "Inactive"}
             </span>
           </div>
@@ -419,14 +355,13 @@ export default function EmployeeDashboard() {
         </div>
       ))}
 
-      {/* PRODUCT FORM MODAL */}
       {(selectedProduct || isAddingProduct) && (
         <ProductForm
           product={selectedProduct}
           onClose={() => {
             setSelectedProduct(null);
             setIsAddingProduct(false);
-            loadProducts();
+            loadDashboard();
           }}
         />
       )}
