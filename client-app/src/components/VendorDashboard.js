@@ -25,9 +25,30 @@ export default function VendorDashboard() {
 
         const data = await fetchData(`dashboard/vendor/${vendorId}`);
 
-        setVendorInfo(data.vendor);
-        setSummary(data.invoiceSummary);
-        setRecentInvoices(data.recentInvoices || []);
+        // Vendor information
+        setVendorInfo({
+          VendorName: data.VendorName,
+          VendorCity: data.VendorCity,
+          VendorState: data.VendorState,
+          VendorPhone: data.VendorPhone,
+          VendorContactFName: data.VendorContactFirstName,
+          VendorContactLName: data.VendorContactLastName
+        });
+
+        const invoices = data.Invoices || [];
+
+        // Summary
+        setSummary({
+          TotalInvoices: invoices.length,
+          TotalOutstanding: invoices.reduce(
+            (t, x) => t + (x.InvoiceTotal - x.PaymentTotal - x.CreditTotal),
+            0
+          ),
+          TotalPaid: invoices.reduce((t, x) => t + x.PaymentTotal, 0)
+        });
+
+        // Recent invoices
+        setRecentInvoices(invoices.slice(0, 5));
 
       } catch (err) {
         setError(err.message);
@@ -44,10 +65,9 @@ export default function VendorDashboard() {
 
   return (
     <div className="dashboard-container">
-
       <h2 className="dashboard-title">Vendor Dashboard</h2>
 
-      {/* -------------------- Vendor Info -------------------- */}
+      {/* VENDOR INFO */}
       <h3 className="dashboard-subtitle">Vendor Information</h3>
 
       <div className="dashboard-grid">
@@ -58,7 +78,9 @@ export default function VendorDashboard() {
 
         <div className="dashboard-card">
           <h3>Location</h3>
-          <div className="value">{vendorInfo?.VendorCity}, {vendorInfo?.VendorState}</div>
+          <div className="value">
+            {vendorInfo?.VendorCity}, {vendorInfo?.VendorState}
+          </div>
         </div>
 
         <div className="dashboard-card">
@@ -74,7 +96,7 @@ export default function VendorDashboard() {
         </div>
       </div>
 
-      {/* -------------------- Invoice Summary -------------------- */}
+      {/* INVOICE SUMMARY */}
       <h3 className="dashboard-subtitle">Invoice Summary</h3>
 
       <div className="dashboard-grid">
@@ -85,16 +107,16 @@ export default function VendorDashboard() {
 
         <div className="dashboard-card">
           <h3>Total Outstanding</h3>
-          <div className="value">${summary?.TotalOutstanding?.toFixed(2)}</div>
+          <div className="value">${summary?.TotalOutstanding.toFixed(2)}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Paid</h3>
-          <div className="value">${summary?.TotalPaid?.toFixed(2)}</div>
+          <div className="value">${summary?.TotalPaid.toFixed(2)}</div>
         </div>
       </div>
 
-      {/* -------------------- Recent Invoices -------------------- */}
+      {/* RECENT INVOICES */}
       <h3 className="dashboard-subtitle">Recent Invoices</h3>
 
       {recentInvoices.length === 0 ? (
@@ -105,11 +127,12 @@ export default function VendorDashboard() {
             <div>
               <strong>Invoice #{inv.InvoiceNumber}</strong><br />
               Date: {new Date(inv.InvoiceDate).toLocaleDateString()}<br />
-              Total: ${inv.InvoiceTotal?.toFixed(2)}
+              Total: ${inv.InvoiceTotal.toFixed(2)}
             </div>
           </div>
         ))
       )}
+
     </div>
   );
 }

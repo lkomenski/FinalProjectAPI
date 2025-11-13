@@ -15,6 +15,9 @@ namespace FinalProjectAPI.Controllers
             _factory = factory;
         }
 
+        // --------------------------------------------------------
+        // LOGIN ENDPOINT
+        // --------------------------------------------------------
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -24,18 +27,17 @@ namespace FinalProjectAPI.Controllers
             if (string.IsNullOrEmpty(request.Role))
                 return BadRequest("Role is required.");
 
-            string role = request.Role.ToLower();
+            string role = request.Role.ToLower().Trim();
 
             try
             {
-                if (role == "customer")
-                    return await LoginCustomerAsync(request);
-                else if (role == "vendor")
-                    return await LoginVendorAsync(request);
-                else if (role == "admin" || role == "employee")
-                    return await LoginAdminAsync(request);
-                else
-                    return BadRequest("Invalid role.");
+                return role switch
+                {
+                    "customer" => await LoginCustomerAsync(request),
+                    "vendor" => await LoginVendorAsync(request),
+                    "admin" or "employee" => await LoginAdminAsync(request),
+                    _ => BadRequest("Invalid role.")
+                };
             }
             catch (Exception ex)
             {
@@ -43,6 +45,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // --------------------------------------------------------
+        // CUSTOMER LOGIN
+        // --------------------------------------------------------
         private async Task<IActionResult> LoginCustomerAsync(LoginRequest request)
         {
             var repo = _factory.Create("MyGuitarShop");
@@ -55,7 +60,9 @@ namespace FinalProjectAPI.Controllers
 
             var results = await repo.GetDataAsync("CustomerLogin", parameters);
             var row = results.FirstOrDefault();
-            if (row == null) return Unauthorized("Invalid customer credentials.");
+
+            if (row == null)
+                return Unauthorized("Invalid customer credentials.");
 
             var response = new LoginResponse
             {
@@ -70,6 +77,9 @@ namespace FinalProjectAPI.Controllers
             return Ok(response);
         }
 
+        // --------------------------------------------------------
+        // VENDOR LOGIN
+        // --------------------------------------------------------
         private async Task<IActionResult> LoginVendorAsync(LoginRequest request)
         {
             var repo = _factory.Create("AP");
@@ -82,20 +92,26 @@ namespace FinalProjectAPI.Controllers
 
             var results = await repo.GetDataAsync("VendorLogin", parameters);
             var row = results.FirstOrDefault();
-            if (row == null) return Unauthorized("Invalid vendor credentials.");
+
+            if (row == null)
+                return Unauthorized("Invalid vendor credentials.");
 
             var response = new LoginResponse
             {
-                UserID = Convert.ToInt32(row["VendorID"]),
+                UserID = Convert.ToInt32(row["UserId"]),   // Returned from SP
                 Role = "vendor",
-                FirstName = row["VendorContactFName"]?.ToString() ?? "",
-                LastName = row["VendorContactLName"]?.ToString() ?? "",
+                FirstName = row["FirstName"]?.ToString() ?? "",
+                LastName = row["LastName"]?.ToString() ?? "",
+                EmailAddress = request.EmailAddress,
                 Dashboard = "vendor"
             };
 
             return Ok(response);
         }
 
+        // --------------------------------------------------------
+        // ADMIN / EMPLOYEE LOGIN
+        // --------------------------------------------------------
         private async Task<IActionResult> LoginAdminAsync(LoginRequest request)
         {
             var repo = _factory.Create("MyGuitarShop");
@@ -108,20 +124,26 @@ namespace FinalProjectAPI.Controllers
 
             var results = await repo.GetDataAsync("EmployeeLogin", parameters);
             var row = results.FirstOrDefault();
-            if (row == null) return Unauthorized("Invalid admin credentials.");
+
+            if (row == null)
+                return Unauthorized("Invalid admin/employee credentials.");
 
             var response = new LoginResponse
             {
-                UserID = Convert.ToInt32(row["AdminID"]),
+                UserID = Convert.ToInt32(row["EmployeeID"]),  // Correct field for EmployeeLogin
                 Role = "admin",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
+                EmailAddress = row["EmailAddress"]?.ToString() ?? "",
                 Dashboard = "admin"
             };
 
             return Ok(response);
         }
 
+        // --------------------------------------------------------
+        // CUSTOMER REGISTRATION
+        // --------------------------------------------------------
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequest request)
         {
@@ -146,7 +168,8 @@ namespace FinalProjectAPI.Controllers
             var results = await repo.GetDataAsync("CustomerRegister", parameters);
             var row = results.FirstOrDefault();
 
-            if (row == null) return StatusCode(500, "Registration failed.");
+            if (row == null)
+                return StatusCode(500, "Registration failed.");
 
             int customerId = Convert.ToInt32(row["CustomerID"]);
             if (customerId == -1)
@@ -162,6 +185,5 @@ namespace FinalProjectAPI.Controllers
                 Dashboard = "customer"
             });
         }
-
     }
 }
