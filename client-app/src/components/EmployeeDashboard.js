@@ -75,7 +75,7 @@ export default function EmployeeDashboard() {
 
   async function loadProducts() {
     try {
-      const res = await fetch("http://localhost:5077/api/product");
+      const res = await fetch("http://localhost:5077/api/products");
       const data = await res.json();
       setProducts(data);
       setFilteredProducts(data);
@@ -151,8 +151,8 @@ export default function EmployeeDashboard() {
   // -------------------------------
   async function toggleVendorStatus(id, activate) {
     const endpoint = activate
-      ? `http://localhost:5077/api/vendor/activate/${id}`
-      : `http://localhost:5077/api/vendor/deactivate/${id}`;
+      ? `http://localhost:5077/api/vendors/activate/${id}`
+      : `http://localhost:5077/api/vendors/deactivate/${id}`;
 
     await fetch(endpoint, { method: "PUT" });
     loadVendors();
@@ -163,7 +163,7 @@ export default function EmployeeDashboard() {
   // -------------------------------
   async function activateProduct(id) {
     await fetch(
-      `http://localhost:5077/api/product/activate/${id}`,
+      `http://localhost:5077/api/products/activate/${id}`,
       { method: "PUT" }
     );
     loadProducts();
@@ -171,7 +171,7 @@ export default function EmployeeDashboard() {
 
   async function deactivateProduct(id) {
     await fetch(
-      `http://localhost:5077/api/product/deactivate/${id}`,
+      `http://localhost:5077/api/products/deactivate/${id}`,
       { method: "PUT" }
     );
     loadProducts();

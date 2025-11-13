@@ -15,6 +15,8 @@ namespace FinalProjectAPI.Models
         public int DefaultTermsID { get; set; }
         public int DefaultAccountNo { get; set; }
         public DateTime? DateUpdated { get; set; }
+        public bool IsActive { get; set; }
+
 
     }
 }

@@ -84,7 +84,8 @@ namespace FinalProjectAPI.Controllers
                     { "@VendorContactLName", vendor.VendorContactLName },
                     { "@VendorContactFName", vendor.VendorContactFName },
                     { "@DefaultTermsID", vendor.DefaultTermsID },
-                    { "@DefaultAccountNo", vendor.DefaultAccountNo }
+                    { "@DefaultAccountNo", vendor.DefaultAccountNo },
+                    { "@IsActive", vendor.IsActive }
                 });
 
                 return Ok(rows);
@@ -148,7 +149,8 @@ namespace FinalProjectAPI.Controllers
                 { "@VendorContactLName", vendor.VendorContactLName },
                 { "@VendorContactFName", vendor.VendorContactFName },
                 { "@DefaultTermsID", vendor.DefaultTermsID },
-                { "@DefaultAccountNo", vendor.DefaultAccountNo }
+                { "@DefaultAccountNo", vendor.DefaultAccountNo },
+                { "@IsActive", vendor.IsActive }
             };
 
             var result = await _repo.GetDataAsync("UpdateVendor", parameters);
@@ -188,7 +190,9 @@ namespace FinalProjectAPI.Controllers
                 VendorContactLName = row["VendorContactLName"]?.ToString() ?? string.Empty,
                 VendorContactFName = row["VendorContactFName"]?.ToString() ?? string.Empty,
                 DefaultTermsID = Convert.ToInt32(row["DefaultTermsID"]),
-                DefaultAccountNo = Convert.ToInt32(row["DefaultAccountNo"])
+                DefaultAccountNo = Convert.ToInt32(row["DefaultAccountNo"]),
+                IsActive = Convert.ToBoolean(row["IsActive"])
+
             };
         }
     }
