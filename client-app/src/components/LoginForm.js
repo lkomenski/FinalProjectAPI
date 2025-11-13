@@ -44,7 +44,6 @@ export default function LoginForm() {
         body: JSON.stringify({ emailAddress, password, role }),
       });
 
-      // Show REAL backend messages
       if (!response.ok) {
         const msg = await response.text();
         setError(msg || "Login failed.");
@@ -54,22 +53,23 @@ export default function LoginForm() {
 
       const data = await response.json();
 
-      // Save user info (fixed)
+      // SAVE EXACT KEYS RETURNED BY API
       localStorage.setItem(
         "user",
         JSON.stringify({
-          id: data.userID,
+          id: data.id,                 // <-- FIXED
           role: data.role,
           firstName: data.firstName,
-          lastName: data.lastName,      // ⭐ ADDED
-          emailAddress: data.emailAddress
+          lastName: data.lastName,
+          emailAddress: data.emailAddress,
+          dashboard: data.dashboard    // <-- NEW
         })
       );
 
       setSuccess(`Welcome back, ${data.firstName}!`);
       setError("");
 
-      // Redirect
+      // REDIRECT
       if (data.dashboard === "customer") {
         window.location.href = "/customer-dashboard";
       } else if (data.dashboard === "vendor") {
@@ -92,10 +92,8 @@ export default function LoginForm() {
       {success && <p className="auth-message success">{success}</p>}
 
       <form onSubmit={handleLogin} className="auth-form">
-
         <input
           type="email"
-          name="emailAddress"
           className="auth-input"
           placeholder="Email Address"
           value={emailAddress}
@@ -105,7 +103,6 @@ export default function LoginForm() {
         <input
           type="password"
           className="auth-input"
-          name="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -125,7 +122,6 @@ export default function LoginForm() {
         <button className="auth-btn" type="submit">
           Login
         </button>
-
       </form>
     </div>
   );

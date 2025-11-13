@@ -133,3 +133,25 @@
   border-radius: 8px;
   margin-bottom: 20px;
 }
+
+.dashboard-clickable:hover {
+  background-color: #f5f5f5;
+  transition: 0.2s;
+}
+
+.dashboard-link {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #0077cc;
+}
+
+/* Clickable dashboard card */
+.dashboard-card-clickable {
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dashboard-card-clickable:hover {
+  background-color: #f1f5f9; /* Light gray-blue */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}

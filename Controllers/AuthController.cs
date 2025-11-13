@@ -98,11 +98,11 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                Id = Convert.ToInt32(row["UserID"]),
+                Id = Convert.ToInt32(row["UserId"]),   // <-- CORRECT
                 Role = "vendor",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
-                EmailAddress = row["VendorEmail"]?.ToString() ?? request.EmailAddress,
+                EmailAddress = row["VendorEmail"]?.ToString() ?? "",
                 Dashboard = "vendor"
             };
 

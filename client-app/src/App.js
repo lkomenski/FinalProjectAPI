@@ -13,6 +13,8 @@ import { CartProvider } from "./context/CartContext";
 import RegisterForm from "./components/RegisterForm";
 import CustomerProfile from "./components/CustomerProfile";
 import CheckoutPage from "./components/CheckoutPage";
+import VendorInvoices from "./components/VendorInvoices";
+
 
 
 function App() {
@@ -25,6 +27,9 @@ function App() {
       <Routes>
         {/* Landing page */}
         <Route path="/" element={<HomePage />} />
+
+        {/* Vendor invoices page */}
+        <Route path="/vendor-invoices" element={<VendorInvoices />} />
         
         {/* Cart page */}
         <Route path="/cart" element={<CartPage />} />
@@ -76,7 +81,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        
         <Route
           path="/admin-dashboard"
           element={
