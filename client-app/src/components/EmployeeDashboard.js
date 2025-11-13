@@ -66,7 +66,6 @@ export default function EmployeeDashboard() {
 
       setProducts(data.products);
       setFilteredProducts(data.products);
-
     } catch (err) {
       setError(err.message || "Failed to load dashboard.");
     } finally {
@@ -80,16 +79,16 @@ export default function EmployeeDashboard() {
   useEffect(() => {
     let list = [...vendors];
 
-    if (vendorFilter === "active") list = list.filter(v => v.IsActive);
-    if (vendorFilter === "inactive") list = list.filter(v => !v.IsActive);
+    if (vendorFilter === "active") list = list.filter(v => v.isActive);
+    if (vendorFilter === "inactive") list = list.filter(v => !v.isActive);
 
     if (vendorSearch.trim() !== "") {
       const s = vendorSearch.toLowerCase();
       list = list.filter(v =>
-        v.VendorName.toLowerCase().includes(s) ||
-        v.VendorCity.toLowerCase().includes(s) ||
-        v.VendorContactFName.toLowerCase().includes(s) ||
-        v.VendorContactLName.toLowerCase().includes(s)
+        v.vendorName.toLowerCase().includes(s) ||
+        v.vendorCity.toLowerCase().includes(s) ||
+        v.vendorContactFName.toLowerCase().includes(s) ||
+        v.vendorContactLName.toLowerCase().includes(s)
       );
     }
 
@@ -106,12 +105,12 @@ export default function EmployeeDashboard() {
   useEffect(() => {
     let list = [...products];
 
-    if (productFilter === "active") list = list.filter(p => p.IsActive);
-    if (productFilter === "inactive") list = list.filter(p => !p.IsActive);
+    if (productFilter === "active") list = list.filter(p => p.isActive);
+    if (productFilter === "inactive") list = list.filter(p => !p.isActive);
 
     if (productSearch.trim() !== "") {
       const s = productSearch.toLowerCase();
-      list = list.filter(p => p.ProductName.toLowerCase().includes(s));
+      list = list.filter(p => p.productName.toLowerCase().includes(s));
     }
 
     if (productSort) {
@@ -160,38 +159,17 @@ export default function EmployeeDashboard() {
       <h3 className="dashboard-subtitle">System Metrics</h3>
 
       <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <h3>Total Customers</h3>
-          <div className="value">{stats.totalCustomers}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Total Vendors</h3>
-          <div className="value">{stats.totalVendors}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Active Vendors</h3>
-          <div className="value">{stats.activeVendors}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Total Products</h3>
-          <div className="value">{stats.totalProducts}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Total Sales</h3>
-          <div className="value">${stats.totalSales.toFixed(2)}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Outstanding Invoices</h3>
-          <div className="value">${stats.totalOutstandingInvoices.toFixed(2)}</div>
-        </div>
+        <div className="dashboard-card"><h3>Total Customers</h3><div className="value">{stats.totalCustomers}</div></div>
+        <div className="dashboard-card"><h3>Total Vendors</h3><div className="value">{stats.totalVendors}</div></div>
+        <div className="dashboard-card"><h3>Active Vendors</h3><div className="value">{stats.activeVendors}</div></div>
+        <div className="dashboard-card"><h3>Total Products</h3><div className="value">{stats.totalProducts}</div></div>
+        <div className="dashboard-card"><h3>Total Sales</h3><div className="value">${stats.totalSales.toFixed(2)}</div></div>
+        <div className="dashboard-card"><h3>Outstanding Invoices</h3><div className="value">${stats.totalOutstandingInvoices.toFixed(2)}</div></div>
       </div>
 
-      {/* ---------- VENDOR MANAGEMENT ---------- */}
+      {/* --------------------------------------------------------- */}
+      {/* ----------------- VENDOR MANAGEMENT ---------------------- */}
+      {/* --------------------------------------------------------- */}
       <h3 className="dashboard-subtitle">Vendor Management</h3>
 
       <div className="filters-row">
@@ -203,10 +181,10 @@ export default function EmployeeDashboard() {
 
         <select className="dashboard-select" onChange={(e) => setVendorSort(e.target.value)}>
           <option value="">Sort By</option>
-          <option value="VendorName">Name</option>
-          <option value="VendorCity">City</option>
-          <option value="VendorState">State</option>
-          <option value="IsActive">Status</option>
+          <option value="vendorName">Name</option>
+          <option value="vendorCity">City</option>
+          <option value="vendorState">State</option>
+          <option value="isActive">Status</option>
         </select>
 
         <select className="dashboard-select" onChange={(e) => setVendorFilter(e.target.value)}>
@@ -226,47 +204,31 @@ export default function EmployeeDashboard() {
         </button>
       </div>
 
-      {/* VENDOR LIST */}
-      {filteredVendors.map((v) => (
-        <div key={v.VendorID} className="dashboard-list-item">
-          <div>
-            <strong>{v.VendorName}</strong>
-            <p>{v.VendorCity}, {v.VendorState}</p>
-            <p>Contact: {v.VendorContactFName} {v.VendorContactLName}</p>
-            <span className={v.IsActive ? "text-green-700" : "text-red-600"}>
-              {v.IsActive ? "Active" : "Inactive"}
-            </span>
-          </div>
+      {/* ---------- SCROLLABLE VENDOR LIST ---------- */}
+      <div className="scroll-panel">
+        {filteredVendors.map((v) => (
+          <div key={v.vendorID} className="dashboard-list-item">
+            <div>
+              <strong>{v.vendorName}</strong>
+              <p>{v.vendorCity}, {v.vendorState}</p>
+              <p>Contact: {v.vendorContactFName} {v.vendorContactLName}</p>
+              <span className={v.isActive ? "text-green-700" : "text-red-600"}>
+                {v.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
 
-          <div className="flex gap-2">
-            <button
-              className="dashboard-btn"
-              onClick={() => {
-                setSelectedVendor(v);
-                setIsAddingVendor(false);
-              }}
-            >
-              Edit
-            </button>
+            <div className="flex gap-2">
+              <button className="dashboard-btn" onClick={() => { setSelectedVendor(v); setIsAddingVendor(false); }}>Edit</button>
 
-            {v.IsActive ? (
-              <button
-                className="dashboard-btn dashboard-btn-danger"
-                onClick={() => toggleVendorStatus(v.VendorID, false)}
-              >
-                Deactivate
-              </button>
-            ) : (
-              <button
-                className="dashboard-btn dashboard-btn-success"
-                onClick={() => toggleVendorStatus(v.VendorID, true)}
-              >
-                Activate
-              </button>
-            )}
+              {v.isActive ? (
+                <button className="dashboard-btn dashboard-btn-danger" onClick={() => toggleVendorStatus(v.vendorID, false)}>Deactivate</button>
+              ) : (
+                <button className="dashboard-btn dashboard-btn-success" onClick={() => toggleVendorStatus(v.vendorID, true)}>Activate</button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {(selectedVendor || isAddingVendor) && (
         <VendorForm
@@ -279,7 +241,9 @@ export default function EmployeeDashboard() {
         />
       )}
 
-      {/* ---------- PRODUCT MANAGEMENT ---------- */}
+      {/* --------------------------------------------------------- */}
+      {/* ----------------- PRODUCT MANAGEMENT --------------------- */}
+      {/* --------------------------------------------------------- */}
       <h3 className="dashboard-subtitle">Product Management</h3>
 
       <div className="filters-row">
@@ -291,10 +255,10 @@ export default function EmployeeDashboard() {
 
         <select className="dashboard-select" onChange={(e) => setProductSort(e.target.value)}>
           <option value="">Sort By</option>
-          <option value="ProductName">Name</option>
-          <option value="ListPrice">Price</option>
-          <option value="DiscountPercent">Discount</option>
-          <option value="IsActive">Status</option>
+          <option value="productName">Name</option>
+          <option value="listPrice">Price</option>
+          <option value="discountPercent">Discount</option>
+          <option value="isActive">Status</option>
         </select>
 
         <select className="dashboard-select" onChange={(e) => setProductFilter(e.target.value)}>
@@ -314,46 +278,36 @@ export default function EmployeeDashboard() {
         </button>
       </div>
 
-      {filteredProducts.map((p) => (
-        <div key={p.ProductID} className="dashboard-list-item">
-          <div>
-            <strong>{p.ProductName}</strong><br />
-              Price: ${ (p.ListPrice ?? 0).toFixed(2) }
-              Discount: { p.DiscountPercent ?? 0 }%
-            <span className={p.IsActive ? "text-green-700" : "text-red-600"}>
-              {p.IsActive ? "Active" : "Inactive"}
-            </span>
-          </div>
+      {/* ---------- SCROLLABLE PRODUCT LIST ---------- */}
+      <div className="scroll-panel">
+        {filteredProducts.map((p) => (
+          <div key={p.productID} className="dashboard-list-item">
+            <div>
+              <strong>{p.productName}</strong><br />
+              Price: ${ (p.listPrice ?? 0).toFixed(2) } &nbsp;|&nbsp;
+              Discount: { p.discountPercent ?? 0 }%
+              <br />
+              <span className={p.isActive ? "text-green-700" : "text-red-600"}>
+                {p.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
 
-          <div className="flex gap-2">
-            <button
-              className="dashboard-btn"
-              onClick={() => {
-                setSelectedProduct(p);
-                setIsAddingProduct(false);
-              }}
-            >
-              Edit
-            </button>
+            <div className="flex gap-2">
+              <button className="dashboard-btn" onClick={() => { setSelectedProduct(p); setIsAddingProduct(false); }}>Edit</button>
 
-            {p.IsActive ? (
-              <button
-                className="dashboard-btn dashboard-btn-danger"
-                onClick={() => deactivateProduct(p.ProductID)}
-              >
-                Deactivate
-              </button>
-            ) : (
-              <button
-                className="dashboard-btn dashboard-btn-success"
-                onClick={() => activateProduct(p.ProductID)}
-              >
-                Activate
-              </button>
-            )}
+              {p.isActive ? (
+                <button className="dashboard-btn dashboard-btn-danger" onClick={() => deactivateProduct(p.productID)}>
+                  Deactivate
+                </button>
+              ) : (
+                <button className="dashboard-btn dashboard-btn-success" onClick={() => activateProduct(p.productID)}>
+                  Activate
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {(selectedProduct || isAddingProduct) && (
         <ProductForm

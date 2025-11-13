@@ -124,3 +124,12 @@
     grid-template-columns: 1fr;
   }
 }
+
+.scroll-panel {
+  max-height: 450px;      /* adjust to taste */
+  overflow-y: auto;
+  padding-right: 6px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
