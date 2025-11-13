@@ -66,7 +66,7 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                UserID = Convert.ToInt32(row["CustomerID"]),
+                Id = Convert.ToInt32(row["CustomerID"]),
                 Role = "customer",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
@@ -98,10 +98,10 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                UserID = Convert.ToInt32(row["UserId"]),   // Returned from SP
+                Id = Convert.ToInt32(row["VendorID"]),
                 Role = "vendor",
-                FirstName = row["FirstName"]?.ToString() ?? "",
-                LastName = row["LastName"]?.ToString() ?? "",
+                FirstName = row["VendorContactFName"]?.ToString() ?? "",
+                LastName = row["VendorContactLName"]?.ToString() ?? "",
                 EmailAddress = request.EmailAddress,
                 Dashboard = "vendor"
             };
@@ -130,7 +130,7 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                UserID = Convert.ToInt32(row["EmployeeID"]),  // Correct field for EmployeeLogin
+                Id = Convert.ToInt32(row["AdminID"]),   // FIXED
                 Role = "admin",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",

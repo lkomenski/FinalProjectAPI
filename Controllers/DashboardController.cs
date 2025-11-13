@@ -17,7 +17,9 @@ namespace FinalProjectAPI.Controllers
             _repoAP = factory.Create("AP");
         }
 
-        // GET api/dashboard/customer/{customerId}
+        // ------------------------------------------------------------
+        // CUSTOMER DASHBOARD
+        // ------------------------------------------------------------
         [HttpGet("customer/{customerId}")]
         public async Task<IActionResult> GetCustomerDashboard(int customerId)
         {
@@ -28,10 +30,9 @@ namespace FinalProjectAPI.Controllers
 
             var results = await _repoGuitarShop.GetDataAsync("GetCustomerDashboard", parameters);
 
-            if (results.Count() == 0)
+            if (!results.Any())
                 return NotFound("Customer not found.");
 
-            // First row = customer info
             var header = results.First();
 
             var dashboard = new CustomerDashboard
@@ -46,13 +47,11 @@ namespace FinalProjectAPI.Controllers
                 Orders = new List<CustomerOrderSummary>()
             };
 
-            // Order rows = everything AFTER the first row
             foreach (var row in results.Skip(1))
             {
-                // Protect against no orders
                 if (row.ContainsKey("OrderID"))
                 {
-                    var order = new CustomerOrderSummary
+                    dashboard.Orders.Add(new CustomerOrderSummary
                     {
                         OrderID = Convert.ToInt32(row["OrderID"]),
                         OrderDate = Convert.ToDateTime(row["OrderDate"]),
@@ -62,76 +61,98 @@ namespace FinalProjectAPI.Controllers
                         ShipAmount = Convert.ToDecimal(row["ShipAmount"]),
                         OrderTotal = Convert.ToDecimal(row["TotalAmount"]),
                         ItemsCount = Convert.ToInt32(row["ItemsCount"])
-                    };
-
-                    dashboard.Orders.Add(order);
+                    });
                 }
             }
 
             return Ok(dashboard);
         }
 
-
-        // GET api/dashboard/vendor/{vendorId}
+        // ------------------------------------------------------------
+        // VENDOR DASHBOARD
+        // ------------------------------------------------------------
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetVendorDashboard(int vendorId)
         {
-            var repo = _repoAP; 
             var parameters = new Dictionary<string, object?>
             {
                 { "@VendorID", vendorId }
             };
 
-            var results = await repo.GetDataAsync("GetVendorDashboard", parameters);
+            var results = await _repoAP.GetDataAsync("GetVendorDashboard", parameters);
 
             if (!results.Any())
-                return NotFound("No vendor data found.");
+                return NotFound("Vendor not found.");
 
-            var vendor = new VendorDashboardModel
+            var first = results.First();
+
+            // -------------------------------
+            // Vendor Info
+            // -------------------------------
+            var vendorInfo = new
             {
                 VendorID = vendorId,
-                VendorName = results.First()["VendorName"]?.ToString(),
-                VendorContactFirstName = results.First()["VendorContactFName"]?.ToString(),
-                VendorContactLastName = results.First()["VendorContactLName"]?.ToString(),
-                VendorPhone = results.First()["VendorPhone"]?.ToString(),
-                VendorCity = results.First()["VendorCity"]?.ToString(),
-                VendorState = results.First()["VendorState"]?.ToString(),
-                DateUpdated = results.First()["DateUpdated"] == DBNull.Value ? null : Convert.ToDateTime(results.First()["DateUpdated"]),
-                Invoices = results.Select(row => new VendorInvoiceSummary
-                {
-                    InvoiceID = Convert.ToInt32(row["InvoiceID"]),
-                    InvoiceNumber = row["InvoiceNumber"]?.ToString(),
-                    InvoiceDate = Convert.ToDateTime(row["InvoiceDate"]),
-                    InvoiceTotal = Convert.ToDecimal(row["InvoiceTotal"]),
-                    PaymentTotal = Convert.ToDecimal(row["PaymentTotal"]),
-                    CreditTotal = Convert.ToDecimal(row["CreditTotal"]),
-                    InvoiceDueDate = row["InvoiceDueDate"] == DBNull.Value ? null : Convert.ToDateTime(row["InvoiceDueDate"]),
-                    PaymentDate = row["PaymentDate"] == DBNull.Value ? null : Convert.ToDateTime(row["PaymentDate"]),
-                    TermsDescription = row["TermsDescription"]?.ToString()
-                }).ToList()
+                VendorName = first["VendorName"]?.ToString(),
+                VendorContactFName = first["VendorContactFName"]?.ToString(),
+                VendorContactLName = first["VendorContactLName"]?.ToString(),
+                VendorCity = first["VendorCity"]?.ToString(),
+                VendorState = first["VendorState"]?.ToString(),
+                VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A"
             };
 
-            return Ok(vendor);
+            // -------------------------------
+            // Invoice Summary
+            // -------------------------------
+            var invoiceSummary = new
+            {
+                TotalInvoices = results.Count(),
+                TotalOutstanding = results.Sum(r => Convert.ToDecimal(r["InvoiceTotal"]) -
+                                                    Convert.ToDecimal(r["PaymentTotal"]) -
+                                                    Convert.ToDecimal(r["CreditTotal"])),
+                TotalPaid = results.Sum(r => Convert.ToDecimal(r["PaymentTotal"]) +
+                                             Convert.ToDecimal(r["CreditTotal"]))
+            };
+
+            // -------------------------------
+            // Recent Invoices (Top 5)
+            // -------------------------------
+            var recentInvoices = results
+                .Select(r => new
+                {
+                    InvoiceID = Convert.ToInt32(r["InvoiceID"]),
+                    InvoiceNumber = r["InvoiceNumber"]?.ToString(),
+                    InvoiceDate = Convert.ToDateTime(r["InvoiceDate"]),
+                    InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"])
+                })
+                .OrderByDescending(r => r.InvoiceDate)
+                .Take(5)
+                .ToList();
+
+            return Ok(new
+            {
+                vendor = vendorInfo,
+                invoiceSummary = invoiceSummary,
+                recentInvoices = recentInvoices
+            });
         }
 
-        // GET api/dashboard/admin
+        // ------------------------------------------------------------
+        // ADMIN DASHBOARD
+        // ------------------------------------------------------------
         [HttpGet("admin")]
         public async Task<IActionResult> GetAdminDashboard()
         {
             try
             {
-                // Load summary (from MyGuitarShop)
                 var summaryRows = await _repoGuitarShop.GetDataAsync("GetEmployeeDashboard");
                 var summary = summaryRows.FirstOrDefault();
 
                 if (summary is null)
                     return StatusCode(500, "Admin summary data missing.");
 
-                // Vendors (from AP)
                 var vendorRows = await _repoAP.GetDataAsync("GetAllVendors");
                 var vendors = vendorRows.Select(VendorsController.MapRowToVendor).ToList();
 
-                // Products (from MyGuitarShop)
                 var productRows = await _repoGuitarShop.GetDataAsync("GetAllProducts");
                 var products = productRows.Select(ProductsController.MapRowToProduct).ToList();
 
@@ -150,9 +171,8 @@ namespace FinalProjectAPI.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Failed to load admin dashboard: " + ex.Message);
+                return StatusCode(500, $"Failed to load admin dashboard: {ex.Message}");
             }
         }
-
     }
 }

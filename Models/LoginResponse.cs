@@ -2,7 +2,7 @@ namespace FinalProjectAPI.Models;
 
 public class LoginResponse
 {
-    public int UserID { get; set; }
+    public int Id { get; set; }
     public string Role { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
