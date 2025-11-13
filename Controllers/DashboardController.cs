@@ -8,12 +8,13 @@ namespace FinalProjectAPI.Controllers
     [Route("api/[controller]")]
     public class DashboardController : ControllerBase
     {
-        private readonly IDataRepository _repo;
+        private readonly IDataRepository _repoGuitarShop;
+        private readonly IDataRepository _repoAP;
 
         public DashboardController(IDataRepositoryFactory factory)
         {
-            // Use MyGuitarShop by default for customer/admin dashboard data
-            _repo = factory.Create("MyGuitarShop");
+            _repoGuitarShop = factory.Create("MyGuitarShop");
+            _repoAP = factory.Create("AP");
         }
 
         // GET api/dashboard/customer/{customerId}
@@ -25,7 +26,7 @@ namespace FinalProjectAPI.Controllers
                 { "@CustomerID", customerId }
             };
 
-            var results = await _repo.GetDataAsync("GetCustomerDashboard", parameters);
+            var results = await _repoGuitarShop.GetDataAsync("GetCustomerDashboard", parameters);
 
             if (results.Count() == 0)
                 return NotFound("Customer not found.");
@@ -75,7 +76,7 @@ namespace FinalProjectAPI.Controllers
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetVendorDashboard(int vendorId)
         {
-            var repo = _repo; // if both DBs are accessible from same connection string
+            var repo = _repoAP; 
             var parameters = new Dictionary<string, object?>
             {
                 { "@VendorID", vendorId }
@@ -117,24 +118,41 @@ namespace FinalProjectAPI.Controllers
         [HttpGet("admin")]
         public async Task<IActionResult> GetAdminDashboard()
         {
-            var results = await _repo.GetDataAsync("GetEmployeeDashboard");
-
-            if (!results.Any())
-                return NotFound("No admin data available.");
-
-            var row = results.First();
-
-            var admin = new AdminDashboardModel
+            try
             {
-                TotalCustomers = Convert.ToInt32(row["TotalCustomers"]),
-                TotalVendors = Convert.ToInt32(row["TotalVendors"]),
-                ActiveVendors = Convert.ToInt32(row["ActiveVendors"]),
-                TotalProducts = Convert.ToInt32(row["TotalProducts"]),
-                TotalSales = Convert.ToDecimal(row["TotalSales"]),
-                TotalOutstandingInvoices = Convert.ToDecimal(row["TotalOutstandingInvoices"])
-            };
+                // Load summary (from MyGuitarShop)
+                var summaryRows = await _repoGuitarShop.GetDataAsync("GetEmployeeDashboard");
+                var summary = summaryRows.FirstOrDefault();
 
-            return Ok(admin);
+                if (summary is null)
+                    return StatusCode(500, "Admin summary data missing.");
+
+                // Vendors (from AP)
+                var vendorRows = await _repoAP.GetDataAsync("GetAllVendors");
+                var vendors = vendorRows.Select(VendorsController.MapRowToVendor).ToList();
+
+                // Products (from MyGuitarShop)
+                var productRows = await _repoGuitarShop.GetDataAsync("GetAllProducts");
+                var products = productRows.Select(ProductsController.MapRowToProduct).ToList();
+
+                return Ok(new
+                {
+                    totalCustomers = Convert.ToInt32(summary["TotalCustomers"] ?? 0),
+                    totalVendors = Convert.ToInt32(summary["TotalVendors"] ?? 0),
+                    activeVendors = Convert.ToInt32(summary["ActiveVendors"] ?? 0),
+                    totalProducts = Convert.ToInt32(summary["TotalProducts"] ?? 0),
+                    totalSales = Convert.ToDecimal(summary["TotalSales"] ?? 0),
+                    totalOutstandingInvoices = Convert.ToDecimal(summary["TotalOutstandingInvoices"] ?? 0),
+
+                    vendors = vendors,
+                    products = products
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Failed to load admin dashboard: " + ex.Message);
+            }
         }
+
     }
 }

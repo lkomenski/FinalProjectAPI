@@ -178,19 +178,22 @@ namespace FinalProjectAPI.Controllers
 }
 
         // Helper method to map data row to Product object
-        private static Product MapRowToProduct(IDictionary<string, object?> row)
+        public static Product MapRowToProduct(IDictionary<string, object?> row)
         {
             return new Product
             {
                 ProductID = Convert.ToInt32(row["ProductID"]),
                 CategoryID = Convert.ToInt32(row["CategoryID"]),
-                ProductCode = row["ProductCode"]?.ToString() ?? string.Empty,
-                ProductName = row["ProductName"]?.ToString() ?? string.Empty,
-                Description = row["Description"]?.ToString() ?? string.Empty,
+                ProductCode = row["ProductCode"]?.ToString() ?? "",
+                ProductName = row["ProductName"]?.ToString() ?? "",
+                Description = row["Description"]?.ToString() ?? "",
                 ListPrice = Convert.ToDecimal(row["ListPrice"]),
                 DiscountPercent = Convert.ToDecimal(row["DiscountPercent"]),
-                DateUpdated = row["DateUpdated"] == DBNull.Value ? null : (DateTime?)Convert.ToDateTime(row["DateUpdated"])
+                DateUpdated = row["DateUpdated"] == DBNull.Value 
+                    ? null 
+                    : Convert.ToDateTime(row["DateUpdated"])
             };
         }
+
     }
 }
