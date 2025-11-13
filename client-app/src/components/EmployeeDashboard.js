@@ -39,10 +39,8 @@ export default function EmployeeDashboard() {
   // LOAD DASHBOARD + VENDORS + PRODUCTS
   // --------------------------------------
   useEffect(() => {
-    loadDashboard();
-    loadVendors();
-    loadProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    Promise.all([loadDashboard(), loadVendors(), loadProducts()])
+      .finally(() => setLoading(false));
   }, []);
 
   async function loadDashboard() {
@@ -276,9 +274,9 @@ export default function EmployeeDashboard() {
           className="dashboard-list-item"
         >
           <div>
-            <strong>{v.VendorName}</strong><br />
-            {v.VendorCity}, {v.VendorState}<br />
-            Contact: {v.VendorContactFName} {v.VendorContactLName}<br />
+            <p><strong>{v.VendorName}</strong></p>
+            <p>{v.VendorCity}, {v.VendorState}</p>
+            <p>Contact: {v.VendorContactFName} {v.VendorContactLName}</p>
             <span
               className={
                 v.IsActive ? "text-green-700" : "text-red-600"
