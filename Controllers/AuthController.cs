@@ -98,16 +98,17 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                Id = Convert.ToInt32(row["VendorID"]),
+                Id = Convert.ToInt32(row["UserID"]),
                 Role = "vendor",
-                FirstName = row["VendorContactFName"]?.ToString() ?? "",
-                LastName = row["VendorContactLName"]?.ToString() ?? "",
-                EmailAddress = request.EmailAddress,
+                FirstName = row["FirstName"]?.ToString() ?? "",
+                LastName = row["LastName"]?.ToString() ?? "",
+                EmailAddress = row["VendorEmail"]?.ToString() ?? request.EmailAddress,
                 Dashboard = "vendor"
             };
 
             return Ok(response);
         }
+
 
         // --------------------------------------------------------
         // ADMIN / EMPLOYEE LOGIN
