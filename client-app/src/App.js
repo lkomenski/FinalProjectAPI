@@ -14,7 +14,8 @@ import RegisterForm from "./components/RegisterForm";
 import CustomerProfile from "./components/CustomerProfile";
 import CheckoutPage from "./components/CheckoutPage";
 import VendorInvoices from "./components/VendorInvoices";
-
+import VendorInvoiceDetail from "./components/VendorInvoiceDetail";
+import VendorAccount from "./components/VendorAccount";
 
 
 function App() {
@@ -28,8 +29,14 @@ function App() {
         {/* Landing page */}
         <Route path="/" element={<HomePage />} />
 
+        {/* Vendor account page */}
+        <Route path="/vendor-account" element={<VendorAccount />} />
+
         {/* Vendor invoices page */}
         <Route path="/vendor-invoices" element={<VendorInvoices />} />
+
+        {/* Vendor invoice detail page */}
+        <Route path="/vendor-invoice/:invoiceId" element={<VendorInvoiceDetail />} />
         
         {/* Cart page */}
         <Route path="/cart" element={<CartPage />} />

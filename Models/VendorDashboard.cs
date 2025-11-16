@@ -97,6 +97,11 @@ namespace FinalProjectAPI.Models
         public DateTime? PaymentDate { get; set; }
 
         /// <summary>
+        /// Gets or sets the current status of the invoice.
+        /// </summary>
+        public string? InvoiceStatus { get; set; }
+
+        /// <summary>
         /// Gets or sets the payment terms description.
         /// </summary>
         public string? TermsDescription { get; set; }

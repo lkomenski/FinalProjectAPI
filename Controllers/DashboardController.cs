@@ -118,7 +118,8 @@ namespace FinalProjectAPI.Controllers
                 VendorContactLName = first["VendorContactLName"]?.ToString(),
                 VendorCity = first["VendorCity"]?.ToString(),
                 VendorState = first["VendorState"]?.ToString(),
-                VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A"
+                VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A",
+                TermsDescription = first.ContainsKey("TermsDescription") ? first["TermsDescription"]?.ToString() : "N/A"
             };
 
             // -------------------------------
@@ -143,11 +144,16 @@ namespace FinalProjectAPI.Controllers
                     InvoiceID = Convert.ToInt32(r["InvoiceID"]),
                     InvoiceNumber = r["InvoiceNumber"]?.ToString(),
                     InvoiceDate = Convert.ToDateTime(r["InvoiceDate"]),
-                    InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"])
+                    InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"]),
+                    PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
+                    CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
+                    InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                    PaymentDate = r["PaymentDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
+                    InvoiceStatus = r["InvoiceStatus"]?.ToString(),
+                    TermsDescription = r["TermsDescription"]?.ToString()
                 })
-                .OrderByDescending(r => r.InvoiceDate)
-                .Take(5)
                 .ToList();
+
 
             return Ok(new
             {

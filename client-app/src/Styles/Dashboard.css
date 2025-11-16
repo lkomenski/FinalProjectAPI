@@ -155,3 +155,44 @@
   background-color: #f1f5f9; /* Light gray-blue */
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
+.dashboard-clickable {
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.dashboard-clickable:hover {
+  background-color: #f0f4ff;
+  transform: translateY(-2px);
+}
+
+.badge-paid {
+  background: #d1fad7;
+  color: #137333;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.badge-unpaid {
+  background: #ffe0e0;
+  color: #b00020;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+.invoice-detail-box {
+  padding: 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+/* partial payment badge */
+.badge-partial {
+  background: #fff3cd;
+  color: #856404;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-weight: bold;
+}

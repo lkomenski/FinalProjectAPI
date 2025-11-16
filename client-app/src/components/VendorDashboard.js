@@ -3,6 +3,7 @@ import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import "../Styles/Dashboard.css";
+import { useNavigate } from "react-router-dom";
 
 export default function VendorDashboard() {
   const [vendorInfo, setVendorInfo] = useState(null);
@@ -10,6 +11,9 @@ export default function VendorDashboard() {
   const [recentInvoices, setRecentInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showCount, setShowCount] = useState(5); // for "Show More"
+
+  const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
@@ -25,15 +29,26 @@ export default function VendorDashboard() {
 
         const data = await fetchData(`dashboard/vendor/${vendorId}`);
 
+        // Vendor information
         setVendorInfo(data.vendor);
+        <button
+          className="dashboard-btn"
+          onClick={() => (window.location.href = "/vendor-account")}
+          style={{ marginTop: "10px" }}
+        >
+          View Full Account Info
+        </button>
 
+
+        // Summary with safety defaults
         setSummary({
-          TotalInvoices: data.invoiceSummary.totalInvoices,
-          TotalOutstanding: data.invoiceSummary.totalOutstanding,
-          TotalPaid: data.invoiceSummary.totalPaid
+          TotalInvoices: data.invoiceSummary?.totalInvoices ?? 0,
+          TotalOutstanding: data.invoiceSummary?.totalOutstanding ?? 0,
+          TotalPaid: data.invoiceSummary?.totalPaid ?? 0,
         });
 
-        setRecentInvoices(data.recentInvoices);
+        // Recent invoices list
+        setRecentInvoices(data.recentInvoices || []);
 
       } catch (err) {
         setError(err.message);
@@ -48,68 +63,119 @@ export default function VendorDashboard() {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
+  // Safely format money
+  const money = (num) =>
+    typeof num === "number" ? num.toFixed(2) : "0.00";
+
   return (
     <div className="dashboard-container">
 
       <h2 className="dashboard-title">Vendor Dashboard</h2>
 
-      {/* VENDOR INFO */}
-      <h3 className="dashboard-subtitle">Vendor Information</h3>
+      {/* ------------------------------ */}
+      {/* VENDOR ACCOUNT INFORMATION     */}
+      {/* ------------------------------ */}
+      <h3 className="dashboard-subtitle">Account Information</h3>
 
       <div className="dashboard-grid">
-        <div className="dashboard-card"><h3>Business Name</h3><div className="value">{vendorInfo.vendorName}</div></div>
-        <div className="dashboard-card"><h3>Location</h3><div className="value">{vendorInfo.vendorCity}, {vendorInfo.vendorState}</div></div>
-        <div className="dashboard-card"><h3>Phone</h3><div className="value">{vendorInfo.vendorPhone}</div></div>
-        <div className="dashboard-card"><h3>Main Contact</h3><div className="value">{vendorInfo.vendorContactFName} {vendorInfo.vendorContactLName}</div></div>
+        <div className="dashboard-card">
+          <h3>Business Name</h3>
+          <div className="value">{vendorInfo?.vendorName}</div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Location</h3>
+          <div className="value">
+            {vendorInfo?.vendorCity}, {vendorInfo?.vendorState}
+          </div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Main Contact</h3>
+          <div className="value">
+            {vendorInfo?.vendorContactFName} {vendorInfo?.vendorContactLName}
+          </div>
+        </div>
+
+        <div className="dashboard-card">
+          <h3>Phone</h3>
+          <div className="value">{vendorInfo?.vendorPhone}</div>
+        </div>
       </div>
 
-      {/* INVOICE SUMMARY */}
+      {/* TERMS SECTION */}
+      {vendorInfo?.termsDescription && (
+        <>
+          <h3 className="dashboard-subtitle">Terms & Account Details</h3>
+          <div className="dashboard-card" style={{ padding: "20px" }}>
+            <h3>Terms Description</h3>
+            <div className="value">{vendorInfo.termsDescription}</div>
+          </div>
+        </>
+      )}
+
+      {/* ------------------------------ */}
+      {/* INVOICE SUMMARY                 */}
+      {/* ------------------------------ */}
       <h3 className="dashboard-subtitle">Invoice Summary</h3>
 
       <div className="dashboard-grid">
+
+        {/* CLICKABLE — View all invoices */}
         <div
-          className="dashboard-card dashboard-card-link"
-          onClick={() => (window.location.href = "/vendor-invoices")}
+          className="dashboard-card dashboard-clickable"
+          onClick={() => navigate("/vendor-invoices")}
         >
           <h3>Total Invoices</h3>
-          <div className="value">{summary.TotalInvoices}</div>
+          <div className="value">{summary?.TotalInvoices}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Outstanding</h3>
-          <div className="value">${summary.TotalOutstanding.toFixed(2)}</div>
+          <div className="value">${money(summary?.TotalOutstanding)}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Paid</h3>
-          <div className="value">${summary.TotalPaid.toFixed(2)}</div>
+          <div className="value">${money(summary?.TotalPaid)}</div>
         </div>
       </div>
 
-      {/* RECENT INVOICES */}
+      {/* ------------------------------ */}
+      {/* RECENT INVOICES                */}
+      {/* ------------------------------ */}
       <h3 className="dashboard-subtitle">Recent Invoices</h3>
 
       {recentInvoices.length === 0 ? (
         <p>No recent invoices found.</p>
       ) : (
-        recentInvoices.map((inv) => (
-          <div key={inv.invoiceID} className="dashboard-list-item">
+        recentInvoices.slice(0, showCount).map((inv) => (
+          <div
+            key={inv.invoiceID}
+            className="dashboard-list-item dashboard-clickable"
+            onClick={() =>
+              navigate(`/vendor-invoices/${inv.invoiceID}`)
+            }
+          >
             <div>
               <strong>Invoice #{inv.invoiceNumber}</strong><br />
               Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
-              Total: ${inv.invoiceTotal.toFixed(2)}<br />
-            </div>
-
-            <div>
-              {inv.paymentTotal + inv.creditTotal >= inv.invoiceTotal ? (
-                <span className="text-green-700">PAID</span>
-              ) : (
-                <span className="text-red-600">UNPAID</span>
-              )}
+              Total: ${money(inv.invoiceTotal)}
             </div>
           </div>
         ))
       )}
+
+      {/* EXPAND BUTTON */}
+      {showCount < recentInvoices.length && (
+        <button
+          className="dashboard-btn"
+          onClick={() => setShowCount(showCount + 5)}
+        >
+          Show More
+        </button>
+      )}
+
     </div>
   );
 }
