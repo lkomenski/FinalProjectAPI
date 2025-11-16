@@ -4,12 +4,19 @@ using FinalProjectAPI.Models;
 
 namespace FinalProjectAPI.Controllers
 {
+    /// <summary>
+    /// Controller responsible for user authentication and registration operations.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IDataRepositoryFactory _factory;
 
+        /// <summary>
+        /// Initializes a new instance of the AuthController class.
+        /// </summary>
+        /// <param name="factory">The data repository factory for creating database connections.</param>
         public AuthController(IDataRepositoryFactory factory)
         {
             _factory = factory;
@@ -18,6 +25,15 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // LOGIN ENDPOINT
         // --------------------------------------------------------
+        /// <summary>
+        /// Authenticates a user based on their email, password, and role.
+        /// </summary>
+        /// <param name="request">The login request containing email, password, and role.</param>
+        /// <returns>A login response with user information if successful, or an error message if failed.</returns>
+        /// <response code="200">Returns the user information upon successful authentication.</response>
+        /// <response code="400">If the request is invalid or missing required fields.</response>
+        /// <response code="401">If the credentials are invalid.</response>
+        /// <response code="500">If an internal server error occurs.</response>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -145,6 +161,14 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // CUSTOMER REGISTRATION
         // --------------------------------------------------------
+        /// <summary>
+        /// Registers a new customer account in the system.
+        /// </summary>
+        /// <param name="request">The registration request containing customer information.</param>
+        /// <returns>The newly created customer information if successful.</returns>
+        /// <response code="200">Returns the newly created customer information.</response>
+        /// <response code="400">If the request is invalid or the email already exists.</response>
+        /// <response code="500">If registration fails due to a server error.</response>
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequest request)
         {

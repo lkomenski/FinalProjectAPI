@@ -25,18 +25,15 @@ export default function VendorDashboard() {
 
         const data = await fetchData(`dashboard/vendor/${vendorId}`);
 
-        // Vendor Info
-        setVendorInfo(data.vendor || null);
+        setVendorInfo(data.vendor);
 
-        // Invoice summary
         setSummary({
-          TotalInvoices: data.invoiceSummary?.totalInvoices ?? 0,
-          TotalOutstanding: data.invoiceSummary?.totalOutstanding ?? 0,
-          TotalPaid: data.invoiceSummary?.totalPaid ?? 0
+          TotalInvoices: data.invoiceSummary.totalInvoices,
+          TotalOutstanding: data.invoiceSummary.totalOutstanding,
+          TotalPaid: data.invoiceSummary.totalPaid
         });
 
-        // Recent invoices (array)
-        setRecentInvoices(data.recentInvoices || []);
+        setRecentInvoices(data.recentInvoices);
 
       } catch (err) {
         setError(err.message);
@@ -56,63 +53,40 @@ export default function VendorDashboard() {
 
       <h2 className="dashboard-title">Vendor Dashboard</h2>
 
-      {/* -------------------- Vendor Info -------------------- */}
+      {/* VENDOR INFO */}
       <h3 className="dashboard-subtitle">Vendor Information</h3>
 
       <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <h3>Business Name</h3>
-          <div className="value">{vendorInfo?.vendorName}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Location</h3>
-          <div className="value">
-            {vendorInfo?.vendorCity}, {vendorInfo?.vendorState}
-          </div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Phone</h3>
-          <div className="value">{vendorInfo?.vendorPhone}</div>
-        </div>
-
-        <div className="dashboard-card">
-          <h3>Main Contact</h3>
-          <div className="value">
-            {vendorInfo?.vendorContactFName} {vendorInfo?.vendorContactLName}
-          </div>
-        </div>
+        <div className="dashboard-card"><h3>Business Name</h3><div className="value">{vendorInfo.vendorName}</div></div>
+        <div className="dashboard-card"><h3>Location</h3><div className="value">{vendorInfo.vendorCity}, {vendorInfo.vendorState}</div></div>
+        <div className="dashboard-card"><h3>Phone</h3><div className="value">{vendorInfo.vendorPhone}</div></div>
+        <div className="dashboard-card"><h3>Main Contact</h3><div className="value">{vendorInfo.vendorContactFName} {vendorInfo.vendorContactLName}</div></div>
       </div>
 
-      {/* -------------------- Invoice Summary -------------------- */}
+      {/* INVOICE SUMMARY */}
       <h3 className="dashboard-subtitle">Invoice Summary</h3>
 
       <div className="dashboard-grid">
         <div
-          className="dashboard-card dashboard-card-clickable"
+          className="dashboard-card dashboard-card-link"
           onClick={() => (window.location.href = "/vendor-invoices")}
         >
           <h3>Total Invoices</h3>
-          <div className="value">{summary?.TotalInvoices}</div>
+          <div className="value">{summary.TotalInvoices}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Outstanding</h3>
-          <div className="value">
-            ${Number(summary?.TotalOutstanding).toFixed(2)}
-          </div>
+          <div className="value">${summary.TotalOutstanding.toFixed(2)}</div>
         </div>
 
         <div className="dashboard-card">
           <h3>Total Paid</h3>
-          <div className="value">
-            ${Number(summary?.TotalPaid).toFixed(2)}
-          </div>
+          <div className="value">${summary.TotalPaid.toFixed(2)}</div>
         </div>
       </div>
 
-      {/* -------------------- Recent Invoices -------------------- */}
+      {/* RECENT INVOICES */}
       <h3 className="dashboard-subtitle">Recent Invoices</h3>
 
       {recentInvoices.length === 0 ? (
@@ -123,12 +97,19 @@ export default function VendorDashboard() {
             <div>
               <strong>Invoice #{inv.invoiceNumber}</strong><br />
               Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
-              Total: ${Number(inv.invoiceTotal).toFixed(2)}
+              Total: ${inv.invoiceTotal.toFixed(2)}<br />
+            </div>
+
+            <div>
+              {inv.paymentTotal + inv.creditTotal >= inv.invoiceTotal ? (
+                <span className="text-green-700">PAID</span>
+              ) : (
+                <span className="text-red-600">UNPAID</span>
+              )}
             </div>
           </div>
         ))
       )}
-
     </div>
   );
 }

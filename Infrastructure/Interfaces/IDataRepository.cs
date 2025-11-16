@@ -1,20 +1,23 @@
 namespace FinalProjectAPI.Infrastructure.Interfaces
 {
+    /// <summary>
+    /// Defines the contract for data repository operations that interact with stored procedures.
+    /// </summary>
     public interface IDataRepository
     {
         /// <summary>
-        /// GetDataAsync without parameters.
+        /// Executes a stored procedure without parameters and returns the results.
         /// </summary>
-        /// <param name="storedProc"></param>
-        /// <returns>A collection of rows as dictionaries</returns>
+        /// <param name="storedProc">The name of the stored procedure to execute.</param>
+        /// <returns>A collection of rows where each row is represented as a dictionary of column names to values.</returns>
         Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc);
 
         /// <summary>
-        /// Gets data from the database using the specified stored procedure and parameters.
+        /// Executes a stored procedure with parameters and returns the results.
         /// </summary>
-        /// <param name="storedProc"></param>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="storedProc">The name of the stored procedure to execute.</param>
+        /// <param name="parameters">A dictionary of parameter names and values to pass to the stored procedure.</param>
+        /// <returns>A collection of rows where each row is represented as a dictionary of column names to values.</returns>
         Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc, IDictionary<string, object?> parameters);
     }
 }

@@ -4,6 +4,9 @@ using FinalProjectAPI.Infrastructure.Interfaces;
 
 namespace FinalProjectAPI.Controllers
 {
+    /// <summary>
+    /// Controller for retrieving dashboard data for different user roles.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class DashboardController : ControllerBase
@@ -11,6 +14,10 @@ namespace FinalProjectAPI.Controllers
         private readonly IDataRepository _repoGuitarShop;
         private readonly IDataRepository _repoAP;
 
+        /// <summary>
+        /// Initializes a new instance of the DashboardController.
+        /// </summary>
+        /// <param name="factory">The data repository factory for database access.</param>
         public DashboardController(IDataRepositoryFactory factory)
         {
             _repoGuitarShop = factory.Create("MyGuitarShop");
@@ -20,6 +27,13 @@ namespace FinalProjectAPI.Controllers
         // ------------------------------------------------------------
         // CUSTOMER DASHBOARD
         // ------------------------------------------------------------
+        /// <summary>
+        /// Retrieves dashboard data for a specific customer including orders and personal information.
+        /// </summary>
+        /// <param name="customerId">The ID of the customer.</param>
+        /// <returns>Customer dashboard with order history and account details.</returns>
+        /// <response code="200">Returns the customer dashboard data.</response>
+        /// <response code="404">If the customer is not found.</response>
         [HttpGet("customer/{customerId}")]
         public async Task<IActionResult> GetCustomerDashboard(int customerId)
         {
@@ -71,6 +85,13 @@ namespace FinalProjectAPI.Controllers
         // ------------------------------------------------------------
         // VENDOR DASHBOARD
         // ------------------------------------------------------------
+        /// <summary>
+        /// Retrieves dashboard data for a specific vendor including invoice summaries and recent activity.
+        /// </summary>
+        /// <param name="vendorId">The ID of the vendor.</param>
+        /// <returns>Vendor dashboard with invoice data and vendor information.</returns>
+        /// <response code="200">Returns the vendor dashboard data.</response>
+        /// <response code="404">If the vendor is not found.</response>
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetVendorDashboard(int vendorId)
         {
@@ -139,6 +160,12 @@ namespace FinalProjectAPI.Controllers
         // ------------------------------------------------------------
         // ADMIN DASHBOARD
         // ------------------------------------------------------------
+        /// <summary>
+        /// Retrieves comprehensive dashboard data for administrators including all vendors, products, and business metrics.
+        /// </summary>
+        /// <returns>Admin dashboard with system-wide statistics, vendor list, and product list.</returns>
+        /// <response code="200">Returns the admin dashboard data.</response>
+        /// <response code="500">If there is a server error while retrieving dashboard data.</response>
         [HttpGet("admin")]
         public async Task<IActionResult> GetAdminDashboard()
         {

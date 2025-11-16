@@ -4,15 +4,27 @@ using FinalProjectAPI.Infrastructure.Interfaces;
 
 namespace FinalProjectAPI.Infrastructure.Interfaces.Repositories
 {
+    /// <summary>
+    /// SQL Server implementation of the data repository for executing stored procedures.
+    /// </summary>
     public class SqlServerRepository : IDataRepository
 {
     private readonly string _connectionString = string.Empty;
 
+    /// <summary>
+    /// Initializes a new instance of the SqlServerRepository.
+    /// </summary>
+    /// <param name="connectionString">The SQL Server connection string.</param>
     public SqlServerRepository(string connectionString)
     {
         _connectionString = connectionString ?? string.Empty;
     }
 
+    /// <summary>
+    /// Executes a stored procedure without parameters and returns the result set.
+    /// </summary>
+    /// <param name="storedProc">The name of the stored procedure to execute.</param>
+    /// <returns>A collection of rows returned by the stored procedure.</returns>
     public async Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc)
     {
         var results = new List<IDictionary<string, object?>>();
@@ -43,6 +55,12 @@ namespace FinalProjectAPI.Infrastructure.Interfaces.Repositories
         return results;
     }
 
+    /// <summary>
+    /// Executes a stored procedure with parameters and returns the result set.
+    /// </summary>
+    /// <param name="storedProc">The name of the stored procedure to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to pass to the stored procedure.</param>
+    /// <returns>A collection of rows returned by the stored procedure.</returns>
     public async Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc, IDictionary<string, object?>? parameters)
     {
         var results = new List<IDictionary<string, object?>>();

@@ -6,43 +6,23 @@ import "../Styles/Dashboard.css";
 
 export default function VendorInvoices() {
   const [invoices, setInvoices] = useState([]);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(localStorage.getItem("user"));
   const vendorId = user?.id;
 
   useEffect(() => {
     async function loadInvoices() {
       try {
-        if (!vendorId) {
-          setError("No vendor logged in.");
-          return;
-        }
-
-        const data = await fetchData(`dashboard/vendor/${vendorId}`);
-
-        // API returns invoices under data.recentInvoices for dashboard
-        // BUT you actually want *ALL invoices* so use: data.vendor + data.invoiceSummary + data.recentInvoices
-
-        const allInvoices = data.recentInvoices ?? [];
-
-        // Make sure values are safe
-        const cleaned = allInvoices.map((inv) => ({
-          ...inv,
-          invoiceTotal: Number(inv.invoiceTotal || inv.InvoiceTotal || 0),
-          paymentTotal: Number(inv.paymentTotal || inv.PaymentTotal || 0),
-          creditTotal: Number(inv.creditTotal || inv.CreditTotal || 0),
-        }));
-
-        setInvoices(cleaned);
+        const data = await fetchData(`dashboard/vendor/${vendorId}/invoices`);
+        setInvoices(data);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-
     loadInvoices();
   }, [vendorId]);
 
@@ -51,33 +31,30 @@ export default function VendorInvoices() {
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Your Invoices</h2>
+      <h2 className="dashboard-title">All Invoices</h2>
 
-      {invoices.length === 0 ? (
-        <p>No invoices found.</p>
-      ) : (
-        invoices.map((inv) => (
+      {invoices.map((inv) => {
+        const paid = inv.paymentTotal + inv.creditTotal >= inv.invoiceTotal;
+
+        return (
           <div key={inv.invoiceID} className="dashboard-list-item">
-            <strong>Invoice #{inv.invoiceNumber}</strong> <br />
-            Date: {new Date(inv.invoiceDate).toLocaleDateString()} <br />
-            Total: ${inv.invoiceTotal.toFixed(2)} <br />
-            Paid: ${(inv.paymentTotal + inv.creditTotal).toFixed(2)} <br />
-            <span
-              className={
-                inv.invoiceTotal >
-                inv.paymentTotal + inv.creditTotal
-                  ? "text-red-600"
-                  : "text-green-700"
-              }
-            >
-              {inv.invoiceTotal >
-              inv.paymentTotal + inv.creditTotal
-                ? "Unpaid"
-                : "Paid"}
-            </span>
+            <div>
+              <strong>Invoice #{inv.invoiceNumber}</strong><br />
+              Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
+              Due: {inv.invoiceDueDate ? new Date(inv.invoiceDueDate).toLocaleDateString() : "N/A"}<br />
+              Total: ${inv.invoiceTotal.toFixed(2)}<br />
+              Paid: ${(inv.paymentTotal + inv.creditTotal).toFixed(2)}<br />
+            </div>
+            <div>
+              {paid ? (
+                <span className="text-green-700">PAID</span>
+              ) : (
+                <span className="text-red-600">UNPAID</span>
+              )}
+            </div>
           </div>
-        ))
-      )}
+        );
+      })}
     </div>
   );
 }

@@ -4,17 +4,32 @@ using FinalProjectAPI.Models;
 
 namespace FinalProjectAPI.Controllers
 {
+    /// <summary>
+    /// Controller for handling user authentication across all user roles.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LoginController : ControllerBase
     {
         private readonly IDataRepositoryFactory _factory;
 
+        /// <summary>
+        /// Initializes a new instance of the LoginController.
+        /// </summary>
+        /// <param name="factory">The data repository factory for database access.</param>
         public LoginController(IDataRepositoryFactory factory)
         {
             _factory = factory;
         }
 
+        /// <summary>
+        /// Authenticates a user by checking credentials against customer, employee, and vendor databases.
+        /// </summary>
+        /// <param name="request">The login credentials containing email and password.</param>
+        /// <returns>User information if authentication is successful.</returns>
+        /// <response code="200">Returns the authenticated user information and role.</response>
+        /// <response code="400">If the login request is invalid.</response>
+        /// <response code="401">If the credentials are invalid.</response>
         [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {

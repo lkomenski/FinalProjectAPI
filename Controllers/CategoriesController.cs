@@ -4,18 +4,29 @@ using FinalProjectAPI.Models;
 
 namespace FinalProjectAPI.Controllers
 {
+    /// <summary>
+    /// Controller for managing product categories.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
         private readonly IDataRepository _repo;
 
+        /// <summary>
+        /// Initializes a new instance of the CategoriesController.
+        /// </summary>
+        /// <param name="factory">The data repository factory for database access.</param>
         public CategoriesController(IDataRepositoryFactory factory)
         {
             _repo = factory.Create("MyGuitarShop");
         }
 
-        // GET: api/categories
+        /// <summary>
+        /// Retrieves all product categories.
+        /// </summary>
+        /// <returns>A list of all categories.</returns>
+        /// <response code="200">Returns the list of all categories.</response>
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
@@ -32,7 +43,12 @@ namespace FinalProjectAPI.Controllers
             return Ok(categories);
         }
 
-        // GET: api/categories/{categoryId}/products
+        /// <summary>
+        /// Retrieves all products belonging to a specific category.
+        /// </summary>
+        /// <param name="categoryId">The ID of the category.</param>
+        /// <returns>A list of products in the specified category.</returns>
+        /// <response code="200">Returns the list of products in the category.</response>
         [HttpGet("{categoryId}/products")]
         public async Task<IActionResult> GetProductsByCategory(int categoryId)
         {

@@ -7,7 +7,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/12/2025
 -- Description:	Creates an order
--- exec CreateOrder
+-- exec CreateOrder @CustomerID=1, @ShippingAddressID=1, @BillingAddressID=1, @OrderID=@OrderID OUTPUT
 -- =============================================
 CREATE PROCEDURE [dbo].[CreateOrder]
 (
