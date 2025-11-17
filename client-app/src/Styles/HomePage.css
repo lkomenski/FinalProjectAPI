@@ -131,7 +131,7 @@
   width: 100%;
   height: 350px;
   object-fit: cover;
-  animation: fade 10s infinite;
+  animation: smoothFade 20s infinite;
   position: absolute;
   top: 0;
   left: 0;
@@ -141,14 +141,15 @@
   animation-delay: 0s;
 }
 .carousel-slide:nth-child(2) img {
-  animation-delay: 5s;
+  animation-delay: 10s;
 }
 
-@keyframes fade {
+@keyframes smoothFade {
   0% { opacity: 1; }
-  45% { opacity: 1; }
+  40% { opacity: 1; }
   50% { opacity: 0; }
-  100% { opacity: 0; }
+  90% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 .carousel-overlay {
