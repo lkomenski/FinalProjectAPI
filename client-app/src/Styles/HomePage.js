@@ -122,7 +122,7 @@ function HomePage() {
           <input
             className="hero-search"
             type="text"
-            placeholder="Search guitars, amps, pedals…"
+            placeholder="Search guitars, drums, basses…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

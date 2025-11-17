@@ -1,12 +1,14 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 import "../Styles/CartPage.css";  // ⭐ Add this
 
 export default function CartPage() {
   const { cart, removeFromCart, decreaseQuantity, addToCart, clearCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const total = cart.reduce(
-    (sum, item) => sum + item.listPrice * item.quantity,
+    (sum, item) => sum + (item.listPrice || item.ListPrice) * item.quantity,
     0
   );
 
@@ -26,24 +28,24 @@ export default function CartPage() {
 
       <div className="cart-items">
         {cart.map((item) => (
-          <div key={item.productID} className="cart-item">
+          <div key={item.productID || item.ProductID} className="cart-item">
 
             {/* Thumbnail */}
             <img
-              src={item.imageURL || "/placeholder.png"}
-              alt={item.productName}
+              src={item.imageURL || item.ImageURL || "/placeholder.png"}
+              alt={item.productName || item.ProductName}
               className="cart-item-img"
             />
 
             {/* Info */}
             <div className="cart-item-info">
-              <h3 className="cart-item-name">{item.productName}</h3>
-              <p className="cart-item-price">${item.listPrice.toFixed(2)}</p>
+              <h3 className="cart-item-name">{item.productName || item.ProductName}</h3>
+              <p className="cart-item-price">${(item.listPrice || item.ListPrice).toFixed(2)}</p>
 
               <div className="cart-qty-row">
                 <button
                   className="qty-btn"
-                  onClick={() => decreaseQuantity(item.productID)}
+                  onClick={() => decreaseQuantity(item.productID || item.ProductID)}
                 >
                   -
                 </button>
@@ -60,7 +62,7 @@ export default function CartPage() {
 
               <button
                 className="remove-btn"
-                onClick={() => removeFromCart(item.productID)}
+                onClick={() => removeFromCart(item.productID || item.ProductID)}
               >
                 Remove
               </button>
@@ -68,7 +70,7 @@ export default function CartPage() {
 
             {/* Item Total */}
             <div className="cart-item-total">
-              ${(item.listPrice * item.quantity).toFixed(2)}
+              ${((item.listPrice || item.ListPrice) * item.quantity).toFixed(2)}
             </div>
           </div>
         ))}
@@ -81,7 +83,7 @@ export default function CartPage() {
         <div className="cart-summary-buttons">
           <button
             className="checkout-btn"
-            onClick={() => (window.location.href = "/checkout")}
+            onClick={() => navigate("/checkout")}
           >
             Proceed to Checkout
           </button>

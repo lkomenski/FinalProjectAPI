@@ -37,31 +37,35 @@ export default function ProductDetails() {
       {/* ------- IMAGE SECTION ------- */}
       <div className="product-details-image">
         <img
-          src={product.imageURL || "/placeholder.png"}
-          alt={product.productName}
+          src={product.imageURL || product.ImageURL || "/placeholder.png"}
+          alt={product.productName || product.ProductName}
         />
       </div>
 
       {/* ------- INFO SECTION ------- */}
       <div className="product-details-info">
-        <h1 className="product-title">{product.productName}</h1>
+        <h1 className="product-title">{product.productName || product.ProductName}</h1>
 
         <p className="product-price">
-          ${product.listPrice?.toFixed(2)}
+          ${(product.listPrice || product.ListPrice)?.toFixed(2)}
         </p>
 
-        <p className="product-category">
-          Category: <span>{product.categoryName}</span>
-        </p>
+        {(product.categoryName || product.CategoryName) && (
+          <p className="product-category">
+            Category: <span>{product.categoryName || product.CategoryName}</span>
+          </p>
+        )}
 
-        {product.discountPercent > 0 && (
+        {(product.discountPercent || product.DiscountPercent) > 0 && (
           <p className="product-discount">
-            Save {product.discountPercent}% Today!
+            Save {product.discountPercent || product.DiscountPercent}% Today!
           </p>
         )}
 
         <p className="product-description">
-          {product.description || "No description available."}
+          {(product.description || product.Description || "No description available.")
+            .replace(/\\r\\n/g, '\n')
+            .replace(/\\n/g, '\n')}
         </p>
 
         <button
