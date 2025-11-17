@@ -4,7 +4,7 @@ import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import { fetchData } from "./Api";
 import { CartContext } from "../context/CartContext";
-import "../Styles/ProductDetails.css";   // ⭐ NEW STYLING FILE
+import "../Styles/ProductDetails.css";  
 
 export default function ProductDetails() {
   const { productId } = useParams();

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { CartContext } from "../context/CartContext";
 import "../Styles/Auth.css";
 
 export default function LoginForm() {
@@ -8,6 +9,8 @@ export default function LoginForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [failedAttempts, setFailedAttempts] = useState(0);
+  
+  const { refreshUserCart } = useContext(CartContext);
 
   const validateForm = () => {
     if (!emailAddress || !password) {
@@ -67,14 +70,20 @@ export default function LoginForm() {
       setSuccess(`Welcome back, ${data.firstName}!`);
       setError("");
 
-      // REDIRECT
-      if (data.dashboard === "customer") {
-        window.location.href = "/customer-dashboard";
-      } else if (data.dashboard === "vendor") {
-        window.location.href = "/vendor-dashboard";
-      } else if (data.dashboard === "admin") {
-        window.location.href = "/admin-dashboard";
-      }
+      // Refresh cart for the logged-in user
+      refreshUserCart();
+
+      // Small delay to allow cart to load before redirect
+      setTimeout(() => {
+        // REDIRECT
+        if (data.dashboard === "customer") {
+          window.location.href = "/customer-dashboard";
+        } else if (data.dashboard === "vendor") {
+          window.location.href = "/vendor-dashboard";
+        } else if (data.dashboard === "admin") {
+          window.location.href = "/admin-dashboard";
+        }
+      }, 500);
 
     } catch (err) {
       setError("Server error. Please try again later.");

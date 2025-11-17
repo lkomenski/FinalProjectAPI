@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "../Styles/CartPage.css";
 
 export default function CartPage() {
-  const { cart, removeFromCart, decreaseQuantity, addToCart, clearCart } = useContext(CartContext);
+  const { cart, removeFromCart, decreaseQuantity, addToCart, clearCart, currentUser } = useContext(CartContext);
   const navigate = useNavigate();
 
   const total = cart.reduce(
@@ -12,11 +12,33 @@ export default function CartPage() {
     0
   );
 
+  // Check if user is logged in
+  if (!currentUser) {
+    return (
+      <div className="cart-empty-container">
+        <h2>Please Log In</h2>
+        <p>You need to be logged in to view your cart.</p>
+        <button 
+          className="login-prompt-btn"
+          onClick={() => navigate("/login")}
+        >
+          Go to Login
+        </button>
+      </div>
+    );
+  }
+
   if (cart.length === 0) {
     return (
       <div className="cart-empty-container">
         <h2>Your Cart is Empty</h2>
-        <p>Browse products to add items.</p>
+        <p>Browse products to add items to your cart.</p>
+        <button 
+          className="browse-products-btn"
+          onClick={() => navigate("/")}
+        >
+          Browse Products
+        </button>
       </div>
     );
   }

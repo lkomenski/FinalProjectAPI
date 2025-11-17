@@ -26,9 +26,9 @@ namespace FinalProjectAPI.Infrastructure.Interfaces.Repositories
         /// <param name="storedProc">The name of the stored procedure to execute.</param>
         /// <returns>A collection of rows returned by the stored procedure.</returns>
         /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
-        public async Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc)
+        public Task<IEnumerable<IDictionary<string, object?>>> GetDataAsync(string storedProc)
         {
-            throw new NotImplementedException();
+            return Task.FromException<IEnumerable<IDictionary<string, object?>>>(new NotImplementedException());
         }
 
         /// <summary>

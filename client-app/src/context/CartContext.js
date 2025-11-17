@@ -4,10 +4,37 @@ export const CartContext = createContext();
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Load cart from localStorage on page load
+  // Load user from localStorage and set up cart for that user
   useEffect(() => {
-    const storedCart = localStorage.getItem("cart");
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        loadUserCart(user.id);
+      } catch (error) {
+        console.error("Failed to parse user from localStorage:", error);
+        setCurrentUser(null);
+        setCart([]);
+      }
+    } else {
+      // No user logged in, clear cart
+      setCurrentUser(null);
+      setCart([]);
+    }
+  }, []);
+
+  // Function to load cart for specific user
+  const loadUserCart = (userId) => {
+    if (!userId) {
+      setCart([]);
+      return;
+    }
+    
+    const userCartKey = `cart_user_${userId}`;
+    const storedCart = localStorage.getItem(userCartKey);
     if (storedCart) {
       try {
         const parsed = JSON.parse(storedCart);
@@ -16,18 +43,59 @@ export function CartProvider({ children }) {
         console.error("Failed to parse cart from localStorage:", error);
         setCart([]);
       }
+    } else {
+      setCart([]);
     }
-  }, []);
+  };
 
-  // Save cart automatically whenever it changes
+  // Monitor for user changes (login/logout)
   useEffect(() => {
-    if (cart.length >= 0) {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
-  }, [cart]);
+    const handleStorageChange = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser);
+          if (!currentUser || user.id !== currentUser.id) {
+            setCurrentUser(user);
+            loadUserCart(user.id);
+          }
+        } catch (error) {
+          console.error("Failed to parse user from localStorage:", error);
+        }
+      } else {
+        // User logged out
+        setCurrentUser(null);
+        setCart([]);
+      }
+    };
 
-  // Add item to cart
+    // Listen for storage changes (when user logs in/out in another tab)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check periodically for user changes in same tab
+    const interval = setInterval(handleStorageChange, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [currentUser]);
+
+  // Save cart automatically whenever it changes (user-specific)
+  useEffect(() => {
+    if (currentUser && currentUser.id) {
+      const userCartKey = `cart_user_${currentUser.id}`;
+      localStorage.setItem(userCartKey, JSON.stringify(cart));
+    }
+  }, [cart, currentUser]);
+
+  // Add item to cart (only if user is logged in)
   const addToCart = (product) => {
+    if (!currentUser) {
+      alert("Please log in to add items to your cart.");
+      return;
+    }
+    
     setCart((prev) => {
       const productId = product.productID || product.ProductID;
       const existing = prev.find((p) => (p.productID || p.ProductID) === productId);
@@ -77,9 +145,31 @@ export function CartProvider({ children }) {
     setCart([]);
   };
 
+  // Function to manually refresh user cart (useful after login)
+  const refreshUserCart = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setCurrentUser(user);
+        loadUserCart(user.id);
+      } catch (error) {
+        console.error("Failed to refresh user cart:", error);
+      }
+    }
+  };
+
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart }}
+      value={{ 
+        cart, 
+        addToCart, 
+        removeFromCart, 
+        decreaseQuantity, 
+        clearCart,
+        currentUser,
+        refreshUserCart
+      }}
     >
       {children}
     </CartContext.Provider>

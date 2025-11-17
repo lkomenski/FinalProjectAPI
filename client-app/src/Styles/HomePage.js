@@ -129,30 +129,6 @@ function HomePage() {
       </div>
 
       {/* -------------------------------- */}
-      {/* CATEGORY STRIP                   */}
-      {/* -------------------------------- */}
-      <div className="category-strip">
-        <button
-          className={`category-btn ${selectedCategory === "" ? "active" : ""}`}
-          onClick={() => setSelectedCategory("")}
-        >
-          All
-        </button>
-
-        {categories.map((c) => (
-          <button
-            key={c.categoryID}
-            className={`category-btn ${
-              selectedCategory === String(c.categoryID) ? "active" : ""
-            }`}
-            onClick={() => setSelectedCategory(String(c.categoryID))}
-          >
-            {c.categoryName}
-          </button>
-        ))}
-      </div>
-
-      {/* -------------------------------- */}
       {/* FEATURED PRODUCTS CAROUSEL       */}
       {/* -------------------------------- */}
       <h2 className="section-title">Featured Products ⭐</h2>
@@ -201,9 +177,44 @@ function HomePage() {
       )}
 
       {/* -------------------------------- */}
-      {/* ALL PRODUCTS                     */}
+      {/* PRODUCT BROWSING SECTION          */}
       {/* -------------------------------- */}
-      <h2 className="section-title">Browse All Products</h2>
+      
+      {/* Category Filtering Controls */}
+      <div className="product-browse-header">
+        <div className="browse-title-section">
+          <h2 className="section-title">
+            {selectedCategory === "" 
+              ? "Browse All Products" 
+              : `Viewing All ${categories.find(c => c.categoryID === parseInt(selectedCategory))?.categoryName || 'Products'}`
+            }
+          </h2>
+        </div>
+        
+        <div className="category-filter-section">
+          <span className="filter-label">Filter by category:</span>
+          <div className="category-buttons">
+            <button
+              className={`category-btn ${selectedCategory === "" ? "active" : ""}`}
+              onClick={() => setSelectedCategory("")}
+            >
+              All Products
+            </button>
+
+            {categories.map((c) => (
+              <button
+                key={c.categoryID}
+                className={`category-btn ${
+                  selectedCategory === String(c.categoryID) ? "active" : ""
+                }`}
+                onClick={() => setSelectedCategory(String(c.categoryID))}
+              >
+                {c.categoryName}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {filteredProducts.length === 0 ? (
         <p className="no-results">No products match your search.</p>
