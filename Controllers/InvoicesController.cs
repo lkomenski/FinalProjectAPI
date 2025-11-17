@@ -3,12 +3,19 @@ using FinalProjectAPI.Infrastructure.Interfaces;
 
 namespace FinalProjectAPI.Controllers
 {
+    /// <summary>
+    /// Controller for managing vendor invoices.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class InvoicesController : ControllerBase
     {
         private readonly IDataRepository _repoAP;
 
+        /// <summary>
+        /// Initializes a new instance of the InvoicesController.
+        /// </summary>
+        /// <param name="factory">The data repository factory for database access.</param>
         public InvoicesController(IDataRepositoryFactory factory)
         {
             _repoAP = factory.Create("AP");
@@ -17,6 +24,12 @@ namespace FinalProjectAPI.Controllers
         // ---------------------------------------------------------
         // GET: api/invoices/vendor/122   (get all invoices for vendor)
         // ---------------------------------------------------------
+        /// <summary>
+        /// Retrieves all invoices for a specific vendor.
+        /// </summary>
+        /// <param name="vendorId">The ID of the vendor.</param>
+        /// <returns>A list of invoices for the vendor.</returns>
+        /// <response code="200">Returns the list of vendor invoices.</response>
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetVendorInvoices(int vendorId)
         {
@@ -36,9 +49,9 @@ namespace FinalProjectAPI.Controllers
                 PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
                 CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
                 InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value 
-                    ? null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                    ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
                 PaymentDate = r["PaymentDate"] == DBNull.Value
-                    ? null : Convert.ToDateTime(r["PaymentDate"]),
+                    ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
                 TermsDescription = r["TermsDescription"]?.ToString()
             }));
         }
@@ -46,6 +59,13 @@ namespace FinalProjectAPI.Controllers
         // ---------------------------------------------------------
         // GET: api/invoices/123   (single invoice detail)
         // ---------------------------------------------------------
+        /// <summary>
+        /// Retrieves detailed information for a specific invoice.
+        /// </summary>
+        /// <param name="invoiceId">The ID of the invoice.</param>
+        /// <returns>The invoice details including vendor information.</returns>
+        /// <response code="200">Returns the invoice details.</response>
+        /// <response code="404">If the invoice is not found.</response>
         [HttpGet("{invoiceId}")]
         public async Task<IActionResult> GetInvoiceDetail(int invoiceId)
         {
@@ -70,9 +90,9 @@ namespace FinalProjectAPI.Controllers
                 PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
                 CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
                 InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value
-                    ? null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                    ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
                 PaymentDate = r["PaymentDate"] == DBNull.Value
-                    ? null : Convert.ToDateTime(r["PaymentDate"]),
+                    ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
                 TermsDescription = r["TermsDescription"]?.ToString(),
 
                 VendorName = r["VendorName"]?.ToString(),

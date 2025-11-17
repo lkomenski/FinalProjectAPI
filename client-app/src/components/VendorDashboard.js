@@ -31,14 +31,6 @@ export default function VendorDashboard() {
 
         // Vendor information
         setVendorInfo(data.vendor);
-        <button
-          className="dashboard-btn"
-          onClick={() => (window.location.href = "/vendor-account")}
-          style={{ marginTop: "10px" }}
-        >
-          View Full Account Info
-        </button>
-
 
         // Summary with safety defaults
         setSummary({
@@ -103,6 +95,14 @@ export default function VendorDashboard() {
         </div>
       </div>
 
+      <button
+        className="dashboard-btn"
+        onClick={() => navigate("/vendor-account")}
+        style={{ marginTop: "10px" }}
+      >
+        View Full Account Info
+      </button>
+
       {/* TERMS SECTION */}
       {vendorInfo?.termsDescription && (
         <>
@@ -149,30 +149,56 @@ export default function VendorDashboard() {
       {recentInvoices.length === 0 ? (
         <p>No recent invoices found.</p>
       ) : (
-        recentInvoices.slice(0, showCount).map((inv) => (
-          <div
-            key={inv.invoiceID}
-            className="dashboard-list-item dashboard-clickable"
-            onClick={() =>
-              navigate(`/vendor-invoices/${inv.invoiceID}`)
-            }
-          >
-            <div>
-              <strong>Invoice #{inv.invoiceNumber}</strong><br />
-              Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
-              Total: ${money(inv.invoiceTotal)}
+        <>
+          {recentInvoices.slice(0, showCount).map((inv) => (
+            <div
+              key={inv.invoiceID}
+              className="dashboard-list-item dashboard-clickable"
+              onClick={() => navigate(`/vendor-invoice/${inv.invoiceID}`)}
+            >
+              <div>
+                <strong>Invoice #{inv.invoiceNumber}</strong><br />
+                Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
+                Total: ${money(inv.invoiceTotal)}
+
+                {/* STATUS BADGE */}
+                {inv.invoiceStatus && (
+                  <span
+                    className={
+                      inv.invoiceStatus === "Paid"
+                        ? "badge badge-paid"
+                        : inv.invoiceStatus === "Unpaid"
+                        ? "badge badge-unpaid"
+                        : "badge badge-none"
+                    }
+                  >
+                    {inv.invoiceStatus}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        ))
+          ))}
+
+          {/* LOAD MORE BUTTON */}
+          {showCount < recentInvoices.length && (
+            <button
+              className="dashboard-btn dashboard-btn-secondary"
+              onClick={() => setShowCount((prev) => prev + 5)}
+            >
+              Load More
+            </button>
+          )}
+        </>
       )}
 
-      {/* EXPAND BUTTON */}
-      {showCount < recentInvoices.length && (
+      {/* VIEW ALL INVOICES BUTTON */}
+      {recentInvoices.length > 0 && (
         <button
           className="dashboard-btn"
-          onClick={() => setShowCount(showCount + 5)}
+          onClick={() => navigate("/vendor-invoices")}
+          style={{ marginTop: "10px" }}
         >
-          Show More
+          View All Invoices
         </button>
       )}
 

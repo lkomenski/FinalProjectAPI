@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
@@ -39,7 +40,12 @@ export default function CustomerDashboard() {
 
   return (
     <div className="dashboard-container">
-      <h2 className="dashboard-title">Your Orders</h2>
+      <div className="dashboard-header">
+        <h2 className="dashboard-title">Your Orders</h2>
+        <Link to="/customer-profile" className="dashboard-btn">
+          Account Settings
+        </Link>
+      </div>
 
       {orders.length === 0 ? (
         <p className="text-gray-500">You have no orders yet.</p>
@@ -59,6 +65,28 @@ export default function CustomerDashboard() {
                   Product: {order.ProductName} (x{order.Quantity})
                 </p>
               )}
+              <button
+              className="dashboard-btn dashboard-btn-warning"
+              onClick={async () => {
+                const newPass = prompt("Enter new password:");
+                if (!newPass) return;
+
+                const res = await fetch("http://localhost:5077/api/auth/customer/reset-password", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    customerID: user.id,
+                    newPassword: newPass
+                  })
+                });
+
+                const msg = await res.text();
+                alert(msg);
+              }}
+            >
+              Reset Password
+            </button>
+
             </div>
           ))}
         </div>

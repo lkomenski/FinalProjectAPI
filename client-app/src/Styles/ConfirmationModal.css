@@ -1,0 +1,76 @@
+/* Background blur overlay */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+  z-index: 9999;
+}
+
+/* Modal box */
+.modal-container {
+  background: white;
+  padding: 25px 30px;
+  width: 90%;
+  max-width: 380px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  animation: scaleIn 0.25s ease-out;
+}
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.modal-message {
+  font-size: 1rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.cancel-btn {
+  background: #e5e5e5;
+}
+
+.confirm-btn {
+  color: white;
+}
+
+.modal-btn:hover {
+  opacity: 0.85;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}

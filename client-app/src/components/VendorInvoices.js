@@ -136,12 +136,12 @@ export default function VendorInvoices() {
           <div
             key={inv.invoiceID}
             className="dashboard-list-item dashboard-clickable"
-            onClick={() => navigate(`/vendor-invoices/${inv.invoiceID}`)}
+            onClick={() => navigate(`/vendor-invoice/${inv.invoiceID}`)}
           >
             <div>
               <strong>Invoice #{inv.invoiceNumber}</strong> <br />
               Date: {new Date(inv.invoiceDate).toLocaleDateString()} <br />
-              Total: ${money(inv.invoiceTotal)}
+              Total: ${money(inv.invoiceTotal)} <br />
               Status: {inv.invoiceStatus}
             </div>
 

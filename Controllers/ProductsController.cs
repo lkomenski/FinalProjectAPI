@@ -256,6 +256,7 @@ namespace FinalProjectAPI.Controllers
                 DiscountPercent = row["DiscountPercent"] == DBNull.Value
                     ? 0
                     : Convert.ToDecimal(row["DiscountPercent"]),
+                ImageURL = row.ContainsKey("ImageURL") ? row["ImageURL"]?.ToString() : null,
                 DateUpdated = row["DateUpdated"] == DBNull.Value 
                     ? null 
                     : Convert.ToDateTime(row["DateUpdated"])

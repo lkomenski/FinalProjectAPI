@@ -41,6 +41,11 @@ namespace FinalProjectAPI.Models
         public decimal DiscountPercent { get; set; }
 
         /// <summary>
+        /// Gets or sets the URL path to the product image.
+        /// </summary>
+        public string? ImageURL { get; set; }
+
+        /// <summary>
         /// Gets or sets the date when the product was added to the system.
         /// </summary>
         public DateTime DateAdded { get; set; }

@@ -43,13 +43,14 @@ export default function LoginForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ emailAddress, password, role }),
       });
-
       if (!response.ok) {
         const msg = await response.text();
         setError(msg || "Login failed.");
+        setPassword("");    // CLEAR PASSWORD FIELD
         setSuccess("");
         return;
       }
+
 
       const data = await response.json();
 
@@ -57,12 +58,12 @@ export default function LoginForm() {
       localStorage.setItem(
         "user",
         JSON.stringify({
-          id: data.id,                 // <-- FIXED
+          id: data.id,                 
           role: data.role,
           firstName: data.firstName,
           lastName: data.lastName,
           emailAddress: data.emailAddress,
-          dashboard: data.dashboard    // <-- NEW
+          dashboard: data.dashboard   
         })
       );
 
@@ -123,6 +124,20 @@ export default function LoginForm() {
           Login
         </button>
       </form>
+      {error && (
+    <p className="auth-message error">
+      {error}
+      {error.toLowerCase().includes("password") && (
+        <span
+          className="forgot-password-link"
+          onClick={() => window.location.href="/reset-password"}
+        >
+          &nbsp;Forgot your password?
+        </span>
+      )}
+    </p>
+  )}
+
     </div>
   );
 }

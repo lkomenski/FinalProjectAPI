@@ -64,3 +64,15 @@
 .auth-message.success {
   color: #16a34a;
 }
+
+.forgot-password-link {
+  margin-left: 10px;
+  color: #0077cc;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.forgot-password-link:hover {
+  color: #005fa3;
+}

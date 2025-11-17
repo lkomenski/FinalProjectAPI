@@ -64,6 +64,11 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // CUSTOMER LOGIN
         // --------------------------------------------------------
+        /// <summary>
+        /// Authenticates a customer user against the MyGuitarShop database.
+        /// </summary>
+        /// <param name="request">The login request with email and password.</param>
+        /// <returns>Login response with customer information.</returns>
         private async Task<IActionResult> LoginCustomerAsync(LoginRequest request)
         {
             var repo = _factory.Create("MyGuitarShop");
@@ -96,6 +101,11 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // VENDOR LOGIN
         // --------------------------------------------------------
+        /// <summary>
+        /// Authenticates a vendor user against the AP database.
+        /// </summary>
+        /// <param name="request">The login request with email and password.</param>
+        /// <returns>Login response with vendor information.</returns>
         private async Task<IActionResult> LoginVendorAsync(LoginRequest request)
         {
             var repo = _factory.Create("AP");
@@ -129,6 +139,11 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // ADMIN / EMPLOYEE LOGIN
         // --------------------------------------------------------
+        /// <summary>
+        /// Authenticates an admin or employee user against the MyGuitarShop database.
+        /// </summary>
+        /// <param name="request">The login request with email and password.</param>
+        /// <returns>Login response with admin/employee information.</returns>
         private async Task<IActionResult> LoginAdminAsync(LoginRequest request)
         {
             var repo = _factory.Create("MyGuitarShop");
@@ -210,5 +225,67 @@ namespace FinalProjectAPI.Controllers
                 Dashboard = "customer"
             });
         }
+
+        /// <summary>
+        /// Initiates a password reset request for a user by generating a reset token.
+        /// </summary>
+        /// <param name="req">The reset request containing the user's email address.</param>
+        /// <returns>A reset token if the email exists in the system.</returns>
+        /// <response code="200">Returns the generated reset token.</response>
+        /// <response code="400">If the email address does not exist in the system.</response>
+        [HttpPost("request-password-reset")]
+        public async Task<IActionResult> RequestPasswordReset([FromBody] ResetRequestDto req)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", req.EmailAddress }
+            };
+
+            var results = await repo.GetDataAsync("CheckUserExists", parameters);
+
+            if (!results.Any())
+                return BadRequest("This email does not exist in our system.");
+
+            // Generate secure token
+            string token = Guid.NewGuid().ToString();
+
+            // Save token associated with user (in DB)
+            var saveParams = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", req.EmailAddress },
+                { "@ResetToken", token }
+            };
+            
+            await repo.GetDataAsync("SavePasswordResetToken", saveParams);
+
+            // In real apps, you'd email token — for now return it
+            return Ok(token);
+        }
+
+        /// <summary>
+        /// Resets a user's password using a valid reset token.
+        /// </summary>
+        /// <param name="req">The reset request containing email, reset token, and new password.</param>
+        /// <returns>Success message if password is updated.</returns>
+        /// <response code="200">Returns success message when password is updated.</response>
+        [HttpPut("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto req)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@EmailAddress", req.EmailAddress },
+                { "@ResetToken", req.ResetToken },
+                { "@NewPassword", req.NewPassword }
+            };
+
+            var result = await repo.GetDataAsync("ResetPassword", parameters);
+
+            return Ok("Password updated.");
+        }
+
     }
 }

@@ -16,6 +16,7 @@ import CheckoutPage from "./components/CheckoutPage";
 import VendorInvoices from "./components/VendorInvoices";
 import VendorInvoiceDetail from "./components/VendorInvoiceDetail";
 import VendorAccount from "./components/VendorAccount";
+import ResetPassword from "./components/ResetPassword";
 
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
       <Routes>
         {/* Landing page */}
         <Route path="/" element={<HomePage />} />
+
+        {/* Password reset page */}
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Vendor account page */}
         <Route path="/vendor-account" element={<VendorAccount />} />

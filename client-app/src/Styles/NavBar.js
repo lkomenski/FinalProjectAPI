@@ -12,6 +12,7 @@ function NavigationBar() {
   const handleLogout = () => {
     localStorage.removeItem("user");
     window.location.href = "/";
+    localStorage.clear();
   };
 
   return (

@@ -11,15 +11,21 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [sameAsShipping, setSameAsShipping] = useState(true);
 
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
     emailAddress: "",
+    phone: "",
     address: "",
     city: "",
     state: "",
     zip: "",
+    billingAddress: "",
+    billingCity: "",
+    billingState: "",
+    billingZip: "",
     cardNumber: "",
     cardExpiration: "",
     cardCVV: "",
@@ -43,6 +49,10 @@ export default function CheckoutPage() {
           firstName: data.firstName || "",
           lastName: data.lastName || "",
           emailAddress: data.emailAddress || "",
+          phone: data.phone || "",
+          city: data.city || "",
+          state: data.state || "",
+          zip: data.zipCode || "",
         }));
       } catch {
         console.log("Could not load customer profile");
@@ -63,12 +73,36 @@ export default function CheckoutPage() {
   }
 
   // ---------------------------------------------------
+  // TOGGLE BILLING ADDRESS
+  // ---------------------------------------------------
+  function toggleBillingAddress(checked) {
+    setSameAsShipping(checked);
+    if (checked) {
+      // Copy shipping to billing
+      setForm({
+        ...form,
+        billingAddress: form.address,
+        billingCity: form.city,
+        billingState: form.state,
+        billingZip: form.zip,
+      });
+    }
+  }
+
+  // ---------------------------------------------------
   // VALIDATION
   // ---------------------------------------------------
   function validate() {
     if (!form.address || !form.city || !form.state || !form.zip) {
       setError("Shipping address fields are required.");
       return false;
+    }
+
+    if (!sameAsShipping) {
+      if (!form.billingAddress || !form.billingCity || !form.billingState || !form.billingZip) {
+        setError("Billing address fields are required.");
+        return false;
+      }
     }
 
     if (form.cardNumber.length < 12) {
@@ -131,6 +165,9 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Update customer profile with shipping info
+      await updateCustomerShippingInfo();
+
       clearCart();
       setMessage("Order placed successfully! Redirecting...");
       setTimeout(() => (window.location.href = "/customer-dashboard"), 2000);
@@ -139,6 +176,37 @@ export default function CheckoutPage() {
     }
 
     setLoading(false);
+  }
+
+  // ---------------------------------------------------
+  // UPDATE CUSTOMER SHIPPING INFO
+  // ---------------------------------------------------
+  async function updateCustomerShippingInfo() {
+    try {
+      const profileData = {
+        customerId: user.id,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        emailAddress: form.emailAddress,
+        phone: form.phone || null,
+        city: form.city,
+        state: form.state,
+        zipCode: form.zip,
+        billingCity: sameAsShipping ? form.city : form.billingCity,
+        billingState: sameAsShipping ? form.state : form.billingState,
+        billingZipCode: sameAsShipping ? form.zip : form.billingZip,
+        newPassword: null
+      };
+
+      await fetch("http://localhost:5077/api/customer/update-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileData),
+      });
+    } catch (err) {
+      console.log("Could not update customer profile:", err);
+      // Don't throw error - order was already placed successfully
+    }
   }
 
   // ---------------------------------------------------
@@ -202,6 +270,54 @@ export default function CheckoutPage() {
             />
 
           </div>
+
+          <h3 className="checkout-subtitle">Billing Address</h3>
+
+          <div className="checkbox-row">
+            <input
+              type="checkbox"
+              id="sameAsShipping"
+              checked={sameAsShipping}
+              onChange={(e) => toggleBillingAddress(e.target.checked)}
+            />
+            <label htmlFor="sameAsShipping">Same as shipping address</label>
+          </div>
+
+          {!sameAsShipping && (
+            <div className="checkout-form">
+              <input
+                className="checkout-input"
+                name="billingAddress"
+                placeholder="Billing Street Address"
+                onChange={updateField}
+                value={form.billingAddress}
+              />
+
+              <input
+                className="checkout-input"
+                name="billingCity"
+                placeholder="Billing City"
+                onChange={updateField}
+                value={form.billingCity}
+              />
+
+              <input
+                className="checkout-input"
+                name="billingState"
+                placeholder="Billing State"
+                onChange={updateField}
+                value={form.billingState}
+              />
+
+              <input
+                className="checkout-input"
+                name="billingZip"
+                placeholder="Billing ZIP Code"
+                onChange={updateField}
+                value={form.billingZip}
+              />
+            </div>
+          )}
 
           <h3 className="checkout-subtitle">Payment Information</h3>
 

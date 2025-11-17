@@ -12,6 +12,7 @@ namespace FinalProjectAPI.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly IDataRepository _repo;
+        private readonly IDataRepositoryFactory _factory;
 
         /// <summary>
         /// Initializes a new instance of the CustomerController.
@@ -19,6 +20,7 @@ namespace FinalProjectAPI.Controllers
         /// <param name="factory">The data repository factory for database access.</param>
         public CustomerController(IDataRepositoryFactory factory)
         {
+            _factory = factory;
             // This ensures the repository connects to the MyGuitarShop database
             _repo = factory.Create("MyGuitarShop");
         }
@@ -106,6 +108,42 @@ namespace FinalProjectAPI.Controllers
                 return NotFound("Customer not found.");
 
             return Ok(result.First());
+        }
+
+        /// <summary>
+        /// Deactivates a customer account without permanently deleting it.
+        /// </summary>
+        /// <param name="id">The ID of the customer to deactivate.</param>
+        /// <returns>Confirmation message.</returns>
+        /// <response code="200">Returns confirmation that the customer was deactivated.</response>
+        [HttpPut("deactivate/{id}")]
+        public async Task<IActionResult> DeactivateCustomer(int id)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            await repo.GetDataAsync("DeactivateCustomer", new Dictionary<string, object?> {
+                { "@CustomerID", id }
+            });
+
+            return Ok($"Customer {id} deactivated.");
+        }
+
+        /// <summary>
+        /// Permanently deletes a customer account from the system.
+        /// </summary>
+        /// <param name="id">The ID of the customer to delete.</param>
+        /// <returns>Confirmation message.</returns>
+        /// <response code="200">Returns confirmation that the customer was deleted.</response>
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteCustomer(int id)
+        {
+            var repo = _factory.Create("MyGuitarShop");
+
+            await repo.GetDataAsync("DeleteCustomer", new Dictionary<string, object?> {
+                { "@CustomerID", id }
+            });
+
+            return Ok($"Customer {id} deleted.");
         }
 
     }

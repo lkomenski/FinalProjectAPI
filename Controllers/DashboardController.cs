@@ -149,7 +149,7 @@ namespace FinalProjectAPI.Controllers
                     CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
                     InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
                     PaymentDate = r["PaymentDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
-                    InvoiceStatus = r["InvoiceStatus"]?.ToString(),
+                    InvoiceStatus = r.ContainsKey("InvoiceStatus") ? r["InvoiceStatus"]?.ToString() : "Unknown",
                     TermsDescription = r["TermsDescription"]?.ToString()
                 })
                 .ToList();
@@ -192,6 +192,7 @@ namespace FinalProjectAPI.Controllers
                 return Ok(new
                 {
                     totalCustomers = Convert.ToInt32(summary["TotalCustomers"] ?? 0),
+                    activeCustomers = Convert.ToInt32(summary["ActiveCustomers"] ?? 0),
                     totalVendors = Convert.ToInt32(summary["TotalVendors"] ?? 0),
                     activeVendors = Convert.ToInt32(summary["ActiveVendors"] ?? 0),
                     totalProducts = Convert.ToInt32(summary["TotalProducts"] ?? 0),
