@@ -3,12 +3,14 @@ import { Link } from "react-router-dom";
 import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
+import ChangePasswordModal from "./ChangePasswordModal";
 import "../Styles/Dashboard.css";  
 
 export default function CustomerDashboard() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   // get logged in user info
   const storedUser = localStorage.getItem("user");
@@ -42,9 +44,17 @@ export default function CustomerDashboard() {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <h2 className="dashboard-title">Your Orders</h2>
-        <Link to="/customer-profile" className="dashboard-btn">
-          Account Settings
-        </Link>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button 
+            className="dashboard-btn dashboard-btn-warning"
+            onClick={() => setShowChangePassword(true)}
+          >
+            Change Password
+          </button>
+          <Link to="/customer-profile" className="dashboard-btn">
+            Account Settings
+          </Link>
+        </div>
       </div>
 
       {orders.length === 0 ? (
@@ -65,31 +75,17 @@ export default function CustomerDashboard() {
                   Product: {order.ProductName} (x{order.Quantity})
                 </p>
               )}
-              <button
-              className="dashboard-btn dashboard-btn-warning"
-              onClick={async () => {
-                const newPass = prompt("Enter new password:");
-                if (!newPass) return;
-
-                const res = await fetch("http://localhost:5077/api/auth/customer/reset-password", {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    customerID: user.id,
-                    newPassword: newPass
-                  })
-                });
-
-                const msg = await res.text();
-                alert(msg);
-              }}
-            >
-              Reset Password
-            </button>
 
             </div>
           ))}
         </div>
+      )}
+      
+      {showChangePassword && (
+        <ChangePasswordModal 
+          user={user} 
+          onClose={() => setShowChangePassword(false)} 
+        />
       )}
     </div>
   );
