@@ -1,7 +1,7 @@
 namespace FinalProjectAPI.Models
 {
     /// <summary>
-    /// Represents a customer in the guitar shop system.
+    /// Represents a customer in the MyGuitarShop system.
     /// </summary>
     public class Customer
     {

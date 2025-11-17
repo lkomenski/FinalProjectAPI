@@ -1,6 +1,257 @@
-@FinalProjectAPI_HostAddress = http://localhost:5077
+# =============================================================================
+# Final Project API - HTTP Client Test File
+# Guitar Shop Management System
+# =============================================================================
 
-GET {{FinalProjectAPI_HostAddress}}/weatherforecast/
-Accept: application/json
+@FinalProjectAPI_HostAddress = http://localhost:5077
+@contentType = application/json
+
+# =============================================================================
+# AUTHENTICATION & LOGIN
+# =============================================================================
+
+### Customer Login
+POST {{FinalProjectAPI_HostAddress}}/api/login/customer
+Content-Type: {{contentType}}
+
+{
+  "email": "testcustomer@example.com",
+  "password": "password"
+}
+
+### Employee Login  
+POST {{FinalProjectAPI_HostAddress}}/api/login/employee
+Content-Type: {{contentType}}
+
+{
+  "email": "employee@example.com",
+  "password": "password"
+}
+
+### Vendor Login
+POST {{FinalProjectAPI_HostAddress}}/api/login/vendor
+Content-Type: {{contentType}}
+
+/// DIFFERENTIATE BETWEEN THE TWO VENDOR ACCOUNTS I HAVE
+
+{
+  "email": "testvendor@example.com", 
+  "password": "password123"
+}
+
+# =============================================================================
+# CUSTOMER MANAGEMENT
+# =============================================================================
+
+### Register New Customer
+POST {{FinalProjectAPI_HostAddress}}/api/customer/register
+Content-Type: {{contentType}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "password": "securePassword123"
+}
+
+### Get Customer Profile
+GET {{FinalProjectAPI_HostAddress}}/api/customer/profile/1
+Accept: {{contentType}}
+
+### Update Customer Profile
+PUT {{FinalProjectAPI_HostAddress}}/api/customer/profile/1
+Content-Type: {{contentType}}
+
+{
+  "customerId": 1,
+  "firstName": "John",
+  "lastName": "Smith",
+  "email": "john.smith@example.com"
+}
+
+### Deactivate Customer
+PUT {{FinalProjectAPI_HostAddress}}/api/customer/deactivate/1
+Accept: {{contentType}}
+
+### Delete Customer
+DELETE {{FinalProjectAPI_HostAddress}}/api/customer/1
+Accept: {{contentType}}
+
+# =============================================================================
+# PRODUCTS MANAGEMENT
+# =============================================================================
+
+### Get All Products
+GET {{FinalProjectAPI_HostAddress}}/api/products
+Accept: {{contentType}}
+
+### Get Product by ID
+GET {{FinalProjectAPI_HostAddress}}/api/products/1
+Accept: {{contentType}}
+
+### Get Featured Products
+GET {{FinalProjectAPI_HostAddress}}/api/products/featured
+Accept: {{contentType}}
+
+### Get Best Sellers
+GET {{FinalProjectAPI_HostAddress}}/api/products/best-sellers
+Accept: {{contentType}}
+
+### Add New Product
+POST {{FinalProjectAPI_HostAddress}}/api/products
+Content-Type: {{contentType}}
+
+{
+  "categoryID": 1,
+  "productCode": "GUIT001",
+  "productName": "Acoustic Guitar Starter Pack",
+  "description": "Perfect acoustic guitar for beginners",
+  "listPrice": 299.99,
+  "discountPercent": 10.0,
+  "imageURL": "/images/guitars/acoustic-starter.jpg"
+}
+
+### Update Product
+PUT {{FinalProjectAPI_HostAddress}}/api/products/1
+Content-Type: {{contentType}}
+
+{
+  "productID": 1,
+  "categoryID": 1,
+  "productCode": "GUIT001",
+  "productName": "Premium Acoustic Guitar",
+  "description": "High-quality acoustic guitar for professionals",
+  "listPrice": 599.99,
+  "discountPercent": 5.0,
+  "imageURL": "/images/guitars/premium-acoustic.jpg"
+}
+
+### Activate Product
+PUT {{FinalProjectAPI_HostAddress}}/api/products/activate/1
+Accept: {{contentType}}
+
+### Deactivate Product
+PUT {{FinalProjectAPI_HostAddress}}/api/products/deactivate/1
+Accept: {{contentType}}
+
+### Delete Product
+DELETE {{FinalProjectAPI_HostAddress}}/api/products/1
+Accept: {{contentType}}
+
+# =============================================================================
+# CATEGORIES MANAGEMENT
+# =============================================================================
+
+### Get All Categories
+GET {{FinalProjectAPI_HostAddress}}/api/categories
+Accept: {{contentType}}
+
+### Get Products by Category
+GET {{FinalProjectAPI_HostAddress}}/api/categories/1/products
+Accept: {{contentType}}
+
+# =============================================================================
+# VENDORS MANAGEMENT
+# =============================================================================
+
+### Get All Vendors
+GET {{FinalProjectAPI_HostAddress}}/api/vendors
+Accept: {{contentType}}
+
+### Get Vendor by ID
+GET {{FinalProjectAPI_HostAddress}}/api/vendors/1
+Accept: {{contentType}}
+
+### Add New Vendor
+POST {{FinalProjectAPI_HostAddress}}/api/vendors
+Content-Type: {{contentType}}
+
+{
+  "vendorName": "Gibson Guitars",
+  "vendorAddress": "123 Music Row",
+  "vendorCity": "Nashville",
+  "vendorState": "TN",
+  "vendorZipCode": "37203",
+  "vendorContactLName": "Johnson",
+  "vendorContactFName": "Sarah",
+  "vendorPhone": "(615) 555-0123"
+}
+
+### Update Vendor
+PUT {{FinalProjectAPI_HostAddress}}/api/vendors/1
+Content-Type: {{contentType}}
+
+{
+  "vendorID": 1,
+  "vendorName": "Gibson Guitars LLC",
+  "vendorAddress": "456 Music Avenue",
+  "vendorCity": "Nashville",
+  "vendorState": "TN",
+  "vendorZipCode": "37203",
+  "vendorContactLName": "Johnson",
+  "vendorContactFName": "Sarah",
+  "vendorPhone": "(615) 555-0123"
+}
+
+### Activate Vendor
+PUT {{FinalProjectAPI_HostAddress}}/api/vendors/activate/1
+Accept: {{contentType}}
+
+### Deactivate Vendor
+PUT {{FinalProjectAPI_HostAddress}}/api/vendors/deactivate/1
+Accept: {{contentType}}
+
+### Delete Vendor
+DELETE {{FinalProjectAPI_HostAddress}}/api/vendors/1
+Accept: {{contentType}}
+
+# =============================================================================
+# INVOICES MANAGEMENT
+# =============================================================================
+
+### Get Vendor Invoices
+GET {{FinalProjectAPI_HostAddress}}/api/invoices/vendor/1
+Accept: {{contentType}}
+
+### Get Invoice Detail
+GET {{FinalProjectAPI_HostAddress}}/api/invoices/1
+Accept: {{contentType}}
+
+# =============================================================================
+# DASHBOARD ENDPOINTS
+# =============================================================================
+
+### Get Admin Dashboard
+GET {{FinalProjectAPI_HostAddress}}/api/dashboard/admin
+Accept: {{contentType}}
+
+### Get Customer Dashboard
+GET {{FinalProjectAPI_HostAddress}}/api/dashboard/customer/1
+Accept: {{contentType}}
+
+### Get Vendor Dashboard
+GET {{FinalProjectAPI_HostAddress}}/api/dashboard/vendor/1
+Accept: {{contentType}}
+
+# =============================================================================
+# PASSWORD RESET
+# =============================================================================
+
+### Request Password Reset
+POST {{FinalProjectAPI_HostAddress}}/api/password-reset/request
+Content-Type: {{contentType}}
+
+{
+  "email": "customer@example.com"
+}
+
+### Reset Password
+POST {{FinalProjectAPI_HostAddress}}/api/password-reset/reset
+Content-Type: {{contentType}}
+
+{
+  "token": "reset-token-here",
+  "newPassword": "newSecurePassword123"
+}
 
 ###

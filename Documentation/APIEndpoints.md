@@ -1,0 +1,1098 @@
+# My Guitar Shop - API Endpoints Documentation
+
+## Base URL
+```
+Development: http://localhost:5077
+Production: [Your Production URL]
+```
+
+## Response Format
+All API responses are in JSON format. Standard HTTP status codes are used to indicate success or failure.
+
+### Standard Response Codes
+- `200 OK` - Request successful
+- `400 Bad Request` - Invalid request parameters
+- `401 Unauthorized` - Authentication failed
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
+
+---
+
+## Authentication & Authorization
+
+### Login (Universal)
+Authenticate users across all roles (customer, vendor, admin/employee).
+
+**Endpoint:** `POST /api/auth/login`
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string", 
+  "role": "customer|vendor|admin|employee"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "id": "integer",
+  "role": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "dashboard": "string"
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:5077/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "emailAddress": "customer@example.com",
+    "password": "password123",
+    "role": "customer"
+  }'
+```
+
+---
+
+### Customer Registration
+Register a new customer account.
+
+**Endpoint:** `POST /api/auth/register-customer`
+
+**Request Body:**
+```json
+{
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "customerId": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "message": "Registration successful"
+}
+```
+
+---
+
+### Password Reset Request
+Request a password reset token.
+
+**Endpoint:** `POST /api/auth/request-password-reset`
+
+**Request Body:**
+```json
+{
+  "email": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "token": "string",
+  "message": "Reset token generated"
+}
+```
+
+---
+
+### Reset Password
+Reset password using a valid token.
+
+**Endpoint:** `PUT /api/auth/reset-password`
+
+**Request Body:**
+```json
+{
+  "token": "string",
+  "newPassword": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "message": "Password reset successful"
+}
+```
+
+---
+
+## Product Management
+
+### Get All Products
+Retrieve all products from the inventory.
+
+**Endpoint:** `GET /api/products`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "productID": "integer",
+    "categoryID": "integer", 
+    "productCode": "string",
+    "productName": "string",
+    "description": "string",
+    "listPrice": "decimal",
+    "discountPercent": "decimal",
+    "imageURL": "string",
+    "isActive": "boolean",
+    "dateAdded": "datetime",
+    "dateUpdated": "datetime"
+  }
+]
+```
+
+---
+
+### Get Product by ID
+Retrieve a specific product by its ID.
+
+**Endpoint:** `GET /api/products/{productId}`
+
+**Path Parameters:**
+- `productId` (integer, required) - The ID of the product
+
+**Response (200 OK):**
+```json
+{
+  "productID": "integer",
+  "categoryID": "integer",
+  "productCode": "string", 
+  "productName": "string",
+  "description": "string",
+  "listPrice": "decimal",
+  "discountPercent": "decimal",
+  "imageURL": "string",
+  "isActive": "boolean",
+  "dateAdded": "datetime",
+  "dateUpdated": "datetime"
+}
+```
+
+---
+
+### Get Featured Products
+Retrieve products marked as featured for homepage display.
+
+**Endpoint:** `GET /api/products/featured`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "productID": "integer",
+    "productName": "string",
+    "listPrice": "decimal",
+    "imageURL": "string",
+    "description": "string"
+  }
+]
+```
+
+---
+
+### Get Best Sellers
+Retrieve top-selling products based on sales data.
+
+**Endpoint:** `GET /api/products/best-sellers`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "productID": "integer",
+    "productName": "string",
+    "listPrice": "decimal",
+    "imageURL": "string",
+    "totalSold": "integer"
+  }
+]
+```
+
+---
+
+### Add New Product
+Create a new product in the inventory.
+
+**Endpoint:** `POST /api/products`
+
+**Request Body:**
+```json
+{
+  "categoryID": "integer",
+  "productCode": "string",
+  "productName": "string", 
+  "description": "string",
+  "listPrice": "decimal",
+  "discountPercent": "decimal",
+  "imageURL": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "productID": "integer",
+  "categoryID": "integer",
+  "productCode": "string",
+  "productName": "string",
+  "description": "string",
+  "listPrice": "decimal",
+  "discountPercent": "decimal",
+  "imageURL": "string",
+  "isActive": "boolean",
+  "dateAdded": "datetime"
+}
+```
+
+---
+
+### Update Product
+Update an existing product.
+
+**Endpoint:** `PUT /api/products/{productId}`
+
+**Path Parameters:**
+- `productId` (integer, required) - The ID of the product to update
+
+**Request Body:**
+```json
+{
+  "productID": "integer",
+  "categoryID": "integer",
+  "productCode": "string",
+  "productName": "string",
+  "description": "string", 
+  "listPrice": "decimal",
+  "discountPercent": "decimal",
+  "imageURL": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "productID": "integer",
+  "categoryID": "integer",
+  "productCode": "string",
+  "productName": "string",
+  "description": "string",
+  "listPrice": "decimal", 
+  "discountPercent": "decimal",
+  "imageURL": "string",
+  "isActive": "boolean",
+  "dateUpdated": "datetime"
+}
+```
+
+---
+
+### Delete Product
+Remove a product from the inventory.
+
+**Endpoint:** `DELETE /api/products/{productId}`
+
+**Path Parameters:**
+- `productId` (integer, required) - The ID of the product to delete
+
+**Response (200 OK):**
+```json
+{
+  "message": "Product {productId} deleted successfully."
+}
+```
+
+---
+
+### Activate Product
+Activate a previously deactivated product.
+
+**Endpoint:** `PUT /api/products/activate/{productId}`
+
+**Path Parameters:**
+- `productId` (integer, required) - The ID of the product to activate
+
+**Response (200 OK):**
+```json
+{
+  "productID": "integer",
+  "isActive": true,
+  "message": "Product activated successfully"
+}
+```
+
+---
+
+### Deactivate Product
+Deactivate a product without deleting it.
+
+**Endpoint:** `PUT /api/products/deactivate/{productId}`
+
+**Path Parameters:**
+- `productId` (integer, required) - The ID of the product to deactivate
+
+**Response (200 OK):**
+```json
+{
+  "productID": "integer",
+  "isActive": false,
+  "message": "Product deactivated successfully"
+}
+```
+
+---
+
+## Category Management
+
+### Get All Categories
+Retrieve all product categories.
+
+**Endpoint:** `GET /api/categories`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "categoryID": "integer",
+    "categoryName": "string"
+  }
+]
+```
+
+---
+
+### Get Products by Category
+Retrieve all products in a specific category.
+
+**Endpoint:** `GET /api/categories/{categoryId}/products`
+
+**Path Parameters:**
+- `categoryId` (integer, required) - The ID of the category
+
+**Response (200 OK):**
+```json
+[
+  {
+    "productID": "integer",
+    "productName": "string",
+    "description": "string",
+    "listPrice": "decimal",
+    "discountPercent": "decimal",
+    "imageURL": "string"
+  }
+]
+```
+
+---
+
+## Customer Management
+
+### Customer Registration (Alternative Endpoint)
+Register a new customer account.
+
+**Endpoint:** `POST /api/customer/register`
+
+**Request Body:**
+```json
+{
+  "firstName": "string",
+  "lastName": "string", 
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "customerId": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string"
+}
+```
+
+---
+
+### Customer Login (Alternative Endpoint)
+Authenticate a customer.
+
+**Endpoint:** `POST /api/customer/login`
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string"
+}
+```
+
+---
+
+### Check Customer Exists
+Check if a customer account exists with the given email.
+
+**Endpoint:** `GET /api/customer/exists/{email}`
+
+**Path Parameters:**
+- `email` (string, required) - The email address to check
+
+**Response (200 OK):**
+```json
+{
+  "exists": "boolean",
+  "customerID": "integer|null"
+}
+```
+
+---
+
+### Get Customer Profile
+Retrieve customer profile information.
+
+**Endpoint:** `GET /api/customer/{customerId}`
+
+**Path Parameters:**
+- `customerId` (integer, required) - The ID of the customer
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "shippingAddressID": "integer|null",
+  "billingAddressID": "integer|null"
+}
+```
+
+---
+
+### Deactivate Customer
+Deactivate a customer account.
+
+**Endpoint:** `PUT /api/customer/deactivate/{id}`
+
+**Path Parameters:**
+- `id` (integer, required) - The ID of the customer to deactivate
+
+**Response (200 OK):**
+```json
+{
+  "message": "Customer deactivated successfully",
+  "customerID": "integer"
+}
+```
+
+---
+
+### Delete Customer
+Remove a customer account.
+
+**Endpoint:** `DELETE /api/customer/delete/{id}`
+
+**Path Parameters:**
+- `id` (integer, required) - The ID of the customer to delete
+
+**Response (200 OK):**
+```json
+{
+  "message": "Customer deleted successfully"
+}
+```
+
+---
+
+## Vendor Management
+
+### Get All Vendors
+Retrieve all vendors from the system.
+
+**Endpoint:** `GET /api/vendors`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "vendorID": "integer",
+    "vendorName": "string",
+    "vendorAddress1": "string",
+    "vendorAddress2": "string",
+    "vendorCity": "string",
+    "vendorState": "string",
+    "vendorZipCode": "string",
+    "vendorPhone": "string",
+    "vendorContactLName": "string",
+    "vendorContactFName": "string",
+    "defaultTermsID": "integer",
+    "defaultAccountNo": "string",
+    "isActive": "boolean"
+  }
+]
+```
+
+---
+
+### Get Vendor by ID
+Retrieve a specific vendor by ID.
+
+**Endpoint:** `GET /api/vendors/{id}`
+
+**Path Parameters:**
+- `id` (integer, required) - The ID of the vendor
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string", 
+  "vendorContactLName": "string",
+  "vendorContactFName": "string",
+  "defaultTermsID": "integer",
+  "defaultAccountNo": "string",
+  "isActive": "boolean"
+}
+```
+
+---
+
+### Add New Vendor
+Create a new vendor in the system.
+
+**Endpoint:** `POST /api/vendors/add`
+
+**Request Body:**
+```json
+{
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorContactLName": "string",
+  "vendorContactFName": "string",
+  "defaultTermsID": "integer",
+  "defaultAccountNo": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorContactLName": "string", 
+  "vendorContactFName": "string",
+  "isActive": true
+}
+```
+
+---
+
+### Update Vendor
+Update existing vendor information.
+
+**Endpoint:** `PUT /api/vendors/update`
+
+**Request Body:**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorContactLName": "string",
+  "vendorContactFName": "string",
+  "defaultTermsID": "integer",
+  "defaultAccountNo": "string",
+  "isActive": "boolean"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "message": "Vendor updated successfully"
+}
+```
+
+---
+
+### Delete Vendor
+Remove a vendor from the system.
+
+**Endpoint:** `DELETE /api/vendors/{id}`
+
+**Path Parameters:**
+- `id` (integer, required) - The ID of the vendor to delete
+
+**Response (200 OK):**
+```json
+{
+  "message": "Vendor deleted successfully"
+}
+```
+
+---
+
+### Activate Vendor
+Activate a previously deactivated vendor.
+
+**Endpoint:** `PUT /api/vendors/activate/{vendorId}`
+
+**Path Parameters:**
+- `vendorId` (integer, required) - The ID of the vendor to activate
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "isActive": true,
+  "message": "Vendor activated successfully"
+}
+```
+
+---
+
+### Deactivate Vendor
+Deactivate a vendor without deleting it.
+
+**Endpoint:** `PUT /api/vendors/deactivate/{vendorId}`
+
+**Path Parameters:**
+- `vendorId` (integer, required) - The ID of the vendor to deactivate
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer", 
+  "isActive": false,
+  "message": "Vendor deactivated successfully"
+}
+```
+
+---
+
+## Invoice Management
+
+### Get Vendor Invoices
+Retrieve all invoices for a specific vendor.
+
+**Endpoint:** `GET /api/invoices/vendor/{vendorId}`
+
+**Path Parameters:**
+- `vendorId` (integer, required) - The ID of the vendor
+
+**Response (200 OK):**
+```json
+[
+  {
+    "invoiceID": "integer",
+    "invoiceNumber": "string",
+    "invoiceDate": "datetime",
+    "invoiceTotal": "decimal",
+    "paymentTotal": "decimal",
+    "creditTotal": "decimal",
+    "invoiceDueDate": "datetime|null",
+    "paymentDate": "datetime|null",
+    "termsDescription": "string"
+  }
+]
+```
+
+---
+
+### Get Invoice Detail
+Retrieve detailed information for a specific invoice.
+
+**Endpoint:** `GET /api/invoices/{invoiceId}`
+
+**Path Parameters:**
+- `invoiceId` (integer, required) - The ID of the invoice
+
+**Response (200 OK):**
+```json
+{
+  "invoiceID": "integer",
+  "vendorID": "integer",
+  "invoiceNumber": "string",
+  "invoiceDate": "datetime",
+  "invoiceTotal": "decimal",
+  "paymentTotal": "decimal",
+  "creditTotal": "decimal",
+  "invoiceDueDate": "datetime|null",
+  "paymentDate": "datetime|null",
+  "termsDescription": "string",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorPhone": "string"
+}
+```
+
+---
+
+## Dashboard Endpoints
+
+### Get Customer Dashboard
+Retrieve dashboard data for a specific customer.
+
+**Endpoint:** `GET /api/dashboard/customer/{customerId}`
+
+**Path Parameters:**
+- `customerId` (integer, required) - The ID of the customer
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "totalOrders": "integer",
+  "totalSpent": "decimal",
+  "recentOrders": [
+    {
+      "orderID": "integer",
+      "orderDate": "datetime",
+      "orderTotal": "decimal",
+      "orderStatus": "string"
+    }
+  ]
+}
+```
+
+---
+
+### Get Vendor Dashboard
+Retrieve dashboard data for a specific vendor.
+
+**Endpoint:** `GET /api/dashboard/vendor/{vendorId}`
+
+**Path Parameters:**
+- `vendorId` (integer, required) - The ID of the vendor
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorPhone": "string",
+  "totalInvoices": "integer",
+  "totalOutstanding": "decimal",
+  "recentInvoices": [
+    {
+      "invoiceID": "integer",
+      "invoiceNumber": "string",
+      "invoiceDate": "datetime",
+      "invoiceTotal": "decimal",
+      "isPaid": "boolean"
+    }
+  ]
+}
+```
+
+---
+
+### Get Admin Dashboard
+Retrieve comprehensive dashboard data for administrators.
+
+**Endpoint:** `GET /api/dashboard/admin`
+
+**Response (200 OK):**
+```json
+{
+  "totalCustomers": "integer",
+  "activeCustomers": "integer",
+  "totalVendors": "integer", 
+  "activeVendors": "integer",
+  "totalProducts": "integer",
+  "totalSales": "decimal",
+  "totalOutstandingInvoices": "decimal",
+  "vendors": [
+    {
+      "vendorID": "integer",
+      "vendorName": "string",
+      "isActive": "boolean"
+    }
+  ],
+  "products": [
+    {
+      "productID": "integer",
+      "productName": "string",
+      "listPrice": "decimal",
+      "stockQuantity": "integer",
+      "categoryName": "string"
+    }
+  ]
+}
+```
+
+---
+
+## Password Reset Management
+
+### Request Password Reset
+Request a password reset for a customer.
+
+**Endpoint:** `POST /api/password/request-reset`
+
+**Request Body:**
+```json
+{
+  "email": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "token": "string",
+  "message": "Password reset token generated"
+}
+```
+
+---
+
+### Reset Password
+Reset customer password using a valid token.
+
+**Endpoint:** `PUT /api/password/reset`
+
+**Request Body:**
+```json
+{
+  "token": "string",
+  "newPassword": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "message": "Password reset successful"
+}
+```
+
+---
+
+## Legacy Login Endpoint
+
+### Universal Login (Legacy)
+Alternative login endpoint for backward compatibility.
+
+**Endpoint:** `POST /api/login`
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "role": "string",
+  "user": {
+    "id": "integer",
+    "name": "string",
+    "email": "string"
+  }
+}
+```
+
+---
+
+## Error Handling
+
+### Error Response Format
+All error responses follow this format:
+
+```json
+{
+  "error": "string",
+  "message": "string",
+  "statusCode": "integer"
+}
+```
+
+### Common Error Codes
+
+#### 400 Bad Request
+```json
+{
+  "error": "Bad Request",
+  "message": "Invalid input parameters",
+  "statusCode": 400
+}
+```
+
+#### 401 Unauthorized
+```json
+{
+  "error": "Unauthorized", 
+  "message": "Invalid credentials",
+  "statusCode": 401
+}
+```
+
+#### 404 Not Found
+```json
+{
+  "error": "Not Found",
+  "message": "Resource not found",
+  "statusCode": 404
+}
+```
+
+#### 500 Internal Server Error
+```json
+{
+  "error": "Internal Server Error",
+  "message": "An unexpected error occurred",
+  "statusCode": 500
+}
+```
+
+---
+
+## API Testing
+
+### Using HTTP Client File
+The project includes a `FinalProjectAPI.http` file with pre-configured requests for testing all endpoints. Open this file in Visual Studio Code with the REST Client extension to test the API.
+
+### Example cURL Commands
+
+**Get All Products:**
+```bash
+curl -X GET http://localhost:5077/api/products \
+  -H "Accept: application/json"
+```
+
+**Add New Product:**
+```bash
+curl -X POST http://localhost:5077/api/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categoryID": 1,
+    "productCode": "GUIT001",
+    "productName": "Acoustic Guitar",
+    "description": "High-quality acoustic guitar",
+    "listPrice": 299.99,
+    "discountPercent": 10.0,
+    "imageURL": "/images/guitars/acoustic.jpg"
+  }'
+```
+
+**Customer Login:**
+```bash
+curl -X POST http://localhost:5077/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "emailAddress": "customer@example.com",
+    "password": "password123",
+    "role": "customer"
+  }'
+```
+
+### Postman Collection
+Import the provided HTTP requests into Postman for a more user-friendly testing experience. The base URL variable can be set to switch between development and production environments.
+
+---
+
+## Rate Limiting and Security
+
+### Security Considerations
+- All passwords are hashed before storage
+- SQL injection protection through parameterized queries
+- Input validation on all endpoints
+- CORS configured for development environment
+
+### Rate Limiting
+Currently no rate limiting is implemented. Consider adding rate limiting for production deployment:
+- Login attempts: 5 per minute per IP
+- API calls: 100 per minute per user
+- Registration: 3 per hour per IP
+
+---
+
+## API Versioning
+
+### Current Version
+- **Version:** 1.0
+- **Base Path:** `/api/`
+- **Documentation Date:** November 2025
+
+### Future Versions
+Future API versions will be implemented using URL versioning:
+- Version 1.0: `/api/v1/`
+- Version 2.0: `/api/v2/`
+
+---
+
+## Support and Documentation
+
+### Additional Resources
+- [Project Overview](ProjectOverview.md) - Complete project description
+- [Setup Instructions](SetupInstructions.md) - Installation and configuration guide  
+- [Database Design](SQLDesign.md) - Database schema documentation
+- [Testing Plan](TestingPlan.md) - Comprehensive testing procedures
+
+### Contact Information
+- **Developer:** Leena Komenski
+- **Project:** My Guitar Shop Management System
+- **Course:** Final Project API Development
+- **Date:** November 2025

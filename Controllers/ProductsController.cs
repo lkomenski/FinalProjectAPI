@@ -56,16 +56,20 @@ namespace FinalProjectAPI.Controllers
         {
             try
             {
-                if (productId <= 0) {
+                if (productId <= 0)
+                {
                     return BadRequest("Invalid ProductID.");
                 }
-                var parameters = new Dictionary<string, object?>{
+                
+                var parameters = new Dictionary<string, object?>
+                {
                     {"@ProductID", productId}
                 };
                 
                 var result = await _repo.GetDataAsync("GetProductById", parameters);
                 return Ok(result.FirstOrDefault());
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 return StatusCode(500, "Internal server error: Failed to retrieve product.");
             }
@@ -144,22 +148,23 @@ namespace FinalProjectAPI.Controllers
         {
             try
             {
-                if (productId <= 0) //
+                if (productId <= 0)
                 {
                     return BadRequest("Invalid ProductID.");
                 }
+                
+                var parameters = new Dictionary<string, object?>
+                {
+                    {"@ProductID", productId}
+                };
+
+                await _repo.GetDataAsync("DeleteProduct", parameters);
+                return Ok($"Product {productId} deleted successfully.");
             }
             catch (Exception)
             {
                 return StatusCode(500, "Internal server error: Failed to delete product.");
             }
-            var parameters = new Dictionary<string, object?>
-            {
-                {"@ProductID", productId}
-            };
-
-            await _repo.GetDataAsync("DeleteProduct", parameters);
-            return Ok($"Product {productId} deleted successfully.");
         }
 
         /// <summary>
@@ -236,7 +241,7 @@ namespace FinalProjectAPI.Controllers
             {
                 return StatusCode(500, "Failed to load best sellers.");
             }
-}
+        }
 
         /// <summary>
         /// Maps a database row to a Product object.

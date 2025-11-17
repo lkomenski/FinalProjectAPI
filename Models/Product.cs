@@ -1,7 +1,7 @@
 namespace FinalProjectAPI.Models
 {
     /// <summary>
-    /// Represents a product in the guitar shop inventory.
+    /// Represents a product in the MyGuitarShop inventory.
     /// </summary>
     public class Product
     {

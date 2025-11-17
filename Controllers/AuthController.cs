@@ -5,7 +5,7 @@ using FinalProjectAPI.Models;
 namespace FinalProjectAPI.Controllers
 {
     /// <summary>
-    /// Controller responsible for user authentication and registration operations.
+    /// Controller responsible for user authentication, registration, and password reset operations.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -124,7 +124,7 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                Id = Convert.ToInt32(row["UserId"]),   // <-- CORRECT
+                Id = Convert.ToInt32(row["UserId"]),  
                 Role = "vendor",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
@@ -162,7 +162,7 @@ namespace FinalProjectAPI.Controllers
 
             var response = new LoginResponse
             {
-                Id = Convert.ToInt32(row["AdminID"]),   // FIXED
+                Id = Convert.ToInt32(row["AdminID"]), 
                 Role = "admin",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
@@ -226,6 +226,9 @@ namespace FinalProjectAPI.Controllers
             });
         }
 
+        // --------------------------------------------------------
+        // PASSWORD RESET 
+        // --------------------------------------------------------
         /// <summary>
         /// Initiates a password reset request for a user by generating a reset token.
         /// </summary>

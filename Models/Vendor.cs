@@ -1,7 +1,7 @@
 namespace FinalProjectAPI.Models
 {
     /// <summary>
-    /// Represents a vendor in the accounts payable system.
+    /// Represents a vendor in the AP system.
     /// </summary>
     public class Vendor
     {

@@ -48,10 +48,12 @@ namespace FinalProjectAPI.Controllers
                 InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"]),
                 PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
                 CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
-                InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value 
-                    ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value
+                    ? (DateTime?)null
+                    : Convert.ToDateTime(r["InvoiceDueDate"]),
                 PaymentDate = r["PaymentDate"] == DBNull.Value
-                    ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
+                    ? (DateTime?)null
+                    : Convert.ToDateTime(r["PaymentDate"]),
                 TermsDescription = r["TermsDescription"]?.ToString()
             }));
         }
@@ -90,9 +92,11 @@ namespace FinalProjectAPI.Controllers
                 PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
                 CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
                 InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value
-                    ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                    ? (DateTime?)null
+                    : Convert.ToDateTime(r["InvoiceDueDate"]),
                 PaymentDate = r["PaymentDate"] == DBNull.Value
-                    ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
+                    ? (DateTime?)null
+                    : Convert.ToDateTime(r["PaymentDate"]),
                 TermsDescription = r["TermsDescription"]?.ToString(),
 
                 VendorName = r["VendorName"]?.ToString(),

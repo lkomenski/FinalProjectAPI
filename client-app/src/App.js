@@ -18,95 +18,80 @@ import VendorInvoiceDetail from "./components/VendorInvoiceDetail";
 import VendorAccount from "./components/VendorAccount";
 import ResetPassword from "./components/ResetPassword";
 
-
 function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-      {/* NavigationBar will appear on ALL pages */}
-      <NavigationBar />
+        {/* NavigationBar will appear on ALL pages */}
+        <NavigationBar />
 
-      <Routes>
-        {/* Landing page */}
-        <Route path="/" element={<HomePage />} />
+        <Routes>
+          {/* Landing page */}
+          <Route path="/" element={<HomePage />} />
 
-        {/* Password reset page */}
-        <Route path="/reset-password" element={<ResetPassword />} />
+          {/* Authentication pages */}
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<RegisterForm />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Vendor account page */}
-        <Route path="/vendor-account" element={<VendorAccount />} />
+          {/* Public pages */}
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/product/:productId" element={<ProductDetails />} />
 
-        {/* Vendor invoices page */}
-        <Route path="/vendor-invoices" element={<VendorInvoices />} />
+          {/* Vendor public pages */}
+          <Route path="/vendor-account" element={<VendorAccount />} />
+          <Route path="/vendor-invoices" element={<VendorInvoices />} />
+          <Route path="/vendor-invoice/:invoiceId" element={<VendorInvoiceDetail />} />
 
-        {/* Vendor invoice detail page */}
-        <Route path="/vendor-invoice/:invoiceId" element={<VendorInvoiceDetail />} />
-        
-        {/* Cart page */}
-        <Route path="/cart" element={<CartPage />} />
+          {/* Customer protected routes */}
+          <Route
+            path="/customer-profile"
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CheckoutPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Public login page */}
-        <Route path="/login" element={<LoginForm />} />
+          {/* Protected dashboard routes */}
+          <Route
+            path="/customer-dashboard"
+            element={
+              <ProtectedRoute requiredRole="customer">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendor-dashboard"
+            element={
+              <ProtectedRoute requiredRole="vendor">
+                <VendorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Customer register page */}
-        <Route path="/register" element={<RegisterForm />} />
-
-        {/* Customer profile page */}
-        <Route
-          path="/customer-profile"
-          element={
-            <ProtectedRoute requiredRole="customer">
-              <CustomerProfile />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Checkout page */}
-        <Route
-          path="/checkout"
-          element={
-            <ProtectedRoute requiredRole="customer">
-              <CheckoutPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Product details page */}
-        <Route path="/product/:productId" element={<ProductDetails />} />
-
-        {/* Protected dashboards */}
-        <Route
-          path="/customer-dashboard"
-          element={
-            <ProtectedRoute requiredRole="customer">
-              <CustomerDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/vendor-dashboard"
-          element={
-            <ProtectedRoute requiredRole="vendor">
-              <VendorDashboard />
-            </ProtectedRoute>
-          }
-        />
-        
-        <Route
-          path="/admin-dashboard"
-          element={
-            <ProtectedRoute requiredRole="admin">
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Default fallback → HomePage */}
-        <Route path="*" element={<HomePage />} />
-      </Routes>
-    </CartProvider>
-  </BrowserRouter>
-);
+          {/* Default fallback → HomePage */}
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </CartProvider>
+    </BrowserRouter>
+  );
 }
 export default App;
