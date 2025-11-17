@@ -9,7 +9,7 @@ function ProductCard({ product }) {
   const isAdmin = user?.role === "admin";
 
   // Determine CSS fade class
-  const isInactive = !product.isActive;
+  const isInactive = !product.isActive && !product.IsActive;
   const fadeClass = isInactive ? "inactive-product" : "";
 
   // Customers cannot click inactive products
@@ -18,13 +18,13 @@ function ProductCard({ product }) {
   const cardContent = (
     <div className={`product-card ${fadeClass}`}>
       <img
-        src={product.imageURL || "/placeholder.png"}
-        alt={product.productName}
+        src={product.imageURL || product.ImageURL || "/placeholder.png"}
+        alt={product.productName || product.ProductName}
       />
 
-      <h3>{product.productName}</h3>
+      <h3>{product.productName || product.ProductName}</h3>
 
-      <p>${product.listPrice?.toFixed(2)}</p>
+      <p>${(product.listPrice || product.ListPrice)?.toFixed(2)}</p>
 
       {/* INACTIVE badge */}
       {isInactive && (
@@ -36,7 +36,7 @@ function ProductCard({ product }) {
   // If clickable → wrap with Link
   // If NOT clickable → return plain card div
   return clickable ? (
-    <Link to={`/product/${product.productID}`} className="no-underline">
+    <Link to={`/product/${product.productID || product.ProductID}`} className="no-underline">
       {cardContent}
     </Link>
   ) : (

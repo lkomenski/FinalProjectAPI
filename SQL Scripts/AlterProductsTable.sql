@@ -20,7 +20,7 @@ SET ImageURL = '/images/guitars/strat.jpg'
 WHERE ProductID = 1;
 
 UPDATE Products
-SET ImageURL = '/images/guitars/lespaul.jpg'
+SET ImageURL = '/images/guitars/les_paul.jpg'
 WHERE ProductID = 2;
 
 UPDATE Products
