@@ -5,7 +5,7 @@ ALTER TABLE [dbo].[Products]
 ADD 
     [IsActive] [bit] NULL CONSTRAINT DF_Products_IsActive DEFAULT ((1)), -- Add IsActive column with default constraint
     [DateCreated] [datetime] NULL, -- Add DateCreated column
-    [DateUpdated] [datetime] NULL, -- Add DateUpdated column
+    [DateAdded] [datetime] NULL, -- Add DateAdded column
 	ImageURL NVARCHAR(500) NULL; -- Add ImageURL column
 
 GO

@@ -46,6 +46,11 @@ namespace FinalProjectAPI.Models
         public string? ImageURL { get; set; }
 
         /// <summary>
+        /// Gets or sets whether the product is active and available for purchase.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets the date when the product was added to the system.
         /// </summary>
         public DateTime DateAdded { get; set; }

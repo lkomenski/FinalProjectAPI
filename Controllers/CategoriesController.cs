@@ -75,6 +75,10 @@ namespace FinalProjectAPI.Controllers
                     Description = row["Description"]?.ToString() ?? "",
                     ListPrice = Convert.ToDecimal(row["ListPrice"]),
                     DiscountPercent = Convert.ToDecimal(row["DiscountPercent"]),
+                    ImageURL = row.ContainsKey("ImageURL") ? row["ImageURL"]?.ToString() : null,
+                    IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value
+                        ? Convert.ToBoolean(row["IsActive"])
+                        : true,
                     DateUpdated = row["DateUpdated"] == DBNull.Value
                         ? null
                         : Convert.ToDateTime(row["DateUpdated"])

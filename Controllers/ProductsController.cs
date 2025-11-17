@@ -91,7 +91,8 @@ namespace FinalProjectAPI.Controllers
                 {"@ProductName", product.ProductName},
                 {"@Description", product.Description},
                 {"@ListPrice", product.ListPrice},
-                {"@DiscountPercent", product.DiscountPercent}
+                {"@DiscountPercent", product.DiscountPercent},
+                {"@ImageURL", product.ImageURL}
             };
 
             var result = await _repo.GetDataAsync("AddProduct", parameters);
@@ -122,7 +123,8 @@ namespace FinalProjectAPI.Controllers
                 {"@ProductName", product.ProductName},
                 {"@Description", product.Description},
                 {"@ListPrice", product.ListPrice},
-                {"@DiscountPercent", product.DiscountPercent}
+                {"@DiscountPercent", product.DiscountPercent},
+                {"@ImageURL", product.ImageURL}
             };
 
             var result = await _repo.GetDataAsync("UpdateProduct", parameters);
@@ -257,6 +259,9 @@ namespace FinalProjectAPI.Controllers
                     ? 0
                     : Convert.ToDecimal(row["DiscountPercent"]),
                 ImageURL = row.ContainsKey("ImageURL") ? row["ImageURL"]?.ToString() : null,
+                IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value
+                    ? Convert.ToBoolean(row["IsActive"])
+                    : true,
                 DateUpdated = row["DateUpdated"] == DBNull.Value 
                     ? null 
                     : Convert.ToDateTime(row["DateUpdated"])

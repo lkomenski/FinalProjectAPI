@@ -30,7 +30,7 @@ export default function CartPage() {
 
             {/* Thumbnail */}
             <img
-              src={item.imageUrl || "/placeholder.png"}
+              src={item.imageURL || "/placeholder.png"}
               alt={item.productName}
               className="cart-item-img"
             />

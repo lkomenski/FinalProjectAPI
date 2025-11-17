@@ -8,7 +8,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/16/2025
 -- Description:	Resets customer password
--- exec CustomerResetPassword
+-- exec CustomerResetPassword @EmailAddress='example@example.com', @ResetToken='token123', @NewPassword='newpassword'
 -- =============================================
 CREATE PROCEDURE [dbo].[CustomerResetPassword]
     @EmailAddress NVARCHAR(255),

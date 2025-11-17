@@ -18,7 +18,7 @@ function ProductCard({ product }) {
   const cardContent = (
     <div className={`product-card ${fadeClass}`}>
       <img
-        src={product.imageUrl || "/placeholder.png"}
+        src={product.imageURL || "/placeholder.png"}
         alt={product.productName}
       />
 

@@ -37,7 +37,7 @@ export default function ProductDetails() {
       {/* ------- IMAGE SECTION ------- */}
       <div className="product-details-image">
         <img
-          src={product.imageUrl || "/placeholder.png"}
+          src={product.imageURL || "/placeholder.png"}
           alt={product.productName}
         />
       </div>
