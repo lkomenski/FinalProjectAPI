@@ -294,7 +294,11 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public  # COMMENTED OUT - was blocking React public folder with images
+
+# IMPORTANT: React public folder with images should NOT be ignored
+!client-app/public/
+!client-app/public/**/*
 
 # Storybook build outputs
 .out
