@@ -112,9 +112,8 @@ function HomePage() {
       {/* HERO CAROUSEL                    */}
       {/* -------------------------------- */}
       <div className="carousel-container">
-        <div className="carousel-slide"><img src="/hero1.jpg" /></div>
-        <div className="carousel-slide"><img src="/hero2.jpg" /></div>
-        <div className="carousel-slide"><img src="/hero3.jpg" /></div>
+        <div className="carousel-slide"><img src="/images/hero1.jpg" alt="Hero banner 1" /></div>
+        <div className="carousel-slide"><img src="/images/hero2.jpg" alt="Hero banner 2" /></div>
 
         <div className="carousel-overlay">
           <h1>Find Your Sound</h1>

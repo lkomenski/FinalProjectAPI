@@ -2,7 +2,7 @@ const API_BASE = "http://localhost:5077/api";
 
 export async function fetchData(endpoint) {
   try {
-    const response = await fetch(`http://localhost:5077/api/${endpoint}`);
+    const response = await fetch(`${API_BASE}/${endpoint}`);
 
     if (!response.ok) {
       throw new Error(`API responded with status ${response.status}`);
