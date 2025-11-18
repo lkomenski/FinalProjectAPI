@@ -71,7 +71,7 @@ Products
 Customers
 ├── CustomerID (PK, INT, IDENTITY)
 ├── EmailAddress (NVARCHAR(255))
-├── Password (NVARCHAR(255))
+├── Password (NVARCHAR(255))  -- BCrypt hash (60 characters)
 ├── FirstName (NVARCHAR(50))
 ├── LastName (NVARCHAR(50))
 ├── ShippingAddressID (INT)
@@ -82,6 +82,13 @@ Customers
 ```
 
 **Purpose:** Manages customer accounts, authentication, and profile data
+
+**Security Notes:**
+- **Password Field:** Stores BCrypt hashed passwords (format: `$2a$12$...` or `$2b$12$...`)
+- **Hash Length:** BCrypt hashes are typically 60 characters
+- **Work Factor:** Configured to work factor 12 for security
+- **Salt:** BCrypt automatically generates and includes salt in the hash
+- **No Plain Text:** Passwords are never stored in plain text
 
 #### 4. Orders Table
 ```sql
@@ -149,7 +156,7 @@ Vendors
 ├── VendorContactLName (NVARCHAR(50))
 ├── VendorContactFName (NVARCHAR(50))
 ├── VendorEmail (NVARCHAR(255))
-├── VendorPassword (NVARCHAR(255))
+├── VendorPassword (NVARCHAR(255))  -- BCrypt hash (60 characters)
 ├── DefaultTermsID (INT)
 ├── DefaultAccountNo (NVARCHAR(50))
 ├── IsActive (BIT, DEFAULT 1)
@@ -157,6 +164,13 @@ Vendors
 ```
 
 **Purpose:** Comprehensive vendor management and authentication
+
+**Security Notes:**
+- **VendorPassword Field:** Stores BCrypt hashed passwords (format: `$2a$12$...` or `$2b$12$...`)
+- **Hash Length:** BCrypt hashes are typically 60 characters
+- **Work Factor:** Configured to work factor 12 for security
+- **Vendor Authentication:** Secure login with BCrypt verification
+- **No Plain Text:** Passwords are never stored in plain text
 
 #### 2. Invoices Table
 ```sql
@@ -233,10 +247,12 @@ DeactivateProduct      -- Disables products from sale
 #### Customer Management
 ```sql
 -- Customer Operations
-CustomerRegister       -- Creates new customer accounts
-CustomerLogin         -- Authenticates customer access
+CustomerRegister       -- Creates new customer accounts (BCrypt password hashing)
+CustomerLogin         -- Authenticates customer access (BCrypt verification)
 GetCustomerProfile    -- Retrieves customer information
+GetCustomerByEmail    -- Gets customer by email address
 UpdateCustomerProfile -- Modifies customer data
+UpdateCustomerPassword -- Updates customer password (BCrypt hashing)
 GetCustomerDashboard  -- Customer analytics and order history
 DeactivateCustomer    -- Disables customer accounts
 DeleteCustomer        -- Removes customer records
@@ -254,8 +270,9 @@ GetOrderHistory       -- Retrieves customer order data
 #### Authentication & Security
 ```sql
 -- Security Operations
-CustomerResetPassword     -- Password recovery process
+CustomerResetPassword     -- Password recovery process (BCrypt hashing)
 SavePasswordResetToken    -- Stores password reset tokens
+ValidateResetToken        -- Verifies reset token validity
 ```
 
 ### AP Database Stored Procedures
@@ -265,13 +282,15 @@ SavePasswordResetToken    -- Stores password reset tokens
 -- Vendor Operations
 GetAllVendors         -- Retrieves all vendor information
 GetVendorById        -- Gets specific vendor details
+GetVendorByEmail     -- Gets vendor by email address
 GetVendorDashboard   -- Vendor analytics and invoice summary
 AddVendor           -- Creates new vendor accounts
+RegisterVendor      -- Vendor registration with BCrypt password hashing
 UpdateVendor        -- Modifies vendor information
 DeleteVendorById    -- Removes vendor records
 ActivateVendor      -- Enables vendor accounts
 DeactivateVendor    -- Disables vendor access
-VendorLogin         -- Vendor authentication
+VendorLogin         -- Vendor authentication (BCrypt verification)
 ```
 
 #### Invoice Management
@@ -316,19 +335,33 @@ public interface IDataRepositoryFactory
 ## Security and Data Integrity
 
 ### Authentication Security
-- **Password Storage:** Encrypted password storage (implementation-dependent)
+- **Password Storage:** BCrypt password hashing (BCrypt.Net-Next with work factor 12)
+- **Hash Format:** Passwords stored as BCrypt hashes (60 characters: `$2a$12$...` or `$2b$12$...`)
+- **Salt Generation:** BCrypt automatically generates and includes salt in each hash
 - **Token-Based Reset:** Secure password reset using unique tokens
 - **Role-Based Access:** Separate authentication for customers, vendors, and employees
+- **Password Verification:** BCrypt.Verify for timing-safe password comparison
+- **No Plain Text:** Passwords are never stored or transmitted in plain text
+- **Work Factor:** Configurable complexity (default: 12 rounds)
+
+**BCrypt Password Field Requirements:**
+- **Field Type:** NVARCHAR(255) to accommodate BCrypt hashes
+- **Minimum Length:** 60 characters for BCrypt hash storage
+- **Character Set:** Alphanumeric with special characters ($, .)
+- **Storage Example:** `$2a$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW`
 
 ### Data Validation
 - **Email Uniqueness:** Enforced through stored procedure logic
 - **Required Fields:** NOT NULL constraints on essential fields
 - **Data Types:** Appropriate data types for all fields (MONEY for currency, BIT for boolean)
+- **Password Complexity:** Minimum 8 characters enforced at application layer
+- **Input Sanitization:** Parameterized queries prevent SQL injection
 
 ### Transaction Management
 - **ACID Compliance:** All operations maintain data consistency
 - **Rollback Support:** Error handling with transaction rollback capabilities
 - **Concurrent Access:** SQL Server handles concurrent user access
+- **Password Updates:** Atomic operations for password changes
 
 ## Performance Considerations
 
@@ -353,8 +386,17 @@ public interface IDataRepositoryFactory
 The system includes comprehensive table alteration scripts:
 
 - **AlterCustomerTable.sql:** Adds `IsActive`, `DateUpdated`, and `ResetToken` fields
+  - Ensures Password field accommodates BCrypt hashes (NVARCHAR(255))
 - **AlterProductsTable.sql:** Adds `IsActive`, `DateCreated`, `DateAdded`, and `ImageURL` fields
 - **AlterVendorTable.sql:** Adds `VendorEmail`, `VendorPassword`, `IsActive`, and `DateUpdated` fields
+  - Ensures VendorPassword field accommodates BCrypt hashes (NVARCHAR(255))
+
+### Password Migration Considerations
+When upgrading from plain text or other hashing methods to BCrypt:
+1. **Field Size:** Ensure Password/VendorPassword fields are NVARCHAR(255) or larger
+2. **Character Set:** Ensure field supports alphanumeric and special characters
+3. **Migration Script:** Re-hash existing passwords using BCrypt (requires password reset for users)
+4. **Validation:** Verify all passwords are in BCrypt format after migration
 
 ### Data Population
 - **Sample Data:** Image URL updates for product demonstration
@@ -388,6 +430,16 @@ WITH FORMAT, DESCRIPTION = 'Full backup of AP database';
 3. **Inventory Tracking:** Quantity on hand and reserved stock management
 4. **Price History:** Historical pricing data for analytics
 5. **Customer Reviews:** Product review and rating system
+6. **Password History:** Track password changes to prevent reuse
+7. **Failed Login Tracking:** Monitor authentication attempts for security
+8. **Session Management:** Store active user sessions for enhanced security
+
+### Security Enhancements
+1. **Two-Factor Authentication:** Additional security layer for authentication
+2. **Password Expiration:** Enforce periodic password changes
+3. **Account Lockout:** Temporary lockout after failed login attempts
+4. **Audit Logging:** Track all authentication and sensitive data changes
+5. **IP Whitelisting:** Restrict access by IP address for admin accounts
 
 ### Performance Enhancements
 1. **Partitioning:** Large table partitioning for historical data
@@ -397,9 +449,24 @@ WITH FORMAT, DESCRIPTION = 'Full backup of AP database';
 
 ## Conclusion
 
-The SQL database design for the My Guitar Shop Management System demonstrates professional-level database architecture with proper normalization, referential integrity, and security considerations. The dual-database approach provides excellent separation of concerns while the extensive stored procedure library ensures consistent and secure data access patterns.
+The SQL database design for the My Guitar Shop Management System demonstrates professional-level database architecture with proper normalization, referential integrity, and enterprise-grade security considerations. The dual-database approach provides excellent separation of concerns while the extensive stored procedure library ensures consistent and secure data access patterns.
 
-The design supports both current functional requirements and provides a solid foundation for future enhancements and scaling needs. The combination of proper indexing, transaction management, and comprehensive documentation makes this database design suitable for production deployment and long-term maintenance.
+**Key Database Features:**
+- **BCrypt Password Security:** Industry-standard password hashing with work factor 12
+- **Dual-Database Architecture:** Separation of customer and vendor operations
+- **Comprehensive Stored Procedures:** 30+ procedures for all business operations
+- **Role-Based Authentication:** Separate login mechanisms for customers, vendors, and employees
+- **Data Integrity:** Foreign key constraints and referential integrity enforcement
+- **Extensible Design:** Support for future enhancements and scaling
+
+**Security Highlights:**
+- BCrypt password hashing prevents rainbow table attacks
+- Automatic salt generation ensures unique hashes even for identical passwords
+- Timing-safe password verification prevents timing attacks
+- Token-based password reset with expiration
+- No plain text password storage anywhere in the system
+
+The design supports both current functional requirements and provides a solid foundation for future enhancements and scaling needs. The combination of proper indexing, transaction management, BCrypt security implementation, and comprehensive documentation makes this database design suitable for production deployment and long-term maintenance.
 
 ---
 

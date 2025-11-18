@@ -17,14 +17,16 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Framework:** .NET 9.0
 - **Architecture:** Model-View-Controller (MVC) with Repository Pattern
 - **Database:** SQL Server with stored procedures
-- **Authentication:** Role-based authentication system
+- **Authentication:** BCrypt password hashing with role-based authentication system
 - **API Documentation:** Swagger/OpenAPI integration
+- **Security:** BCrypt.Net-Next package for password encryption
 
 ### Frontend (React.js Application)
-- **Framework:** React.js with React Router
+- **Framework:** React.js 19.x with React Router 7.x
 - **State Management:** Context API for cart and user state
-- **UI Components:** Custom responsive design
+- **UI Components:** Custom responsive design with react-slick carousels
 - **Navigation:** Protected routes based on user roles
+- **Testing:** React Testing Library with Jest
 
 ### Database Design
 - **Primary Database:** MyGuitarShop (customer-facing operations)
@@ -35,11 +37,11 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Core Features
 
 ### Customer Management
-- **User Registration & Authentication:** Secure customer account creation and login
-- **Profile Management:** Update personal information and preferences
+- **User Registration & Authentication:** Secure customer account creation and login with BCrypt password encryption
+- **Profile Management:** Update personal information, addresses, and preferences
 - **Shopping Cart:** Add products, manage quantities, and checkout
 - **Order History:** View past purchases and order status
-- **Password Reset:** Secure password recovery system
+- **Password Security:** Complete password reset flow via email and in-app password change functionality
 
 ### Product Catalog Management
 - **Inventory Management:** Complete CRUD operations for products
@@ -50,11 +52,12 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Stock Management:** Inventory tracking and availability
 
 ### Vendor Management
-- **Vendor Registration:** Onboard new suppliers and manufacturers
-- **Vendor Profiles:** Maintain detailed vendor information
-- **Invoice Management:** Track vendor invoices and payment terms
+- **Vendor Registration:** Onboard new suppliers and manufacturers with dedicated registration form
+- **Vendor Profiles:** Maintain detailed vendor information and business details
+- **Invoice Management:** Track vendor invoices, payment terms, and due dates
 - **Account Status:** Activate/deactivate vendor accounts
 - **Contact Management:** Vendor communication and contact details
+- **Dashboard Analytics:** Vendor-specific sales and revenue tracking
 
 ### Administrative Dashboard
 - **System Overview:** Key performance indicators and metrics
@@ -90,14 +93,15 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Technical Implementation
 
 ### Controllers & API Endpoints
-1. **AuthController** - Authentication and authorization
-2. **CustomerController** - Customer account management
-3. **ProductsController** - Product catalog operations
+1. **AuthController** - Universal authentication with BCrypt password verification
+2. **CustomerController** - Customer account management with password change functionality
+3. **ProductsController** - Product catalog operations with image management
 4. **CategoriesController** - Product category management
-5. **VendorsController** - Vendor management
+5. **VendorsController** - Vendor management with registration support
 6. **InvoicesController** - Invoice and payment tracking
-7. **DashboardController** - Analytics and reporting
-8. **PasswordResetController** - Password recovery system
+7. **DashboardController** - Analytics and reporting for all user roles
+8. **PasswordResetController** - Secure password recovery system
+9. **LoginController** - Legacy login support (deprecated in favor of AuthController)
 
 ### Data Models
 - **Customer** - User account and profile information
@@ -108,11 +112,12 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Dashboard Models** - Analytics and reporting data structures
 
 ### Security Features
-- **Password Encryption** - Secure password hashing and storage
-- **Role-Based Access Control** - User permission management
-- **Session Management** - Secure user session handling
-- **Input Validation** - Data sanitization and validation
-- **Error Handling** - Comprehensive exception management
+- **Password Encryption** - BCrypt password hashing with BCrypt.Net-Next (work factor 12)
+- **Role-Based Access Control** - User permission management for customer/vendor/admin roles
+- **Session Management** - Secure user session handling with token-based authentication
+- **Input Validation** - Data sanitization and validation on all endpoints
+- **Error Handling** - Comprehensive exception management without exposing sensitive data
+- **SQL Injection Prevention** - Parameterized stored procedures for all database operations
 
 ## Business Logic
 
@@ -202,10 +207,11 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - [OOP Concepts Summary](OOPConceptsSummary.md)
 
 ### Code Deliverables
-- Complete ASP.NET Core Web API application
-- React.js client application
+- Complete ASP.NET Core Web API application (.NET 9.0)
+- React.js 19.x client application with React Router 7.x
 - SQL Server database with stored procedures
-- HTTP testing file for API validation
+- HTTP testing file for API validation (FinalProjectAPI.http)
+- BCrypt.Net-Next integration for password security
 - Comprehensive documentation suite
 
 ### Database Assets

@@ -13,10 +13,14 @@ Before setting up the My Guitar Shop Management System, ensure you have the foll
 - **npm** (comes with Node.js)
 - **Git** (for version control)
 
+### Required NuGet Packages
+- **BCrypt.Net-Next** (for password encryption) - Auto-installed during restore
+
 ### Optional Tools
 - **Postman** or **Thunder Client** (for API testing)
 - **React Developer Tools** (browser extension)
 - **SQL Server Data Tools** (SSDT)
+- **REST Client** extension for VS Code (to use .http files)
 
 ## Database Setup
 
@@ -136,8 +140,17 @@ cd /path/to/FinalProjectAPI
 
 ### 2. Restore NuGet Packages
 ```bash
-# Restore .NET packages
+# Restore .NET packages (includes BCrypt.Net-Next)
 dotnet restore
+
+# Verify BCrypt.Net-Next is installed
+dotnet list package
+# Should show: BCrypt.Net-Next
+```
+
+**Note:** If BCrypt.Net-Next is not installed, add it manually:
+```bash
+dotnet add package BCrypt.Net-Next
 ```
 
 ### 3. Build the Project
@@ -201,7 +214,12 @@ npm list
 # - react@^19.2.0
 # - react-dom@^19.2.0
 # - react-router-dom@^7.9.5
+# - react-router@^7.9.5
 # - react-scripts@5.0.1
+# - react-slick@^0.31.0
+# - slick-carousel@^1.8.1
+# - @testing-library/react@^16.3.0
+# - @testing-library/jest-dom@^6.9.1
 ```
 
 ### 4. Configure API Base URL
@@ -264,7 +282,7 @@ npm start
 
 ### 1. API Testing with HTTP Client
 
-1. **Open `FinalProjectAPI.http` file**
+1. **Open `FinalProjectAPI.http` file** (in VS Code with REST Client extension)
 2. **Test basic endpoints:**
    ```http
    ### Test Weather Forecast (default endpoint)
@@ -278,17 +296,44 @@ npm start
    ### Test Get All Categories  
    GET http://localhost:5077/api/categories
    Accept: application/json
+
+   ### Test Featured Products
+   GET http://localhost:5077/api/products/featured
+   Accept: application/json
    ```
 
-3. **Test Authentication:**
+3. **Test Authentication (BCrypt password verification):**
    ```http
-   ### Test Customer Login (use actual customer data)
-   POST http://localhost:5077/api/login/customer
+   ### Test Universal Login
+   POST http://localhost:5077/api/auth/login
    Content-Type: application/json
 
    {
-     "email": "test@example.com",
-     "password": "password123"
+     "emailAddress": "test@example.com",
+     "password": "password123",
+     "role": "customer"
+   }
+
+   ### Test Customer Registration (BCrypt password hashing)
+   POST http://localhost:5077/api/customer/register
+   Content-Type: application/json
+
+   {
+     "firstName": "John",
+     "lastName": "Doe",
+     "emailAddress": "john@example.com",
+     "password": "SecurePass123",
+     "confirmPassword": "SecurePass123"
+   }
+
+   ### Test Password Change (BCrypt verification and hashing)
+   PUT http://localhost:5077/api/customer/change-password
+   Content-Type: application/json
+
+   {
+     "customerID": 1,
+     "oldPassword": "SecurePass123",
+     "newPassword": "NewSecurePass456"
    }
    ```
 
@@ -296,16 +341,24 @@ npm start
 
 1. **Navigate to `http://localhost:3000`**
 2. **Test key functionality:**
-   - Homepage loads with product listings
+   - Homepage loads with product listings and featured products
    - Navigation menu works
-   - Login/Register forms display
-   - Product browsing functionality
-   - Category filtering (if implemented)
+   - Login/Register forms display correctly
+   - Product browsing functionality with image carousels
+   - Category filtering works
+   - Shopping cart functionality
 
 3. **Test User Registration:**
-   - Create a new customer account
-   - Verify account creation in database
-   - Test login with new account
+   - Create a new customer account with password confirmation
+   - Verify password is hashed with BCrypt in database
+   - Test login with new account (BCrypt verification)
+   - Test password change functionality
+
+4. **Test Vendor Registration:**
+   - Navigate to vendor registration page
+   - Fill out vendor business information
+   - Verify BCrypt password hashing
+   - Test vendor login with BCrypt verification
 
 ### 3. Database Verification
 
@@ -316,11 +369,17 @@ npm start
    SELECT * FROM Categories;
    SELECT * FROM Products;
    SELECT * FROM Customers;
+   
+   -- Verify passwords are hashed (BCrypt hashes start with $2a$ or $2b$)
+   SELECT CustomerID, EmailAddress, Password FROM Customers;
 
    -- Verify AP tables  
    USE AP;
    SELECT * FROM Vendors;
    SELECT * FROM Invoices;
+   
+   -- Verify vendor passwords are hashed
+   SELECT VendorID, EmailAddress, VendorPassword FROM Vendors;
    ```
 
 2. **Test Stored Procedures:**
@@ -329,7 +388,13 @@ npm start
    EXEC GetCategories;
    EXEC GetAllProducts;
    EXEC GetAllVendors;
+   EXEC GetFeaturedProducts;
    ```
+
+3. **Verify BCrypt Password Hashing:**
+   - Check that passwords in Customers table start with `$2a$` or `$2b$`
+   - Verify no plain text passwords are stored
+   - Test password verification through login endpoints
 
 ## Troubleshooting
 
@@ -356,16 +421,24 @@ npm start
 - Update Visual Studio to support .NET 9.0
 
 **Error: "Package restore failed"**
-- **Solution:** Clear NuGet cache
+- **Solution:** Clear NuGet cache and restore
 ```bash
 dotnet nuget locals all --clear
 dotnet restore
 ```
 
+**Error: "BCrypt.Net-Next not found"**
+- **Solution:** Install BCrypt package explicitly
+```bash
+dotnet add package BCrypt.Net-Next
+dotnet restore
+dotnet build
+```
+
 #### 3. React App Issues
 
 **Error: "npm ERR! peer dep missing"**
-- **Solution:** Install with legacy peer deps
+- **Solution:** Install with legacy peer deps (due to React 19.x)
 ```bash
 npm install --legacy-peer-deps
 ```
@@ -374,7 +447,15 @@ npm install --legacy-peer-deps
 - **Solution:** Delete node_modules and reinstall
 ```bash
 rm -rf node_modules package-lock.json
-npm install
+npm install --legacy-peer-deps
+```
+
+**Error: "react-slick not working"**
+- **Solution:** Ensure slick-carousel CSS is imported
+```javascript
+// Add to index.js or App.js
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 ```
 
 #### 4. CORS Issues
@@ -474,9 +555,13 @@ git push origin main
 
 ### 4. Security Considerations
 - Remove development CORS settings
-- Implement authentication tokens (JWT)
+- Implement authentication tokens (JWT) for enhanced security
 - Enable SQL Server security features
 - Use HTTPS for all communication
+- Ensure BCrypt work factor is appropriate for production (currently 12)
+- Implement rate limiting for login attempts
+- Add input validation and sanitization
+- Never expose BCrypt hashes in API responses or logs
 
 ## Additional Resources
 
@@ -494,13 +579,17 @@ dotnet restore                      # Restore NuGet packages
 dotnet build                        # Build project
 dotnet run                          # Run application
 dotnet clean                        # Clean build artifacts
+dotnet add package BCrypt.Net-Next  # Install BCrypt package
+dotnet list package                 # List installed packages
 
 # npm Commands  
 npm --version                       # Check npm version
 npm install                         # Install dependencies
+npm install --legacy-peer-deps      # Install with React 19.x compatibility
 npm start                           # Start development server
 npm run build                       # Build for production
 npm test                            # Run tests
+npm list                            # List installed packages
 
 # SQL Server Commands (Command Prompt)
 sqlcmd -S localhost -E             # Connect to SQL Server

@@ -17,14 +17,16 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Framework:** .NET 9.0
 - **Architecture:** Model-View-Controller (MVC) with Repository Pattern
 - **Database:** SQL Server with stored procedures
-- **Authentication:** Role-based authentication system
+- **Authentication:** BCrypt password hashing (BCrypt.Net-Next) with role-based authentication system
 - **API Documentation:** Swagger/OpenAPI integration
+- **Security:** BCrypt work factor 12 for password encryption
 
 ### Frontend (React.js Application)
-- **Framework:** React.js with React Router
+- **Framework:** React.js 19.x with React Router 7.x
 - **State Management:** Context API for cart and user state
-- **UI Components:** Custom responsive design
+- **UI Components:** Custom responsive design with react-slick carousels
 - **Navigation:** Protected routes based on user roles
+- **Testing:** React Testing Library with Jest
 
 ### Database Design
 - **Primary Database:** MyGuitarShop (customer-facing operations)
@@ -35,26 +37,30 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Core Features
 
 ### Customer Management
-- **User Registration & Authentication:** Secure customer account creation and login
-- **Profile Management:** Update personal information and preferences
+- **User Registration & Authentication:** Secure customer account creation and login with BCrypt password encryption
+- **Profile Management:** Update personal information, addresses, and preferences
 - **Shopping Cart:** Add products, manage quantities, and checkout
 - **Order History:** View past purchases and order status
-- **Password Reset:** Secure password recovery system
+- **Password Security:** Complete password reset flow via email and in-app password change functionality
+- **Account Management:** Profile updates with email and personal information
 
 ### Product Catalog Management
 - **Inventory Management:** Complete CRUD operations for products
 - **Category Organization:** Products organized by musical instrument categories
 - **Featured Products:** Highlight special or promotional items
 - **Best Sellers Tracking:** Analytics-driven product recommendations
-- **Image Management:** Product photos and galleries
+- **Image Management:** Product photos and galleries with carousel displays
 - **Stock Management:** Inventory tracking and availability
+- **Product Activation:** Activate/deactivate products without deletion
 
 ### Vendor Management
-- **Vendor Registration:** Onboard new suppliers and manufacturers
-- **Vendor Profiles:** Maintain detailed vendor information
-- **Invoice Management:** Track vendor invoices and payment terms
+- **Vendor Registration:** Dedicated registration form with business information and BCrypt password security
+- **Vendor Profiles:** Maintain detailed vendor information including contact and business details
+- **Invoice Management:** Track vendor invoices, payment terms, and due dates
 - **Account Status:** Activate/deactivate vendor accounts
 - **Contact Management:** Vendor communication and contact details
+- **Dashboard Analytics:** Vendor-specific sales, revenue tracking, and invoice summaries
+- **Vendor Authentication:** Secure login with BCrypt password verification
 
 ### Administrative Dashboard
 - **System Overview:** Key performance indicators and metrics
@@ -75,10 +81,12 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ### Vendor Users
 - View and manage vendor profile
-- Access invoice history and details
-- Track payment status and terms
-- View vendor-specific dashboard metrics
+- Access invoice history and details with payment terms
+- Track payment status, due dates, and terms
+- View vendor-specific dashboard metrics and analytics
 - Update contact and business information
+- Manage vendor account settings
+- View sales and revenue data
 
 ### Administrator/Employee Users
 - Full system administration access
@@ -90,29 +98,40 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Technical Implementation
 
 ### Controllers & API Endpoints
-1. **AuthController** - Authentication and authorization
-2. **CustomerController** - Customer account management
-3. **ProductsController** - Product catalog operations
+1. **AuthController** - Universal authentication with BCrypt password verification for all user roles
+2. **CustomerController** - Customer account management with password change functionality
+3. **ProductsController** - Product catalog operations with activation/deactivation
 4. **CategoriesController** - Product category management
-5. **VendorsController** - Vendor management
-6. **InvoicesController** - Invoice and payment tracking
-7. **DashboardController** - Analytics and reporting
-8. **PasswordResetController** - Password recovery system
+5. **VendorsController** - Vendor management with registration and authentication
+6. **InvoicesController** - Invoice and payment tracking with detailed vendor invoices
+7. **DashboardController** - Analytics and reporting for customer, vendor, and admin roles
+8. **PasswordResetController** - Secure password recovery system with token generation
+9. **LoginController** - Legacy login support (deprecated in favor of AuthController)
 
 ### Data Models
 - **Customer** - User account and profile information
 - **Product** - Product details, pricing, and inventory
 - **Category** - Product categorization system
-- **Vendor** - Supplier and manufacturer information
+- **Vendor** - Supplier and manufacturer information with authentication
+- **VendorRegisterRequest** - Vendor registration data transfer object
 - **Invoice** - Vendor invoicing and payment tracking
-- **Dashboard Models** - Analytics and reporting data structures
+- **Dashboard Models** - Analytics and reporting data structures (CustomerDashboard, VendorDashboard, AdminDashboard)
+- **LoginRequest/LoginResponse** - Authentication data transfer objects
+- **ChangePasswordRequest** - Password change data transfer object
+- **ResetPasswordDto/ResetRequestDto** - Password reset data transfer objects
+- **Address** - Customer address management
 
 ### Security Features
-- **Password Encryption** - Secure password hashing and storage
-- **Role-Based Access Control** - User permission management
-- **Session Management** - Secure user session handling
-- **Input Validation** - Data sanitization and validation
-- **Error Handling** - Comprehensive exception management
+- **Password Encryption** - BCrypt password hashing with BCrypt.Net-Next package (work factor 12)
+- **Password Verification** - BCrypt.Verify for all authentication attempts
+- **Role-Based Access Control** - User permission management for customer/vendor/admin roles
+- **Session Management** - Secure user session handling with token-based authentication
+- **Input Validation** - Data sanitization and validation on all endpoints
+- **Error Handling** - Comprehensive exception management without exposing sensitive data
+- **SQL Injection Prevention** - Parameterized stored procedures for all database operations
+- **Password Requirements** - Minimum 8 characters for all passwords
+- **Password Change Flow** - Verify old password before allowing change with BCrypt
+- **Password Reset Flow** - Secure token-based reset with email verification
 
 ## Business Logic
 
@@ -166,25 +185,37 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Testing & Quality Assurance
 
 ### API Testing
-- **HTTP Client Testing** - Comprehensive endpoint testing
+- **HTTP Client Testing** - Comprehensive endpoint testing with FinalProjectAPI.http file
 - **Error Scenario Testing** - Exception handling validation
-- **Authentication Testing** - Security verification
+- **Authentication Testing** - BCrypt security verification and login flow testing
 - **Data Validation Testing** - Input validation checks
+- **Password Security Testing** - BCrypt hashing and verification testing
+- **Registration Flow Testing** - Customer and vendor registration validation
 
 ### Database Testing
 - **Stored Procedure Testing** - Individual procedure validation
 - **Data Integrity Testing** - Referential integrity checks
 - **Performance Testing** - Query optimization validation
+- **Password Storage Testing** - Verify BCrypt hash storage
+
+### Frontend Testing
+- **React Testing Library** - Component testing with Jest
+- **User Interaction Testing** - Form submissions and user flows
+- **Integration Testing** - API integration and data flow testing
 
 ## Future Enhancements
 
 ### Potential Improvements
 - **Payment Processing** - Credit card and PayPal integration
-- **Shipping Integration** - Real-time shipping calculations
-- **Email Notifications** - Order confirmations and updates
-- **Advanced Analytics** - Business intelligence dashboards
-- **Mobile Application** - Native mobile app development
+- **Shipping Integration** - Real-time shipping calculations and tracking
+- **Email Notifications** - Order confirmations, password resets, and updates
+- **Advanced Analytics** - Business intelligence dashboards with charts and graphs
+- **Mobile Application** - Native mobile app development for iOS and Android
 - **Inventory Automation** - Automatic reorder points and supplier integration
+- **Two-Factor Authentication** - Enhanced security with 2FA
+- **Social Media Integration** - Social login and product sharing
+- **Product Reviews** - Customer reviews and ratings system
+- **Wishlist Feature** - Save products for later purchase
 
 ### Scalability Considerations
 - **Caching Implementation** - Redis or in-memory caching
@@ -202,10 +233,12 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - [OOP Concepts Summary](OOPConceptsSummary.md)
 
 ### Code Deliverables
-- Complete ASP.NET Core Web API application
-- React.js client application
+- Complete ASP.NET Core Web API application (.NET 9.0)
+- React.js 19.x client application with React Router 7.x
 - SQL Server database with stored procedures
-- HTTP testing file for API validation
+- HTTP testing file for API validation (FinalProjectAPI.http)
+- BCrypt.Net-Next integration for password security
+- React Testing Library test suite
 - Comprehensive documentation suite
 
 ### Database Assets
@@ -216,6 +249,15 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ## Conclusion
 
-The My Guitar Shop Management System represents a comprehensive solution for e-commerce and business management in the musical instrument retail industry. The project demonstrates advanced web development skills, database design expertise, and modern software architecture principles. The system provides a solid foundation for a real-world guitar retail business while showcasing professional development practices and coding standards.
+The My Guitar Shop Management System represents a comprehensive solution for e-commerce and business management in the musical instrument retail industry. The project demonstrates advanced web development skills, database design expertise, and modern software architecture principles with enterprise-grade security using BCrypt password encryption.
 
-The modular design, comprehensive feature set, and extensible architecture make this system suitable for both educational demonstration and potential commercial deployment with additional enhancements.
+The system provides a solid foundation for a real-world guitar retail business while showcasing professional development practices and coding standards. Key technical achievements include:
+
+- **Modern Stack:** Utilizes the latest versions of .NET 9.0, React 19.x, and React Router 7.x
+- **Security Best Practices:** Implements BCrypt password hashing with work factor 12 for industry-standard security
+- **Comprehensive Testing:** Includes React Testing Library integration for frontend testing
+- **Role-Based Architecture:** Separate authentication flows for customers, vendors, and administrators
+- **Professional API Design:** RESTful endpoints with comprehensive documentation and error handling
+- **Scalable Database Design:** Stored procedure architecture with proper separation of concerns
+
+The modular design, comprehensive feature set, and extensible architecture make this system suitable for both educational demonstration and potential commercial deployment with additional enhancements. The implementation of BCrypt password security and modern frontend frameworks demonstrates adherence to current industry standards and best practices.

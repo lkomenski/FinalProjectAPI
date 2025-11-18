@@ -4,32 +4,34 @@ A React-based frontend for the Guitar Shop Management System, providing separate
 
 ##  Project Overview
 
-This client application is part of a comprehensive Guitar Shop Management System. For detailed project specifications, architecture, and business requirements, see [ ProjectOverview.md](../Documentation/ProjectOverview.md).
+This client application is part of a comprehensive Guitar Shop Management System. For detailed project specifications, architecture, and business requirements, see [ProjectOverview.md](../Documentation/ProjectOverview.md).
 
 **Key Application Areas:**
-- **Customer Portal**: Browse products, manage shopping cart, view order history, update profile
-- **Vendor Dashboard**: Manage product inventory, view sales analytics, handle vendor operations  
+- **Customer Portal**: Browse products, manage shopping cart, view order history, update profile with password management
+- **Vendor Dashboard**: Manage product inventory, view sales analytics, handle invoices and vendor operations  
 - **Admin Panel**: Comprehensive business oversight, user management, system analytics
 - **Authentication System**: Role-based access with secure login/registration, BCrypt password encryption
-- **Vendor Registration**: Secure token-based vendor account activation system
+- **Vendor Registration**: Dedicated vendor registration form with business information
+- **Password Security**: Complete password reset flow and change password functionality
 
 ## 🛠 Technology Stack
 
-- **Frontend**: React 18.x with functional components and hooks
-- **Routing**: React Router v6 for SPA navigation
+- **Frontend**: React 19.x with functional components and hooks
+- **Routing**: React Router v7 for SPA navigation
 - **Styling**: Custom CSS with responsive design
 - **State Management**: React Context API for cart and user state
 - **HTTP Client**: Fetch API for REST API communication
 - **Build Tool**: Create React App (Webpack, Babel)
+- **UI Components**: React Slick for carousels and image galleries
 
 ##  Getting Started
 
 ### Prerequisites
 - Node.js 16.x or higher
 - npm or yarn package manager
-- Running backend API (ASP.NET Core Web API)
+- Running backend API (ASP.NET Core Web API on .NET 9.0)
 
->  **Complete Setup Guide**: For full development environment setup including database configuration, API setup, and troubleshooting, see [ SetupInstructions.md](../Documentation/SetupInstructions.md)
+>  **Complete Setup Guide**: For full development environment setup including database configuration, API setup, and troubleshooting, see [SetupInstructions.md](../Documentation/SetupInstructions.md)
 
 ### Quick Start
 
@@ -63,14 +65,15 @@ src/
 │   ├── ProductDetails.js # Individual product view
 │   ├── ProductForm.js   # Product management form (admin)
 │   ├── LoginForm.js     # User authentication
-│   ├── RegisterForm.js  # User registration
+│   ├── RegisterForm.js  # Customer registration
 │   ├── ResetPassword.js # Password reset functionality
 │   ├── ChangePasswordModal.js # Password change modal
 │   ├── CustomerDashboard.js   # Customer account overview
 │   ├── CustomerProfile.js     # Customer profile management
 │   ├── VendorDashboard.js     # Vendor business analytics
 │   ├── VendorAccount.js       # Vendor profile management
-│   ├── VendorForm.js          # Vendor registration/editing
+│   ├── VendorForm.js          # Vendor account editing
+│   ├── VendorRegisterForm.js  # Vendor registration form
 │   ├── VendorInvoices.js      # Vendor invoice listing
 │   ├── VendorInvoiceDetail.js # Individual invoice view
 │   ├── EmployeeDashboard.js   # Admin/employee panel
@@ -94,7 +97,8 @@ src/
 │   └── modal.css        # General modal styles
 ├── context/             # React Context providers
 │   └── CartContext.js   # Shopping cart state management
-├── App.js               # Main application component
+├── App.js               # Main application component with routing
+├── App.css              # Main application styles
 ├── index.js             # Application entry point
 └── index.css            # Base CSS styles
 ```
@@ -102,88 +106,139 @@ src/
 ##  Key Features
 
 ### Customer Features
-- **Product Browsing**: Featured products, categories, search functionality
-- **Shopping Cart**: Persistent cart with user-specific storage
+- **Product Browsing**: Featured products, categories, search functionality with image carousels
+- **Shopping Cart**: Persistent cart with user-specific storage and real-time updates
 - **User Account**: Registration, login, profile management, order history
-- **Password Security**: Secure password reset and change functionality
+- **Password Security**: Secure password reset via email and in-app password change functionality
+- **Address Management**: Multiple shipping addresses with default selection
+- **Order History**: Complete purchase history with order details and status tracking
 
 ### Vendor Features  
-- **Product Management**: Add, edit, delete products with image upload
-- **Dashboard Analytics**: Sales metrics, product performance
-- **Account Management**: Profile updates, business information
+- **Vendor Registration**: Dedicated registration form with business information and contact details
+- **Product Management**: Add, edit, delete products with image upload capabilities
+- **Dashboard Analytics**: Sales metrics, revenue tracking, product performance analytics
+- **Invoice Management**: View detailed invoice history with payment terms and due dates
+- **Account Management**: Profile updates, business information, contact details
+- **Order Tracking**: View orders containing vendor products
 
 ### Admin Features
-- **System Overview**: Comprehensive business metrics and KPIs
-- **User Management**: Customer and vendor account oversight
-- **Product Oversight**: System-wide inventory management
-- **Business Intelligence**: Sales analytics and reporting
+- **System Overview**: Comprehensive business metrics and KPIs with real-time data
+- **User Management**: Customer and vendor account oversight and management
+- **Product Oversight**: System-wide inventory management and product activation
+- **Business Intelligence**: Sales analytics, revenue reporting, and performance metrics
+- **Category Management**: Organize and manage product categories
+- **System Administration**: Full CRUD operations across all entities
 
 ##  API Integration
 
 The frontend communicates with the ASP.NET Core Web API:
 - **Base URL**: `http://localhost:5077/api`
-- **Authentication**: Role-based with customer/vendor/admin endpoints
+- **Authentication**: BCrypt password hashing with role-based access (customer/vendor/admin)
 - **Data Format**: JSON REST API
 - **Error Handling**: Comprehensive error messaging and validation
+- **Security**: Password encryption using BCrypt.Net-Next package
 
->  **Complete API Documentation**: For detailed endpoint specifications, request/response schemas, and testing examples, see [ APIEndpoints.md](../Documentation/APIEndpoints.md)
+>  **Complete API Documentation**: For detailed endpoint specifications, request/response schemas, and testing examples, see [APIEndpoints.md](../Documentation/APIEndpoints.md)
 
 ### Key API Endpoints
 ```
-GET    /api/products              # Get all products
-GET    /api/categories            # Get product categories  
-POST   /api/customer/login        # Customer authentication
-GET    /api/dashboard/customer/:id # Customer dashboard data
-PUT    /api/customer/change-password # Change customer password
-POST   /api/products              # Add new product (admin)
+# Authentication
+POST   /api/auth/login               # Universal login with role selection
+POST   /api/auth/customer/login      # Customer-specific authentication
+POST   /api/auth/vendor/login        # Vendor-specific authentication
+
+# Customer Management
+POST   /api/customer/register        # Customer registration with BCrypt
+GET    /api/customer/:id             # Get customer details
+PUT    /api/customer/:id             # Update customer profile
+PUT    /api/customer/change-password # Change password with verification
+GET    /api/dashboard/customer/:id   # Customer dashboard data
+
+# Product Management
+GET    /api/products                 # Get all products
+GET    /api/products/featured        # Get featured products
+GET    /api/products/:id             # Get product details
+POST   /api/products                 # Add new product (admin)
+PUT    /api/products/:id             # Update product
+DELETE /api/products/:id             # Delete product
+
+# Vendor Management
+POST   /api/vendors/register         # Vendor registration
+GET    /api/vendors/:id              # Get vendor details
+PUT    /api/vendors/:id              # Update vendor profile
+GET    /api/vendors/:id/invoices     # Get vendor invoices
+GET    /api/dashboard/vendor/:id     # Vendor dashboard analytics
+
+# Categories
+GET    /api/categories               # Get all categories
+GET    /api/categories/:id/products  # Get products by category
+
+# Password Reset
+POST   /api/password-reset/request   # Request password reset
+POST   /api/password-reset/reset     # Reset password with token
 ```
 
 ##  UI/UX Features
 
-- **Responsive Design**: Mobile-first approach with flexible layouts
-- **Accessibility**: WCAG 2.1 compliant with keyboard navigation
-- **User Experience**: Intuitive navigation, loading states, error handling
-- **Visual Design**: Modern card-based layouts with consistent styling
-- **Interactive Elements**: Modals, carousels, dynamic filtering
+- **Responsive Design**: Mobile-first approach with flexible layouts and breakpoints
+- **Accessibility**: WCAG 2.1 compliant with keyboard navigation and ARIA labels
+- **User Experience**: Intuitive navigation, loading states, error handling, and success messages
+- **Visual Design**: Modern card-based layouts with consistent styling and color schemes
+- **Interactive Elements**: Modals, carousels (react-slick), dynamic filtering, and real-time updates
+- **Image Galleries**: Product image carousels with navigation controls
+- **Form Validation**: Client-side validation with clear error messages
+- **Loading States**: Spinners and skeleton screens for better perceived performance
 
 ##  Security Features
 
-- **Password Requirements**: 8+ characters with number requirement
-- **Input Validation**: Client and server-side validation
-- **Secure Storage**: Sensitive data handled appropriately
-- **Role Protection**: Route guards for different user types
-- **CSRF Protection**: Secure form submissions
+- **Password Encryption**: BCrypt password hashing on backend (BCrypt.Net-Next)
+- **Password Requirements**: 8+ characters with complexity validation
+- **Input Validation**: Client and server-side validation for all forms
+- **Secure Storage**: Session storage for user authentication tokens
+- **Role Protection**: Route guards (ProtectedRoute component) for different user types
+- **CSRF Protection**: Secure form submissions with proper headers
+- **Password Reset Flow**: Secure token-based password reset via email
+- **Session Management**: Automatic logout on token expiration
 
 ##  Development Scripts
 
 ```bash
-# Development server with hot reload
+# Start development server with hot reload
 npm start
 
-# Run test suite
+# Run test suite with coverage
 npm test
 
-# Production build
+# Build optimized production bundle
 npm run build
 
-# Analyze bundle size
+# Analyze bundle size and dependencies
 npm run build && npx serve -s build
 ```
 
->  **Testing Documentation**: For comprehensive testing procedures, API testing examples, and quality assurance guidelines, see [ TestingPlan.md](../Documentation/TestingPlan.md)
+>  **Testing Documentation**: For comprehensive testing procedures, API testing examples, and quality assurance guidelines, see [TestingPlan.md](../Documentation/TestingPlan.md)
 
 ##  Dependencies
 
 ### Core Dependencies
-- `react` & `react-dom` - Core React framework
-- `react-router-dom` - Client-side routing
-- `react-scripts` - Build tools and configuration
+- `react` (^19.2.0) & `react-dom` (^19.2.0) - Core React framework
+- `react-router` (^7.9.5) & `react-router-dom` (^7.9.5) - Client-side routing and navigation
+- `react-scripts` (5.0.1) - Build tools and configuration
+- `react-slick` (^0.31.0) - Carousel component for image galleries
+- `slick-carousel` (^1.8.1) - Carousel styles and functionality
+
+### Testing Dependencies
+- `@testing-library/react` (^16.3.0) - React component testing utilities
+- `@testing-library/jest-dom` (^6.9.1) - Custom Jest matchers
+- `@testing-library/dom` (^10.4.1) - DOM testing utilities
+- `@testing-library/user-event` (^13.5.0) - User interaction simulation
 
 ### Development Features
 - Hot module replacement for fast development
 - ESLint integration for code quality
 - Automatic browser refresh on file changes
 - Source maps for debugging
+- Web vitals tracking for performance monitoring
 
 ##  Deployment
 
@@ -207,12 +262,12 @@ npm run build && npx serve -s build
 
 Comprehensive project documentation is available in the `/Documentation` folder:
 
-- **[ ProjectOverview.md](../Documentation/ProjectOverview.md)** - Complete project specifications, goals, and architecture
-- **[ SetupInstructions.md](../Documentation/SetupInstructions.md)** - Full development environment setup guide
-- **[ APIEndpoints.md](../Documentation/APIEndpoints.md)** - Complete REST API documentation with examples
-- **[ SQLDesign.md](../Documentation/SQLDesign.md)** - Database schema, relationships, and stored procedures
-- **[ TestingPlan.md](../Documentation/TestingPlan.md)** - Testing procedures, API testing, and QA guidelines
-- **[ OOPConceptsSummary.md](../Documentation/OOPConceptsSummary.md)** - Object-oriented programming implementation details
+- **[ProjectOverview.md](../Documentation/ProjectOverview.md)** - Complete project specifications, goals, and architecture
+- **[SetupInstructions.md](../Documentation/SetupInstructions.md)** - Full development environment setup guide
+- **[APIEndpoints.md](../Documentation/APIEndpoints.md)** - Complete REST API documentation with examples
+- **[SQLDesign.md](../Documentation/SQLDesign.md)** - Database schema, relationships, and stored procedures
+- **[TestingPlan.md](../Documentation/TestingPlan.md)** - Testing procedures, API testing, and QA guidelines
+- **[OOPConceptsSummary.md](../Documentation/OOPConceptsSummary.md)** - Object-oriented programming implementation details
 
 ##  Support & Maintenance
 

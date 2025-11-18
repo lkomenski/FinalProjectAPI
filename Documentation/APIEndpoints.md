@@ -20,10 +20,15 @@ All API responses are in JSON format. Standard HTTP status codes are used to ind
 
 ## Authentication & Authorization
 
+### Security Implementation
+All authentication endpoints use **BCrypt password hashing** (BCrypt.Net-Next with work factor 12) for secure password storage and verification. Passwords are never stored in plain text.
+
 ### Login (Universal)
 Authenticate users across all roles (customer, vendor, admin/employee).
 
 **Endpoint:** `POST /api/auth/login`
+
+**Security:** BCrypt password verification
 
 **Request Body:**
 ```json
@@ -46,6 +51,10 @@ Authenticate users across all roles (customer, vendor, admin/employee).
 }
 ```
 
+**Error Responses:**
+- `400 Bad Request` - Email and password are required
+- `401 Unauthorized` - Invalid credentials or BCrypt verification failed
+
 **Example:**
 ```bash
 curl -X POST http://localhost:5077/api/auth/login \
@@ -59,10 +68,67 @@ curl -X POST http://localhost:5077/api/auth/login \
 
 ---
 
-### Customer Registration
-Register a new customer account.
+### Customer Login (Dedicated Endpoint)
+Authenticate customers with BCrypt password verification.
 
-**Endpoint:** `POST /api/auth/register-customer`
+**Endpoint:** `POST /api/auth/customer/login`
+
+**Security:** BCrypt password verification
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string"
+}
+```
+
+---
+
+### Vendor Login (Dedicated Endpoint)
+Authenticate vendors with BCrypt password verification.
+
+**Endpoint:** `POST /api/auth/vendor/login`
+
+**Security:** BCrypt password verification
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "emailAddress": "string"
+}
+```
+
+---
+
+### Customer Registration
+Register a new customer account with BCrypt password hashing.
+
+**Endpoint:** `POST /api/customer/register`
+
+**Security:** Password hashed with BCrypt before storage
 
 **Request Body:**
 ```json
@@ -70,7 +136,8 @@ Register a new customer account.
   "firstName": "string",
   "lastName": "string",
   "emailAddress": "string",
-  "password": "string"
+  "password": "string",
+  "confirmPassword": "string"
 }
 ```
 
@@ -85,12 +152,61 @@ Register a new customer account.
 }
 ```
 
+**Error Responses:**
+- `400 Bad Request` - Password and confirmation password do not match
+- `400 Bad Request` - Email, password, first name, and last name are required
+- `409 Conflict` - Email address already exists
+
+---
+
+### Vendor Registration
+Register a new vendor account with business information.
+
+**Endpoint:** `POST /api/vendors/register`
+
+**Security:** Password hashed with BCrypt before storage
+
+**Request Body:**
+```json
+{
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorContactLName": "string",
+  "vendorContactFName": "string",
+  "emailAddress": "string",
+  "password": "string",
+  "confirmPassword": "string",
+  "defaultTermsID": "integer",
+  "defaultAccountNo": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "emailAddress": "string",
+  "message": "Vendor registration successful"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Password and confirmation password do not match
+- `400 Bad Request` - Required fields are missing
+- `409 Conflict` - Email address already exists
+
 ---
 
 ### Password Reset Request
 Request a password reset token.
 
-**Endpoint:** `POST /api/auth/request-password-reset`
+**Endpoint:** `POST /api/password-reset/request`
 
 **Request Body:**
 ```json
@@ -103,16 +219,21 @@ Request a password reset token.
 ```json
 {
   "token": "string",
-  "message": "Reset token generated"
+  "message": "Password reset token generated. Check your email."
 }
 ```
+
+**Error Responses:**
+- `404 Not Found` - Email address not found
 
 ---
 
 ### Reset Password
-Reset password using a valid token.
+Reset password using a valid token. New password is hashed with BCrypt.
 
-**Endpoint:** `PUT /api/auth/reset-password`
+**Endpoint:** `POST /api/password-reset/reset`
+
+**Security:** New password hashed with BCrypt before storage
 
 **Request Body:**
 ```json
@@ -128,6 +249,40 @@ Reset password using a valid token.
   "message": "Password reset successful"
 }
 ```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid or expired token
+- `400 Bad Request` - New password does not meet requirements
+
+---
+
+### Change Password
+Change a customer's password after verifying their current password.
+
+**Endpoint:** `PUT /api/customer/change-password`
+
+**Security:** BCrypt verification of old password, BCrypt hashing of new password
+
+**Request Body:**
+```json
+{
+  "customerID": "integer",
+  "oldPassword": "string",
+  "newPassword": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Old password is incorrect (BCrypt verification failed)
+- `400 Bad Request` - New password does not meet requirements (min 8 characters)
+- `404 Not Found` - Customer not found
 
 ---
 
@@ -402,10 +557,65 @@ Retrieve all products in a specific category.
 
 ## Customer Management
 
-### Customer Registration (Alternative Endpoint)
+### Get Customer Profile
+Retrieve customer profile information.
+
+**Endpoint:** `GET /api/customer/{customerId}`
+
+**Path Parameters:**
+- `customerId` (integer, required) - The ID of the customer
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "shippingAddressID": "integer|null",
+  "billingAddressID": "integer|null"
+}
+```
+
+---
+
+### Update Customer Profile
+Update customer profile information.
+
+**Endpoint:** `PUT /api/customer/{customerId}`
+
+**Path Parameters:**
+- `customerId` (integer, required) - The ID of the customer
+
+**Request Body:**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "firstName": "string",
+  "lastName": "string",
+  "emailAddress": "string",
+  "message": "Profile updated successfully"
+}
+```
+
+---
+
+### Customer Registration (Alternative Endpoint - Deprecated)
 Register a new customer account.
 
 **Endpoint:** `POST /api/customer/register`
+
+**Note:** Use `POST /api/customer/register` for new implementations.
 
 **Request Body:**
 ```json
@@ -413,7 +623,8 @@ Register a new customer account.
   "firstName": "string",
   "lastName": "string", 
   "emailAddress": "string",
-  "password": "string"
+  "password": "string",
+  "confirmPassword": "string"
 }
 ```
 
@@ -429,10 +640,12 @@ Register a new customer account.
 
 ---
 
-### Customer Login (Alternative Endpoint)
+### Customer Login (Alternative Endpoint - Deprecated)
 Authenticate a customer.
 
 **Endpoint:** `POST /api/customer/login`
+
+**Note:** Use `POST /api/auth/customer/login` for new implementations.
 
 **Request Body:**
 ```json
@@ -467,28 +680,6 @@ Check if a customer account exists with the given email.
 {
   "exists": "boolean",
   "customerID": "integer|null"
-}
-```
-
----
-
-### Get Customer Profile
-Retrieve customer profile information.
-
-**Endpoint:** `GET /api/customer/{customerId}`
-
-**Path Parameters:**
-- `customerId` (integer, required) - The ID of the customer
-
-**Response (200 OK):**
-```json
-{
-  "customerID": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string",
-  "shippingAddressID": "integer|null",
-  "billingAddressID": "integer|null"
 }
 ```
 
@@ -530,6 +721,76 @@ Remove a customer account.
 ---
 
 ## Vendor Management
+
+### Vendor Registration
+Register a new vendor account with complete business information.
+
+**Endpoint:** `POST /api/vendors/register`
+
+**Security:** Password hashed with BCrypt before storage
+
+**Request Body:**
+```json
+{
+  "vendorName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorContactLName": "string",
+  "vendorContactFName": "string",
+  "emailAddress": "string",
+  "password": "string",
+  "confirmPassword": "string",
+  "defaultTermsID": "integer",
+  "defaultAccountNo": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "emailAddress": "string",
+  "isActive": true,
+  "message": "Vendor registration successful"
+}
+```
+
+---
+
+### Vendor Login
+Authenticate a vendor with BCrypt password verification.
+
+**Endpoint:** `POST /api/auth/vendor/login`
+
+**Security:** BCrypt password verification
+
+**Request Body:**
+```json
+{
+  "emailAddress": "string",
+  "password": "string"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "vendorID": "integer",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "emailAddress": "string"
+}
+```
+
+---
 
 ### Get All Vendors
 Retrieve all vendors from the system.
@@ -886,7 +1147,7 @@ Retrieve comprehensive dashboard data for administrators.
 ### Request Password Reset
 Request a password reset for a customer.
 
-**Endpoint:** `POST /api/password/request-reset`
+**Endpoint:** `POST /api/password-reset/request`
 
 **Request Body:**
 ```json
@@ -899,16 +1160,21 @@ Request a password reset for a customer.
 ```json
 {
   "token": "string",
-  "message": "Password reset token generated"
+  "message": "Password reset token generated. Check your email."
 }
 ```
+
+**Error Responses:**
+- `404 Not Found` - Email address not found
 
 ---
 
 ### Reset Password
-Reset customer password using a valid token.
+Reset customer password using a valid token. New password is hashed with BCrypt.
 
-**Endpoint:** `PUT /api/password/reset`
+**Endpoint:** `POST /api/password-reset/reset`
+
+**Security:** New password hashed with BCrypt before storage
 
 **Request Body:**
 ```json
@@ -924,6 +1190,10 @@ Reset customer password using a valid token.
   "message": "Password reset successful"
 }
 ```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid or expired token
+- `400 Bad Request` - New password does not meet requirements (min 8 characters)
 
 ---
 
@@ -1016,6 +1286,61 @@ The project includes a `FinalProjectAPI.http` file with pre-configured requests 
 
 ### Example cURL Commands
 
+**Customer Registration with BCrypt:**
+```bash
+curl -X POST http://localhost:5077/api/customer/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "emailAddress": "john.doe@example.com",
+    "password": "SecurePass123",
+    "confirmPassword": "SecurePass123"
+  }'
+```
+
+**Customer Login with BCrypt Verification:**
+```bash
+curl -X POST http://localhost:5077/api/auth/customer/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "emailAddress": "john.doe@example.com",
+    "password": "SecurePass123"
+  }'
+```
+
+**Change Password:**
+```bash
+curl -X PUT http://localhost:5077/api/customer/change-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "customerID": 1,
+    "oldPassword": "SecurePass123",
+    "newPassword": "NewSecurePass456"
+  }'
+```
+
+**Vendor Registration:**
+```bash
+curl -X POST http://localhost:5077/api/vendors/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "vendorName": "Guitar Strings Inc",
+    "vendorAddress1": "123 Music Ave",
+    "vendorCity": "Nashville",
+    "vendorState": "TN",
+    "vendorZipCode": "37201",
+    "vendorPhone": "615-555-1234",
+    "vendorContactFName": "Jane",
+    "vendorContactLName": "Smith",
+    "emailAddress": "jane@guitarstrings.com",
+    "password": "VendorPass123",
+    "confirmPassword": "VendorPass123",
+    "defaultTermsID": 1,
+    "defaultAccountNo": "12345"
+  }'
+```
+
 **Get All Products:**
 ```bash
 curl -X GET http://localhost:5077/api/products \
@@ -1037,7 +1362,7 @@ curl -X POST http://localhost:5077/api/products \
   }'
 ```
 
-**Customer Login:**
+**Universal Login:**
 ```bash
 curl -X POST http://localhost:5077/api/auth/login \
   -H "Content-Type: application/json" \
@@ -1045,6 +1370,15 @@ curl -X POST http://localhost:5077/api/auth/login \
     "emailAddress": "customer@example.com",
     "password": "password123",
     "role": "customer"
+  }'
+```
+
+**Request Password Reset:**
+```bash
+curl -X POST http://localhost:5077/api/password-reset/request \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "customer@example.com"
   }'
 ```
 
@@ -1056,16 +1390,35 @@ Import the provided HTTP requests into Postman for a more user-friendly testing 
 ## Rate Limiting and Security
 
 ### Security Considerations
-- All passwords are hashed before storage
-- SQL injection protection through parameterized queries
-- Input validation on all endpoints
-- CORS configured for development environment
+- **Password Hashing:** All passwords are hashed using BCrypt (BCrypt.Net-Next) with work factor 12 before storage
+- **Password Verification:** BCrypt.Verify is used for all authentication attempts
+- **SQL Injection Protection:** All database operations use parameterized stored procedures
+- **Input Validation:** Comprehensive validation on all endpoints
+- **CORS Configuration:** Configured for development environment (localhost:3000)
+- **Password Requirements:** Minimum 8 characters for all passwords
+- **No Plain Text Passwords:** Passwords are never stored or logged in plain text
+
+### Authentication Flow
+1. User submits credentials (email + password)
+2. System retrieves stored BCrypt hash from database
+3. BCrypt.Verify compares submitted password with stored hash
+4. On success, user session is established
+5. On failure, generic "Invalid credentials" error is returned
+
+### Password Reset Flow
+1. User requests reset via email
+2. System generates unique reset token
+3. Token is stored with expiration timestamp
+4. User submits token + new password
+5. New password is hashed with BCrypt before storage
+6. Token is invalidated after successful reset
 
 ### Rate Limiting
 Currently no rate limiting is implemented. Consider adding rate limiting for production deployment:
 - Login attempts: 5 per minute per IP
 - API calls: 100 per minute per user
 - Registration: 3 per hour per IP
+- Password reset requests: 3 per hour per email
 
 ---
 

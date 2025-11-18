@@ -31,6 +31,22 @@ public class Product
     public DateTime DateAdded { get; set; }
     public DateTime? DateUpdated { get; set; }
 }
+
+// ChangePasswordRequest.cs - Encapsulation of Password Security Logic
+public class ChangePasswordRequest
+{
+    public int CustomerID { get; set; }
+    public string OldPassword { get; set; } = string.Empty;
+    public string NewPassword { get; set; } = string.Empty;
+    
+    // Encapsulates password validation rules
+    public bool IsValid()
+    {
+        return !string.IsNullOrEmpty(OldPassword) 
+            && !string.IsNullOrEmpty(NewPassword) 
+            && NewPassword.Length >= 8;
+    }
+}
 ```
 
 **Benefits Demonstrated:**
@@ -38,6 +54,7 @@ public class Product
 - **Access Control:** Public getters/setters provide controlled access
 - **Default Values:** Properties initialize with sensible defaults
 - **Nullable Types:** Optional properties use nullable reference types
+- **Security:** Password data encapsulated with validation methods
 
 #### Repository Pattern Encapsulation
 The repository classes encapsulate database access logic:
@@ -68,41 +85,91 @@ public class SqlServerRepository : IDataRepository
 - **Resource Management:** Automatic connection disposal
 
 #### Controller Encapsulation
-Controllers encapsulate HTTP request/response logic:
+Controllers encapsulate HTTP request/response logic and security operations:
 
 ```csharp
-// ProductsController.cs - Business Logic Encapsulation
-public class ProductsController : ControllerBase
+// AuthController.cs - Business Logic and Security Encapsulation
+public class AuthController : ControllerBase
 {
-    private readonly IDataRepository _repo; // Private dependency
+    private readonly IDataRepository _myGuitarShopRepo; // Private dependency
+    private readonly IDataRepository _apRepo; // Private dependency
 
-    public ProductsController(IDataRepositoryFactory factory)
+    public AuthController(IDataRepositoryFactory factory)
     {
-        _repo = factory.Create("MyGuitarShop"); // Encapsulated initialization
+        _myGuitarShopRepo = factory.Create("MyGuitarShop"); // Encapsulated initialization
+        _apRepo = factory.Create("AP");
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllProducts()
+    [HttpPost("customer/login")]
+    public async Task<IActionResult> CustomerLogin([FromBody] LoginRequest request)
     {
         try
         {
-            var rows = await _repo.GetDataAsync("GetAllProducts");
-            var products = rows.Select(MapRowToProduct).ToList();
-            return Ok(products); // Encapsulated response creation
+            // Get customer by email
+            var rows = await _myGuitarShopRepo.GetDataAsync("GetCustomerByEmail", parameters);
+            
+            // Verify password using BCrypt - security logic encapsulated
+            string storedHashedPassword = row["Password"]?.ToString() ?? "";
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHashedPassword))
+            {
+                return Unauthorized("Invalid credentials.");
+            }
+            
+            return Ok(response); // Encapsulated response creation
         }
         catch (Exception)
         {
-            return StatusCode(500, "Internal server error: Failed to retrieve products.");
+            return StatusCode(500, "Internal server error");
         }
     }
 
     // Private helper method - implementation detail hidden
-    public static Product MapRowToProduct(IDictionary<string, object?> row)
+    private bool ValidatePasswordStrength(string password)
     {
-        // Complex data mapping logic encapsulated
+        // Complex password validation logic encapsulated
+        return password.Length >= 8;
+    }
+}
+
+// CustomerController.cs - Password Management Encapsulation
+public class CustomerController : ControllerBase
+{
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        try
+        {
+            // Retrieve current password hash
+            var customerRows = await _repo.GetDataAsync("GetCustomerById", parameters);
+            string storedPassword = customerRow["Password"]?.ToString() ?? "";
+            
+            // Verify old password with BCrypt - encapsulated security check
+            if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, storedPassword))
+            {
+                return BadRequest("Old password is incorrect.");
+            }
+            
+            // Hash new password with BCrypt - encapsulated security operation
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            
+            // Update password in database
+            await _repo.GetDataAsync("UpdateCustomerPassword", updateParams);
+            
+            return Ok(new { message = "Password changed successfully" });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Failed to change password");
+        }
     }
 }
 ```
+
+**Encapsulation Benefits:**
+- **Security Isolation:** BCrypt operations hidden from public interface
+- **Password Protection:** Hashing logic never exposed to clients
+- **Validation Encapsulation:** Password strength rules contained in controller
+- **Error Handling:** Internal exception management without exposing sensitive details
 
 ### Frontend Implementation
 
@@ -133,6 +200,44 @@ export default function LoginForm() {
       {/* UI elements */}
     </form>
   );
+}
+
+// ChangePasswordModal.js - Password Security Encapsulation
+export default function ChangePasswordModal({ customerId, onClose }) {
+  // Private password state - never exposed
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  
+  // Private validation - encapsulated security rules
+  const validatePasswordChange = () => {
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters");
+      return false;
+    }
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return false;
+    }
+    return true;
+  };
+  
+  // Encapsulated API call - implementation hidden
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+    if (!validatePasswordChange()) return;
+    
+    // BCrypt hashing happens on server - client never sees hash
+    const response = await fetch(`${API_BASE}/customer/change-password`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customerId, oldPassword, newPassword })
+    });
+    
+    if (response.ok) {
+      onClose(true); // Success callback
+    }
+  };
 }
 ```
 
@@ -224,6 +329,33 @@ public class InvoiceLineItem
     public decimal InvoiceLineItemAmount { get; set; }
     // Detailed line item properties
 }
+
+// Authentication Model Hierarchy
+public class LoginRequest
+{
+    public string EmailAddress { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
+    public string? Role { get; set; }
+}
+
+public class CustomerRegistrationRequest : LoginRequest
+{
+    // Inherits EmailAddress and Password
+    public string FirstName { get; set; } = string.Empty;
+    public string LastName { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
+}
+
+public class VendorRegisterRequest : LoginRequest
+{
+    // Inherits EmailAddress and Password
+    public string VendorName { get; set; } = string.Empty;
+    public string VendorAddress1 { get; set; } = string.Empty;
+    public string VendorCity { get; set; } = string.Empty;
+    public string VendorState { get; set; } = string.Empty;
+    public string ConfirmPassword { get; set; } = string.Empty;
+    // Additional vendor-specific properties
+}
 ```
 
 ### Frontend Implementation
@@ -243,6 +375,24 @@ export default function ProductCard({ product }) {
       {/* Component JSX */}
     </div>
   );
+}
+
+// VendorRegisterForm.js - Extends base form patterns
+export default function VendorRegisterForm() {
+  // Inherits React hooks and component lifecycle
+  const [formData, setFormData] = useState({
+    vendorName: "",
+    emailAddress: "",
+    password: "",
+    confirmPassword: "",
+    // Vendor-specific fields
+  });
+  
+  // Inherits event handling patterns from React
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Custom vendor registration logic
+  };
 }
 ```
 
@@ -615,7 +765,61 @@ function ProductList() {
 
 ---
 
-## Advanced OOP Concepts Implementation
+### Advanced OOP Concepts Implementation
+
+### Security Through Encapsulation: BCrypt Integration
+
+The project demonstrates how OOP encapsulation enhances security through the BCrypt.Net-Next implementation:
+
+```csharp
+// AuthController.cs - Security Encapsulation Example
+public class AuthController : ControllerBase
+{
+    // BCrypt operations encapsulated within controller methods
+    [HttpPost("customer/login")]
+    public async Task<IActionResult> CustomerLogin([FromBody] LoginRequest request)
+    {
+        // Password verification encapsulated - client never sees hash or algorithm
+        string storedHashedPassword = row["Password"]?.ToString() ?? "";
+        
+        // BCrypt.Verify encapsulates complex cryptographic verification
+        if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHashedPassword))
+        {
+            // Generic error message - implementation details hidden
+            return Unauthorized("Invalid credentials.");
+        }
+        
+        // Success response - no password data exposed
+        return Ok(new LoginResponse { /* user data, no password */ });
+    }
+    
+    [HttpPost("customer/register")]
+    public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegistrationRequest request)
+    {
+        // Password confirmation validation encapsulated
+        if (request.Password != request.ConfirmPassword)
+        {
+            return BadRequest("Password and confirmation password do not match.");
+        }
+        
+        // BCrypt.HashPassword encapsulates hashing algorithm (work factor 12)
+        string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+        
+        // Only hash stored in database - original password never persisted
+        var parameters = new Dictionary<string, object?>
+        {
+            { "@Password", hashedPassword } // Encapsulated security
+        };
+    }
+}
+```
+
+**Security Benefits of Encapsulation:**
+- **Algorithm Abstraction:** BCrypt implementation hidden from clients
+- **Work Factor Management:** Complexity parameter (12) encapsulated in library
+- **Salt Generation:** Automatic salt creation hidden from developers
+- **Verification Logic:** Timing-safe comparison encapsulated
+- **Error Handling:** Generic error messages prevent information leakage
 
 ### Dependency Injection
 
@@ -772,6 +976,16 @@ Separates concerns across application layers:
 - **Clean Code:** Readable, maintainable, well-documented code
 - **Error Handling:** Robust exception management and user feedback
 - **Documentation:** Comprehensive XML documentation and code comments
+- **Security Best Practices:** BCrypt password hashing with proper encapsulation
+- **Input Validation:** Client and server-side validation for data integrity
+- **Separation of Concerns:** Clear boundaries between security, business logic, and data access
+
+### Modern Framework Integration
+- **.NET 9.0:** Latest framework features and performance improvements
+- **React 19.x:** Modern frontend with hooks and functional components
+- **React Router 7.x:** Advanced routing with protected routes
+- **BCrypt.Net-Next:** Industry-standard password security
+- **React Testing Library:** Modern testing approach for React components
 
 ---
 
@@ -780,3 +994,12 @@ Separates concerns across application layers:
 The My Guitar Shop Management System serves as a comprehensive demonstration of Object-Oriented Programming principles in a real-world application context. The project successfully implements all four core OOP concepts (Encapsulation, Inheritance, Polymorphism, and Abstraction) while incorporating advanced design patterns and professional development practices.
 
 The architecture demonstrates how proper OOP implementation results in maintainable, testable, and extensible code that can scale with business requirements while enabling effective team collaboration. The consistent application of these principles throughout both backend and frontend code creates a cohesive system that exemplifies modern software development best practices.
+
+**Key OOP Achievements:**
+- **Encapsulation Excellence:** BCrypt security operations properly encapsulated, protecting password data and cryptographic algorithms from exposure
+- **Inheritance Hierarchy:** Registration models demonstrate proper inheritance with CustomerRegistrationRequest and VendorRegisterRequest extending base LoginRequest
+- **Polymorphic Design:** Database provider abstraction enables switching between SQL Server and MySQL without code changes
+- **Abstraction Mastery:** Complex security operations (BCrypt hashing, verification) hidden behind simple, clean interfaces
+- **Security Through OOP:** Demonstrates how OOP principles (especially encapsulation) enhance application security by hiding implementation details and preventing sensitive data exposure
+
+The project showcases how Object-Oriented Programming principles, when properly applied, create secure, maintainable, and professional-grade software systems. The integration of BCrypt password security through encapsulated methods demonstrates real-world application of OOP for critical security requirements.
