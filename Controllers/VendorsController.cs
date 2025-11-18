@@ -168,7 +168,7 @@ namespace FinalProjectAPI.Controllers
         {
             try
             {
-                if (vendor == null) // edit this later based on valid Vendor criteria
+                if (vendor == null)
                 {
                     return BadRequest("Vendor object is null.");
                 }
@@ -177,20 +177,22 @@ namespace FinalProjectAPI.Controllers
             {
                 return StatusCode(500, "Internal server error: Failed to update vendor.");
             }
+            
+            // Stored procedure will handle filling in missing data from existing record
             var parameters = new Dictionary<string, object?>
             {
                 { "@VendorID", vendor.VendorID },
-                { "@VendorName", vendor.VendorName },
-                { "@VendorAddress1", vendor.VendorAddress1 },
-                { "@VendorAddress2", vendor.VendorAddress2 },
-                { "@VendorCity", vendor.VendorCity },
-                { "@VendorState", vendor.VendorState },
-                { "@VendorZipCode", vendor.VendorZipCode },
-                { "@VendorPhone", vendor.VendorPhone },
-                { "@VendorContactLName", vendor.VendorContactLName },
-                { "@VendorContactFName", vendor.VendorContactFName },
-                { "@DefaultTermsID", vendor.DefaultTermsID },
-                { "@DefaultAccountNo", vendor.DefaultAccountNo },
+                { "@VendorName", vendor.VendorName ?? string.Empty },
+                { "@VendorAddress1", vendor.VendorAddress1 ?? string.Empty },
+                { "@VendorAddress2", vendor.VendorAddress2 ?? string.Empty },
+                { "@VendorCity", vendor.VendorCity ?? string.Empty },
+                { "@VendorState", vendor.VendorState ?? string.Empty },
+                { "@VendorZipCode", vendor.VendorZipCode ?? string.Empty },
+                { "@VendorPhone", vendor.VendorPhone ?? string.Empty },
+                { "@VendorContactLName", vendor.VendorContactLName ?? string.Empty },
+                { "@VendorContactFName", vendor.VendorContactFName ?? string.Empty },
+                { "@DefaultTermsID", vendor.DefaultTermsID > 0 ? vendor.DefaultTermsID : 0 },
+                { "@DefaultAccountNo", vendor.DefaultAccountNo > 0 ? vendor.DefaultAccountNo : 0 },
                 { "@IsActive", vendor.IsActive }
             };
 
@@ -224,6 +226,40 @@ namespace FinalProjectAPI.Controllers
             var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
             var results = await _repo.GetDataAsync("ActivateVendor", parameters);
             return Ok(results.FirstOrDefault());
+        }
+
+        /// <summary>
+        /// Generates a registration token for a vendor to create their login account.
+        /// </summary>
+        /// <param name="vendorId">The ID of the vendor.</param>
+        /// <returns>The registration token and vendor information.</returns>
+        /// <response code="200">Returns the registration token.</response>
+        /// <response code="400">If the vendor not found or already has an account.</response>
+        [HttpPost("generate-token/{vendorId}")]
+        public async Task<IActionResult> GenerateVendorToken(int vendorId)
+        {
+            var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
+            var results = await _repo.GetDataAsync("GenerateVendorRegistrationToken", parameters);
+            var row = results.FirstOrDefault();
+
+            if (row == null)
+                return StatusCode(500, "Failed to generate token.");
+
+            string status = row["Status"]?.ToString() ?? "";
+            if (status == "Error")
+            {
+                return BadRequest(row["Message"]?.ToString() ?? "Failed to generate token.");
+            }
+
+            return Ok(new
+            {
+                RegistrationToken = row["RegistrationToken"]?.ToString(),
+                VendorID = row["VendorID"],
+                VendorName = row["VendorName"]?.ToString(),
+                FirstName = row["FirstName"]?.ToString(),
+                LastName = row["LastName"]?.ToString(),
+                VendorEmail = row["VendorEmail"]?.ToString()
+            });
         }
 
         /// <summary>

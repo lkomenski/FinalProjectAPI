@@ -62,6 +62,23 @@
    EDIT MODE
 ===================================*/
 
+.profile-section-edit {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 25px;
+}
+
+.profile-section-edit .section-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d1d5db;
+}
+
 .profile-edit h3 {
   margin-top: 25px;
   margin-bottom: 10px;
@@ -171,7 +188,7 @@
 }
 
 /* ================================
-   DANGER ZONE
+   ACCOUNT MANAGEMENT
 ===================================*/
 
 .account-management {
@@ -181,17 +198,50 @@
 }
 
 .profile-subtitle {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 25px;
+}
+
+.account-section {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 25px;
+}
+
+.account-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
   color: #374151;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d1d5db;
+}
+
+.account-btn-change-password {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+  background: #2563eb;
+  color: white;
+  margin-top: 10px;
+}
+
+.account-btn-change-password:hover {
+  background: #1d4ed8;
 }
 
 .account-actions {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  margin-top: 20px;
 }
 
 .account-btn-deactivate,

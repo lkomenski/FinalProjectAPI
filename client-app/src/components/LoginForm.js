@@ -93,10 +93,12 @@ export default function LoginForm() {
 
   return (
     <div className="auth-container">
-      <h2>Customer Login</h2>
+      <h2>
+        {role === "customer" ? "Customer Login" : 
+         role === "vendor" ? "Vendor Login" : "Employee Login"}
+      </h2>
       {role !== "customer" && (
         <p className="auth-role-indicator">
-          Logging in as: {role === "vendor" ? "Vendor" : "Employee"}
           <button 
             className="auth-reset-role"
             onClick={() => {
@@ -106,7 +108,7 @@ export default function LoginForm() {
             }}
             type="button"
           >
-            Switch to Customer
+            Switch to Customer Login
           </button>
         </p>
       )}
@@ -138,30 +140,56 @@ export default function LoginForm() {
       </form>
 
       {/* Alternative login links */}
-      <div className="auth-links">
-        <p className="auth-alternative-text">Not a customer?</p>
-        <button 
-          className="auth-link-btn"
-          onClick={() => {
-            setRole("vendor");
-            setFailedAttempts(0);
-            setError("");
-          }}
-          type="button"
-        >
-          Vendor Login
-        </button>
-        <button 
-          className="auth-link-btn"
-          onClick={() => {
-            setRole("admin");
-            setFailedAttempts(0);
-            setError("");
-          }}
-          type="button"
-        >
-          Employee Login
-        </button>
+      <div className="auth-alternative-logins">
+        <p className="auth-alternative-text">Employee or Vendor?</p>
+        <div className="auth-alternative-buttons">
+          <button 
+            className="auth-alternative-btn"
+            onClick={() => {
+              setRole("vendor");
+              setFailedAttempts(0);
+              setError("");
+            }}
+            type="button"
+          >
+            Vendor Login
+          </button>
+          <button 
+            className="auth-alternative-btn"
+            onClick={() => {
+              setRole("admin");
+              setFailedAttempts(0);
+              setError("");
+            }}
+            type="button"
+          >
+            Employee Login
+          </button>
+        </div>
+        <p className="auth-vendor-register-text">
+          New vendor? 
+          <button 
+            className="auth-vendor-register-link"
+            onClick={() => window.location.href="/register-vendor"}
+            type="button"
+          >
+            Activate your account
+          </button>
+        </p>
+      </div>
+
+      {/* Register link */}
+      <div className="auth-register-section">
+        <p className="auth-register-text">
+          Don't have an account? 
+          <button 
+            className="auth-register-link"
+            onClick={() => window.location.href="/register"}
+            type="button"
+          >
+            Register here
+          </button>
+        </p>
       </div>
 
       {/* Reset password link for customers only after failed attempt */}

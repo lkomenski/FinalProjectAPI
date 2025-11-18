@@ -7,34 +7,26 @@ GO
 -- =============================================
 -- Author:		Leena Komenski
 -- Create date: 11/17/2025
--- Description:	Changes customer password with old password verification
--- exec CustomerChangePassword @CustomerID=1, @OldPassword='oldpass', @NewPassword='newpass'
+-- Description:	Changes customer password (password verification done in C# with BCrypt)
+-- exec CustomerChangePassword @CustomerID=1, @NewPassword='$2a$11$hashedpassword...'
 -- =============================================
-CREATE PROCEDURE [dbo].[CustomerChangePassword]
+CREATE OR ALTER PROCEDURE [dbo].[CustomerChangePassword]
     @CustomerID INT,
-    @OldPassword NVARCHAR(255),
+    @OldPassword NVARCHAR(255), -- Kept for compatibility but not used (verification done in C#)
     @NewPassword NVARCHAR(255)
 AS
 BEGIN
     SET NOCOUNT ON;
     
-    -- Check if old password matches
-    IF EXISTS (SELECT 1 FROM Customers 
-               WHERE CustomerID = @CustomerID 
-               AND Password = @OldPassword 
-               AND IsActive = 1)
-    BEGIN
-        -- Update to new password
-        UPDATE Customers
-        SET Password = @NewPassword,
-            DateUpdated = GETDATE()
-        WHERE CustomerID = @CustomerID;
-        
+    -- Update to new password (already hashed and verified in C#)
+    UPDATE Customers
+    SET Password = @NewPassword,
+        DateUpdated = GETDATE()
+    WHERE CustomerID = @CustomerID AND IsActive = 1;
+    
+    IF @@ROWCOUNT > 0
         SELECT 'Password changed successfully.' AS Message, 1 AS Success;
-    END
     ELSE
-    BEGIN
-        SELECT 'Current password is incorrect.' AS Message, 0 AS Success;
-    END
+        SELECT 'Customer not found or inactive.' AS Message, 0 AS Success;
 END;
 GO

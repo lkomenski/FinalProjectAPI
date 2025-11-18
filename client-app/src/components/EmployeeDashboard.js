@@ -163,6 +163,28 @@ export default function EmployeeDashboard() {
     loadDashboard();
   }
 
+  // Generate registration token for vendor
+  async function generateVendorToken(vendorId, vendorName, vendorEmail) {
+    try {
+      const response = await fetch(`http://localhost:5077/api/vendors/generate-token/${vendorId}`, {
+        method: "POST"
+      });
+
+      if (!response.ok) {
+        alert("Failed to generate token. Vendor may already have an account.");
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Show token to admin (in production, this would email the vendor)
+      alert(`Registration Token Generated!\n\nVendor: ${vendorName}\nEmail: ${vendorEmail}\n\nToken: ${data.registrationToken}\n\nSend this token to the vendor so they can register at:\n${window.location.origin}/register-vendor`);
+      
+    } catch (err) {
+      alert("Error generating token: " + err.message);
+    }
+  }
+
   // -------------------------------------------------------------------
   // PRODUCT FILTERING
   // -------------------------------------------------------------------
@@ -311,6 +333,14 @@ export default function EmployeeDashboard() {
             <div className="flex gap-2">
               <button className="dashboard-btn" onClick={() => { setSelectedVendor(v); setIsAddingVendor(false); }}>
                 Edit
+              </button>
+
+              <button 
+                className="dashboard-btn dashboard-btn-info" 
+                onClick={() => generateVendorToken(v.vendorID, v.vendorName, v.vendorEmail)}
+                title="Generate registration token for vendor login"
+              >
+                Generate Token
               </button>
 
               {v.isActive ? (

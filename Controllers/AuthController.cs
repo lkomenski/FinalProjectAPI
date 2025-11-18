@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using FinalProjectAPI.Infrastructure.Interfaces;
 using FinalProjectAPI.Models;
+using BCrypt.Net;
 
 namespace FinalProjectAPI.Controllers
 {
@@ -75,14 +76,19 @@ namespace FinalProjectAPI.Controllers
 
             var parameters = new Dictionary<string, object?>
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@Password", request.Password }
+                { "@EmailAddress", request.EmailAddress }
             };
 
+            // Get customer by email (we'll verify password in C# instead of SQL)
             var results = await repo.GetDataAsync("CustomerLogin", parameters);
             var row = results.FirstOrDefault();
 
             if (row == null)
+                return Unauthorized("Invalid customer credentials.");
+
+            // Verify password using BCrypt
+            string storedHashedPassword = row["Password"]?.ToString() ?? "";
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHashedPassword))
                 return Unauthorized("Invalid customer credentials.");
 
             var response = new LoginResponse
@@ -112,19 +118,24 @@ namespace FinalProjectAPI.Controllers
 
             var parameters = new Dictionary<string, object?>
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@Password", request.Password }
+                { "@EmailAddress", request.EmailAddress }
             };
 
+            // Get vendor by email (we'll verify password in C# instead of SQL)
             var results = await repo.GetDataAsync("VendorLogin", parameters);
             var row = results.FirstOrDefault();
 
             if (row == null)
                 return Unauthorized("Invalid vendor credentials.");
 
+            // Verify password using BCrypt
+            string storedHashedPassword = row["VendorPassword"]?.ToString() ?? "";
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHashedPassword))
+                return Unauthorized("Invalid vendor credentials.");
+
             var response = new LoginResponse
             {
-                Id = Convert.ToInt32(row["UserId"]),  
+                Id = Convert.ToInt32(row["VendorID"]),  
                 Role = "vendor",
                 FirstName = row["FirstName"]?.ToString() ?? "",
                 LastName = row["LastName"]?.ToString() ?? "",
@@ -195,12 +206,15 @@ namespace FinalProjectAPI.Controllers
                 return BadRequest("All fields are required.");
             }
 
+            // Hash the password before storing
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
             var repo = _factory.Create("MyGuitarShop");
 
             var parameters = new Dictionary<string, object?>
             {
                 { "@EmailAddress", request.EmailAddress },
-                { "@Password", request.Password },
+                { "@Password", hashedPassword },
                 { "@FirstName", request.FirstName },
                 { "@LastName", request.LastName }
             };
@@ -278,16 +292,73 @@ namespace FinalProjectAPI.Controllers
         {
             var repo = _factory.Create("MyGuitarShop");
 
+            // Hash the new password before storing
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+
             var parameters = new Dictionary<string, object?>
             {
                 { "@EmailAddress", req.EmailAddress },
                 { "@ResetToken", req.ResetToken },
-                { "@NewPassword", req.NewPassword }
+                { "@NewPassword", hashedPassword }
             };
 
-            var result = await repo.GetDataAsync("ResetPassword", parameters);
+            var result = await repo.GetDataAsync("CustomerResetPassword", parameters);
 
             return Ok("Password updated.");
+        }
+
+        // --------------------------------------------------------
+        // VENDOR REGISTRATION
+        // --------------------------------------------------------
+        /// <summary>
+        /// Registers a vendor account using a registration token provided by admin.
+        /// </summary>
+        /// <param name="request">The registration request containing token, email, and password.</param>
+        /// <returns>Success message if vendor account is activated.</returns>
+        /// <response code="200">Returns success message when vendor account is activated.</response>
+        /// <response code="400">If token is invalid or email doesn't match.</response>
+        [HttpPost("register-vendor")]
+        public async Task<IActionResult> RegisterVendor([FromBody] VendorRegisterRequest request)
+        {
+            if (string.IsNullOrEmpty(request.RegistrationToken) ||
+                string.IsNullOrEmpty(request.VendorEmail) ||
+                string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest("Registration token, email, and password are required.");
+            }
+
+            var repo = _factory.Create("AP");
+
+            // Hash the password before storing
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var parameters = new Dictionary<string, object?>
+            {
+                { "@RegistrationToken", request.RegistrationToken },
+                { "@VendorEmail", request.VendorEmail },
+                { "@Password", hashedPassword }
+            };
+
+            var results = await repo.GetDataAsync("VendorRegister", parameters);
+            var row = results.FirstOrDefault();
+
+            if (row == null)
+                return StatusCode(500, "Registration failed.");
+
+            string status = row["Status"]?.ToString() ?? "";
+            if (status == "Error")
+            {
+                return BadRequest(row["Message"]?.ToString() ?? "Registration failed.");
+            }
+
+            return Ok(new
+            {
+                Message = row["Message"]?.ToString(),
+                VendorID = row["VendorID"],
+                FirstName = row["FirstName"]?.ToString(),
+                LastName = row["LastName"]?.ToString(),
+                Email = row["VendorEmail"]?.ToString()
+            });
         }
 
     }

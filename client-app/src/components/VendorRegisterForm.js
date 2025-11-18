@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import "../Styles/Auth.css"; 
+import "../Styles/Auth.css";
 
-export default function RegisterForm() {
+export default function VendorRegisterForm() {
   const [form, setForm] = useState({
-    emailAddress: "",
-    firstName: "",
-    lastName: "",
+    registrationToken: "",
+    vendorEmail: "",
     password: "",
     confirmPassword: ""
   });
@@ -24,18 +23,18 @@ export default function RegisterForm() {
   };
 
   const validate = () => {
-    if (!form.emailAddress || !form.password || !form.firstName || !form.lastName) {
+    if (!form.registrationToken || !form.vendorEmail || !form.password) {
       setError("All fields are required.");
       return false;
     }
 
-    if (!form.emailAddress.includes("@")) {
+    if (!form.vendorEmail.includes("@")) {
       setError("Enter a valid email address.");
       return false;
     }
 
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return false;
     }
 
@@ -53,10 +52,14 @@ export default function RegisterForm() {
     if (!validate()) return;
 
     try {
-      const res = await fetch("http://localhost:5077/api/auth/register-customer", {
+      const res = await fetch("http://localhost:5077/api/auth/register-vendor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify({
+          registrationToken: form.registrationToken,
+          vendorEmail: form.vendorEmail,
+          password: form.password
+        })
       });
 
       if (!res.ok) {
@@ -65,14 +68,21 @@ export default function RegisterForm() {
         return;
       }
 
-      setSuccess("Account created successfully! You may now log in.");
+      const data = await res.json();
+      setSuccess(`Account activated successfully! Welcome ${data.FirstName}. You can now login.`);
+      
+      // Clear form
       setForm({
-        emailAddress: "",
-        firstName: "",
-        lastName: "",
+        registrationToken: "",
+        vendorEmail: "",
         password: "",
         confirmPassword: ""
       });
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 3000);
 
     } catch (err) {
       setError("Server error. Please try again later.");
@@ -82,7 +92,8 @@ export default function RegisterForm() {
   return (
     <div className="auth-container">
 
-      <h2>Create Your Account</h2>
+      <h2>Vendor Account Activation</h2>
+      <p className="auth-subtitle">Use the registration token provided by administration to activate your vendor account.</p>
 
       {error && <p className="auth-message error">{error}</p>}
       {success && <p className="auth-message success">{success}</p>}
@@ -90,26 +101,18 @@ export default function RegisterForm() {
       <form onSubmit={handleRegister} className="auth-form">
 
         <input
-          name="emailAddress"
+          name="registrationToken"
           className="auth-input"
-          placeholder="Email Address"
-          value={form.emailAddress}
+          placeholder="Registration Token"
+          value={form.registrationToken}
           onChange={updateField}
         />
 
         <input
-          name="firstName"
+          name="vendorEmail"
           className="auth-input"
-          placeholder="First Name"
-          value={form.firstName}
-          onChange={updateField}
-        />
-
-        <input
-          name="lastName"
-          className="auth-input"
-          placeholder="Last Name"
-          value={form.lastName}
+          placeholder="Business Email Address"
+          value={form.vendorEmail}
           onChange={updateField}
         />
 
@@ -117,7 +120,7 @@ export default function RegisterForm() {
           type="password"
           name="password"
           className="auth-input"
-          placeholder="Password"
+          placeholder="Create Password"
           value={form.password}
           onChange={updateField}
         />
@@ -132,7 +135,7 @@ export default function RegisterForm() {
         />
 
         <button type="submit" className="auth-btn">
-          Create Account
+          Activate Vendor Account
         </button>
 
       </form>
@@ -148,6 +151,13 @@ export default function RegisterForm() {
           >
             Login here
           </button>
+        </p>
+      </div>
+
+      {/* Help text */}
+      <div className="auth-help-section">
+        <p className="auth-help-text">
+          Don't have a registration token? Contact your business administrator to get started.
         </p>
       </div>
     </div>

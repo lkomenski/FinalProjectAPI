@@ -11,6 +11,7 @@ import ProductDetails from "./components/ProductDetails";
 import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
 import RegisterForm from "./components/RegisterForm";
+import VendorRegisterForm from "./components/VendorRegisterForm";
 import CustomerProfile from "./components/CustomerProfile";
 import CheckoutPage from "./components/CheckoutPage";
 import VendorInvoices from "./components/VendorInvoices";
@@ -32,6 +33,7 @@ function App() {
           {/* Authentication pages */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
+          <Route path="/register-vendor" element={<VendorRegisterForm />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
           {/* Public pages */}

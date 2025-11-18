@@ -14,6 +14,14 @@
   margin-bottom: 22px;
 }
 
+.auth-subtitle {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -75,4 +83,188 @@
 
 .forgot-password-link:hover {
   color: #005fa3;
+}
+
+/* Alternative logins section */
+.auth-alternative-logins {
+  margin-top: 32px;
+  padding: 12px 14px 10px 14px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.auth-alternative-text {
+  text-align: center;
+  font-size: 0.88rem;
+  color: #6b7280;
+  margin-top: -2px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.auth-alternative-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.auth-alternative-btn {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-alternative-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #1f2937;
+}
+
+.auth-vendor-register-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.auth-vendor-register-link {
+  margin-left: 6px;
+  color: #0891b2;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+
+.auth-vendor-register-link:hover {
+  color: #0e7490;
+}
+
+/* Register section */
+.auth-register-section {
+  margin-top: 20px;
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.auth-register-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.auth-register-link {
+  margin-left: 6px;
+  color: #2563eb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.auth-register-link:hover {
+  color: #1e40af;
+}
+
+/* Role indicator */
+.auth-role-indicator {
+  text-align: center;
+  background: #fef3c7;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.auth-reset-role {
+  margin-left: 10px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.auth-reset-role:hover {
+  background: #d97706;
+}
+
+/* Reset password section */
+.auth-reset-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.auth-reset-text {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.auth-reset-link {
+  margin-left: 6px;
+  color: #dc2626;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.auth-reset-link:hover {
+  color: #991b1b;
+}
+
+/* Admin contact section */
+.auth-admin-contact-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fef2f2;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+.auth-admin-contact-text {
+  font-size: 0.85rem;
+  color: #991b1b;
+  line-height: 1.5;
+  margin: 0;
+  text-align: center;
+}
+
+/* Help section */
+.auth-help-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.auth-help-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0;
 }

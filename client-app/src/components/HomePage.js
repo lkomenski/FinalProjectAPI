@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "./ProductCard";
 import Slider from "react-slick";
-import "./HomePage.css";
+import "../Styles/HomePage.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -18,6 +18,9 @@ function HomePage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Ref for scrolling to product section
+  const productsSectionRef = React.useRef(null);
 
   // Slider Settings
   const sliderSettings = {
@@ -83,9 +86,13 @@ function HomePage() {
     let filtered = [...products];
 
     if (searchTerm.trim() !== "") {
-      filtered = filtered.filter((p) =>
-        p.productName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter((p) => {
+        const nameMatch = p.productName?.toLowerCase().includes(searchLower);
+        const descMatch = p.description?.toLowerCase().includes(searchLower);
+        const categoryMatch = categories.find(c => c.categoryID === p.categoryID)?.categoryName?.toLowerCase().includes(searchLower);
+        return nameMatch || descMatch || categoryMatch;
+      });
     }
 
     if (selectedCategory) {
@@ -95,7 +102,25 @@ function HomePage() {
     }
 
     setFilteredProducts(filtered);
-  }, [searchTerm, selectedCategory, products]);
+  }, [searchTerm, selectedCategory, products, categories]);
+
+  // Handle Enter key press to scroll to results
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter' && searchTerm.trim() !== "" && productsSectionRef.current) {
+      productsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Handle category selection and scroll to products
+  const handleCategorySelect = (categoryId) => {
+    setSelectedCategory(categoryId);
+    // Use setTimeout to ensure DOM updates before scrolling
+    setTimeout(() => {
+      if (productsSectionRef.current) {
+        productsSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   if (loading) {
     return <div className="homepage-loading">Loading products...</div>;
@@ -124,6 +149,7 @@ function HomePage() {
             placeholder="Search guitars, drums, basses…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
           />
         </div>
       </div>
@@ -181,22 +207,20 @@ function HomePage() {
       {/* -------------------------------- */}
       
       {/* Category Filtering Controls */}
-      <div className="product-browse-header">
-        <div className="browse-title-section">
-          <h2 className="section-title">
-            {selectedCategory === "" 
-              ? "Browse All Products" 
-              : `Viewing All ${categories.find(c => c.categoryID === parseInt(selectedCategory))?.categoryName || 'Products'}`
-            }
-          </h2>
-        </div>
+      <div className="product-browse-header" ref={productsSectionRef}>
+        <h2 className="section-title">
+          {selectedCategory === "" 
+            ? "Browse Products" 
+            : `Viewing All ${categories.find(c => c.categoryID === parseInt(selectedCategory))?.categoryName || 'Products'}`
+          }
+        </h2>
         
         <div className="category-filter-section">
           <span className="filter-label">Filter by category:</span>
           <div className="category-buttons">
             <button
               className={`category-btn ${selectedCategory === "" ? "active" : ""}`}
-              onClick={() => setSelectedCategory("")}
+              onClick={() => handleCategorySelect("")}
             >
               All Products
             </button>
@@ -207,7 +231,7 @@ function HomePage() {
                 className={`category-btn ${
                   selectedCategory === String(c.categoryID) ? "active" : ""
                 }`}
-                onClick={() => setSelectedCategory(String(c.categoryID))}
+                onClick={() => handleCategorySelect(String(c.categoryID))}
               >
                 {c.categoryName}
               </button>

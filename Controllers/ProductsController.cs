@@ -119,16 +119,17 @@ namespace FinalProjectAPI.Controllers
 
             product.ProductID = productId;
 
+            // Stored procedure will handle filling in missing data from existing record
             var parameters = new Dictionary<string, object?>
             {
                 {"@ProductID", product.ProductID},
-                {"@CategoryID", product.CategoryID},
-                {"@ProductCode", product.ProductCode},
-                {"@ProductName", product.ProductName},
-                {"@Description", product.Description},
-                {"@ListPrice", product.ListPrice},
-                {"@DiscountPercent", product.DiscountPercent},
-                {"@ImageURL", product.ImageURL}
+                {"@CategoryID", product.CategoryID > 0 ? product.CategoryID : 0},
+                {"@ProductCode", product.ProductCode ?? string.Empty},
+                {"@ProductName", product.ProductName ?? string.Empty},
+                {"@Description", product.Description ?? string.Empty},
+                {"@ListPrice", product.ListPrice > 0 ? product.ListPrice : 0},
+                {"@DiscountPercent", product.DiscountPercent >= 0 ? product.DiscountPercent : 0},
+                {"@ImageURL", product.ImageURL ?? string.Empty}
             };
 
             var result = await _repo.GetDataAsync("UpdateProduct", parameters);

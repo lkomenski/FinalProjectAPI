@@ -12,6 +12,12 @@
 }
 
 /* LEFT AREA (logo/home) */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
 .navbar-left .navbar-logo {
   font-size: 1.35rem;
   font-weight: bold;
@@ -21,6 +27,21 @@
 
 .navbar-logo:hover {
   color: #9ca3af; /* lighter gray */
+}
+
+.navbar-home-link {
+  color: #93c5fd;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.navbar-home-link:hover {
+  background: rgba(147, 197, 253, 0.1);
+  color: white;
 }
 
 /* RIGHT AREA (links) */

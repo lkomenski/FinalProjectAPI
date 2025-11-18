@@ -8,6 +8,7 @@ export default function CustomerProfile() {
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   const [profile, setProfile] = useState(null);
+  const [addresses, setAddresses] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -15,6 +16,7 @@ export default function CustomerProfile() {
   const [modalConfig, setModalConfig] = useState({});
 
   const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
     newPassword: "",
     confirmPassword: ""
   });
@@ -25,23 +27,37 @@ export default function CustomerProfile() {
       return;
     }
 
-    async function loadProfile() {
+    async function loadProfileAndAddresses() {
       try {
-        const data = await fetchData(`customer/${user.id}`);
-        setProfile(data);
+        // Load basic profile
+        const profileData = await fetchData(`customer/${user.id}`);
+        setProfile(profileData);
+        
+        // Load addresses
+        const addressData = await fetchData(`customer/${user.id}/addresses`);
+        setAddresses(addressData);
       } catch (err) {
-        setError("Failed to load profile.");
+        setError("Failed to load profile and addresses.");
       }
     }
 
-    loadProfile();
+    loadProfileAndAddresses();
   }, [user]);
 
   // -------------------------------
-  // Update profile fields
+  // Update profile and address fields
   // -------------------------------
   const updateField = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
+    setError("");
+    setMessage("");
+  };
+
+  const updateAddressField = (addressType, fieldName, value) => {
+    setAddresses({
+      ...addresses,
+      [`${addressType}${fieldName}`]: value
+    });
     setError("");
     setMessage("");
   };
@@ -53,35 +69,18 @@ export default function CustomerProfile() {
     setError("");
     setMessage("");
 
-    const body = {
-      customerId: user.id,
-      firstName: profile.FirstName,
-      lastName: profile.LastName,
-      emailAddress: profile.EmailAddress,
-      phone: profile.Phone,
-      city: profile.City,
-      state: profile.State,
-      zipCode: profile.ZipCode,
-      billingCity: profile.BillingCity,
-      billingState: profile.BillingState,
-      billingZipCode: profile.BillingZipCode,
-      newPassword:
-        passwordForm.newPassword.trim() !== ""
-          ? passwordForm.newPassword
-          : null
-    };
-
     try {
-      const res = await fetch("http://localhost:5077/api/customer/update-profile", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        setError(msg);
-        return;
+      // Save basic profile info (if there's an endpoint for it)
+      // For now, we'll focus on address updates
+      
+      // Save shipping address if it exists
+      if (addresses?.ShippingLine1) {
+        await saveAddress('shipping');
+      }
+      
+      // Save billing address if it exists
+      if (addresses?.BillingLine1) {
+        await saveAddress('billing');
       }
 
       setMessage("Profile updated successfully!");
@@ -92,24 +91,82 @@ export default function CustomerProfile() {
     }
   };
 
+  const saveAddress = async (addressType) => {
+    const addressData = {
+      customerID: user.id,
+      addressType: addressType,
+      line1: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Line1`],
+      line2: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Line2`] || null,
+      city: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}City`],
+      state: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}State`],
+      zipCode: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}ZipCode`],
+      phone: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Phone`] || null
+    };
+
+    const response = await fetch("http://localhost:5077/api/customer/address", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(addressData)
+    });
+
+    if (!response.ok) {
+      const errorMsg = await response.text();
+      throw new Error(errorMsg);
+    }
+  };
+
   // -------------------------------
-  // Password Validation
+  // Password Change Handler
   // -------------------------------
-  const validatePassword = () => {
-    const { newPassword, confirmPassword } = passwordForm;
+  const handleChangePassword = async () => {
+    setError("");
+    setMessage("");
 
-    if (!newPassword && !confirmPassword) return true;
+    const { oldPassword, newPassword, confirmPassword } = passwordForm;
 
-    if (newPassword.length < 8)
-      return setError("Password must be at least 8 characters long.");
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setError("All password fields are required.");
+      return;
+    }
 
-    if (!/\d/.test(newPassword))
-      return setError("Password must include at least one number.");
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
 
-    if (newPassword !== confirmPassword)
-      return setError("Passwords do not match.");
+    if (!/\d/.test(newPassword)) {
+      setError("Password must include at least one number.");
+      return;
+    }
 
-    return true;
+    if (newPassword !== confirmPassword) {
+      setError("New passwords do not match.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5077/api/customer/change-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerID: user.id,
+          oldPassword: oldPassword,
+          newPassword: newPassword,
+          confirmPassword: confirmPassword
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData.message || "Failed to change password.");
+        return;
+      }
+
+      setMessage("Password changed successfully!");
+      setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      setError("Server error. Could not change password.");
+    }
   };
 
   // -------------------------------
@@ -189,7 +246,7 @@ export default function CustomerProfile() {
     }
   };
 
-  if (!profile) return <p>Loading...</p>;
+  if (!profile || !addresses) return <p>Loading...</p>;
 
   return (
     <div className="profile-container">
@@ -211,16 +268,34 @@ export default function CustomerProfile() {
 
           <div className="profile-section">
             <h3>Shipping Address</h3>
-            <p><strong>City:</strong> {profile.City || "—"}</p>
-            <p><strong>State:</strong> {profile.State || "—"}</p>
-            <p><strong>ZIP Code:</strong> {profile.ZipCode || "—"}</p>
+            {addresses?.ShippingLine1 ? (
+              <>
+                <p><strong>Address:</strong> {addresses.ShippingLine1}</p>
+                {addresses.ShippingLine2 && <p><strong>Address 2:</strong> {addresses.ShippingLine2}</p>}
+                <p><strong>City:</strong> {addresses.ShippingCity}</p>
+                <p><strong>State:</strong> {addresses.ShippingState}</p>
+                <p><strong>ZIP Code:</strong> {addresses.ShippingZipCode}</p>
+                {addresses.ShippingPhone && <p><strong>Phone:</strong> {addresses.ShippingPhone}</p>}
+              </>
+            ) : (
+              <p>No shipping address on file</p>
+            )}
           </div>
 
           <div className="profile-section">
             <h3>Billing Address</h3>
-            <p><strong>City:</strong> {profile.BillingCity || profile.City || "—"}</p>
-            <p><strong>State:</strong> {profile.BillingState || profile.State || "—"}</p>
-            <p><strong>ZIP Code:</strong> {profile.BillingZipCode || profile.ZipCode || "—"}</p>
+            {addresses?.BillingLine1 ? (
+              <>
+                <p><strong>Address:</strong> {addresses.BillingLine1}</p>
+                {addresses.BillingLine2 && <p><strong>Address 2:</strong> {addresses.BillingLine2}</p>}
+                <p><strong>City:</strong> {addresses.BillingCity}</p>
+                <p><strong>State:</strong> {addresses.BillingState}</p>
+                <p><strong>ZIP Code:</strong> {addresses.BillingZipCode}</p>
+                {addresses.BillingPhone && <p><strong>Phone:</strong> {addresses.BillingPhone}</p>}
+              </>
+            ) : (
+              <p>No billing address on file</p>
+            )}
           </div>
 
           <button
@@ -236,149 +311,177 @@ export default function CustomerProfile() {
       {editMode && (
         <div className="profile-edit">
 
-          <h3>Edit Personal Info</h3>
+          {/* Personal Information Section */}
+          <div className="profile-section-edit">
+            <h3 className="section-header">Personal Information</h3>
 
-          <div className="profile-row">
-            <label>First Name</label>
-            <input
-              name="FirstName"
-              value={profile.FirstName}
-              className="profile-input"
-              onChange={updateField}
-            />
+            <div className="profile-row">
+              <label>First Name</label>
+              <input
+                name="FirstName"
+                value={profile.FirstName}
+                className="profile-input"
+                onChange={updateField}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>Last Name</label>
+              <input
+                name="LastName"
+                value={profile.LastName}
+                className="profile-input"
+                onChange={updateField}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>Email</label>
+              <input
+                name="EmailAddress"
+                type="email"
+                value={profile.EmailAddress}
+                className="profile-input"
+                onChange={updateField}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>Phone</label>
+              <input
+                name="Phone"
+                type="tel"
+                value={profile.Phone || ""}
+                className="profile-input"
+                onChange={updateField}
+              />
+            </div>
           </div>
 
-          <div className="profile-row">
-            <label>Last Name</label>
-            <input
-              name="LastName"
-              value={profile.LastName}
-              className="profile-input"
-              onChange={updateField}
-            />
+          {/* Shipping Address Section */}
+          <div className="profile-section-edit">
+            <h3 className="section-header">Shipping Address</h3>
+
+            <div className="profile-row">
+              <label>Address Line 1</label>
+              <input
+                value={addresses?.ShippingLine1 || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'Line1', e.target.value)}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>Address Line 2 (Optional)</label>
+              <input
+                value={addresses?.ShippingLine2 || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'Line2', e.target.value)}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>City</label>
+              <input
+                value={addresses?.ShippingCity || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'City', e.target.value)}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>State</label>
+              <input
+                value={addresses?.ShippingState || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'State', e.target.value)}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>ZIP Code</label>
+              <input
+                value={addresses?.ShippingZipCode || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'ZipCode', e.target.value)}
+              />
+            </div>
+
+            <div className="profile-row">
+              <label>Phone (Optional)</label>
+              <input
+                type="tel"
+                value={addresses?.ShippingPhone || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Shipping', 'Phone', e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="profile-row">
-            <label>Email</label>
-            <input
-              name="EmailAddress"
-              type="email"
-              value={profile.EmailAddress}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
+          {/* Billing Address Section */}
+          <div className="profile-section-edit">
+            <h3 className="section-header">Billing Address</h3>
 
-          <div className="profile-row">
-            <label>Phone</label>
-            <input
-              name="Phone"
-              type="tel"
-              value={profile.Phone || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
+            <div className="profile-row">
+              <label>Address Line 1</label>
+              <input
+                value={addresses?.BillingLine1 || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'Line1', e.target.value)}
+              />
+            </div>
 
-          <h3>Shipping Address</h3>
+            <div className="profile-row">
+              <label>Address Line 2 (Optional)</label>
+              <input
+                value={addresses?.BillingLine2 || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'Line2', e.target.value)}
+              />
+            </div>
 
-          <div className="profile-row">
-            <label>City</label>
-            <input
-              name="City"
-              value={profile.City || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
+            <div className="profile-row">
+              <label>Billing City</label>
+              <input
+                value={addresses?.BillingCity || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'City', e.target.value)}
+              />
+            </div>
 
-          <div className="profile-row">
-            <label>State</label>
-            <input
-              name="State"
-              value={profile.State || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
+            <div className="profile-row">
+              <label>Billing State</label>
+              <input
+                value={addresses?.BillingState || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'State', e.target.value)}
+              />
+            </div>
 
-          <div className="profile-row">
-            <label>ZIP Code</label>
-            <input
-              name="ZipCode"
-              value={profile.ZipCode || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
+            <div className="profile-row">
+              <label>Billing ZIP Code</label>
+              <input
+                value={addresses?.BillingZipCode || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'ZipCode', e.target.value)}
+              />
+            </div>
 
-          <h3>Billing Address</h3>
-
-          <div className="profile-row">
-            <label>Billing City</label>
-            <input
-              name="BillingCity"
-              value={profile.BillingCity || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
-
-          <div className="profile-row">
-            <label>Billing State</label>
-            <input
-              name="BillingState"
-              value={profile.BillingState || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
-
-          <div className="profile-row">
-            <label>Billing ZIP Code</label>
-            <input
-              name="BillingZipCode"
-              value={profile.BillingZipCode || ""}
-              className="profile-input"
-              onChange={updateField}
-            />
-          </div>
-
-          <h3>Change Password</h3>
-
-          <div className="profile-row">
-            <label>New Password</label>
-            <input
-              type="password"
-              className="profile-input"
-              value={passwordForm.newPassword}
-              onChange={(e) =>
-                setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="profile-row">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              className="profile-input"
-              value={passwordForm.confirmPassword}
-              onChange={(e) =>
-                setPasswordForm({
-                  ...passwordForm,
-                  confirmPassword: e.target.value
-                })
-              }
-            />
+            <div className="profile-row">
+              <label>Billing Phone (Optional)</label>
+              <input
+                type="tel"
+                value={addresses?.BillingPhone || ""}
+                className="profile-input"
+                onChange={(e) => updateAddressField('Billing', 'Phone', e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="profile-buttons">
             <button
               className="profile-save-btn"
-              onClick={() => {
-                if (validatePassword()) saveProfile();
-              }}
+              onClick={saveProfile}
             >
               Save Changes
             </button>
@@ -397,14 +500,70 @@ export default function CustomerProfile() {
       <div className="account-management">
         <h3 className="profile-subtitle">Account Management</h3>
 
-        <div className="account-actions">
-          <button className="account-btn-deactivate" onClick={openDeactivateModal}>
-            Deactivate Account
-          </button>
+        {/* Change Password Section */}
+        <div className="account-section">
+          <h4 className="account-section-title">Change Password</h4>
+          
+          <div className="profile-row">
+            <label>Current Password</label>
+            <input
+              type="password"
+              className="profile-input"
+              value={passwordForm.oldPassword}
+              onChange={(e) =>
+                setPasswordForm({ ...passwordForm, oldPassword: e.target.value })
+              }
+              placeholder="Enter current password"
+            />
+          </div>
 
-          <button className="account-btn-delete" onClick={openDeleteModal}>
-            Delete Account
+          <div className="profile-row">
+            <label>New Password</label>
+            <input
+              type="password"
+              className="profile-input"
+              value={passwordForm.newPassword}
+              onChange={(e) =>
+                setPasswordForm({ ...passwordForm, newPassword: e.target.value })
+              }
+              placeholder="Enter new password"
+            />
+          </div>
+
+          <div className="profile-row">
+            <label>Confirm New Password</label>
+            <input
+              type="password"
+              className="profile-input"
+              value={passwordForm.confirmPassword}
+              onChange={(e) =>
+                setPasswordForm({
+                  ...passwordForm,
+                  confirmPassword: e.target.value
+                })
+              }
+              placeholder="Confirm new password"
+            />
+          </div>
+
+          <button className="account-btn-change-password" onClick={handleChangePassword}>
+            Update Password
           </button>
+        </div>
+
+        {/* Account Actions Section */}
+        <div className="account-section">
+          <h4 className="account-section-title">Account Actions</h4>
+          
+          <div className="account-actions">
+            <button className="account-btn-deactivate" onClick={openDeactivateModal}>
+              Deactivate Account
+            </button>
+
+            <button className="account-btn-delete" onClick={openDeleteModal}>
+              Delete Account
+            </button>
+          </div>
         </div>
       </div>
 

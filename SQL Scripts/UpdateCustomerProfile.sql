@@ -20,13 +20,28 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Fetch existing values
+    DECLARE @ExistingFirstName VARCHAR(50), @ExistingLastName VARCHAR(50), 
+            @ExistingEmailAddress VARCHAR(255);
+    
+    SELECT @ExistingFirstName = FirstName,
+           @ExistingLastName = LastName,
+           @ExistingEmailAddress = EmailAddress
+    FROM Customers
+    WHERE CustomerID = @CustomerID;
+
+    -- Use provided values, or fall back to existing values
+    SET @FirstName = ISNULL(NULLIF(@FirstName, ''), @ExistingFirstName);
+    SET @LastName = ISNULL(NULLIF(@LastName, ''), @ExistingLastName);
+    SET @EmailAddress = ISNULL(NULLIF(@EmailAddress, ''), @ExistingEmailAddress);
+
     -- Update customer profile
     UPDATE Customers
     SET FirstName = @FirstName,
         LastName = @LastName,
         EmailAddress = @EmailAddress,
         Password = CASE 
-            WHEN @NewPassword IS NOT NULL THEN @NewPassword 
+            WHEN @NewPassword IS NOT NULL AND @NewPassword <> '' THEN @NewPassword 
             ELSE Password 
         END,
         DateUpdated = GETDATE()

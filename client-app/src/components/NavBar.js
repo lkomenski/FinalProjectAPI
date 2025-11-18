@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
-import "./NavBar.css";
+import "../Styles/NavBar.css";
 
 function NavigationBar() {
   const storedUser = localStorage.getItem("user");
@@ -20,6 +20,7 @@ function NavigationBar() {
       {/* LEFT: Logo/Home */}
       <div className="navbar-left">
         <Link to="/" className="navbar-logo">My Guitar Shop</Link>
+        <Link to="/" className="navbar-home-link">Home</Link>
       </div>
 
       {/* RIGHT: User controls */}

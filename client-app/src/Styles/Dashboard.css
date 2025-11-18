@@ -113,6 +113,15 @@
   background: #047857;
 }
 
+/* INFO BUTTON */
+.dashboard-btn-info {
+  background: #0891b2;
+}
+
+.dashboard-btn-info:hover {
+  background: #0e7490;
+}
+
 /* INPUT BAR */
 .dashboard-input,
 .dashboard-select {
