@@ -11,6 +11,7 @@ import CustomerManagement from "./components/CustomerManagement";
 import VendorManagement from "./components/VendorManagement";
 import ProductManagement from "./components/ProductManagement";
 import SalesDashboard from "./components/SalesDashboard";
+import InvoiceArchive from "./components/InvoiceArchive";
 import ProductDetails from "./components/ProductDetails";
 import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
@@ -129,6 +130,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <SalesDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoice-archive"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <InvoiceArchive />
               </ProtectedRoute>
             }
           />

@@ -103,5 +103,58 @@ namespace FinalProjectAPI.Infrastructure.Interfaces.Repositories
 
         return results;
     }
+
+    /// <summary>
+    /// Executes a stored procedure with parameters and returns multiple result sets.
+    /// </summary>
+    /// <param name="storedProc">The name of the stored procedure to execute.</param>
+    /// <param name="parameters">A dictionary of parameter names and values to pass to the stored procedure.</param>
+    /// <returns>A list of result sets, where each result set is a collection of rows.</returns>
+    public async Task<List<List<IDictionary<string, object?>>>> GetDataSetsAsync(string storedProc, IDictionary<string, object?>? parameters)
+    {
+        var dataSets = new List<List<IDictionary<string, object?>>>();
+
+        using (var connection = new SqlConnection(_connectionString))
+        {
+            using (var command = new SqlCommand(storedProc, connection))
+            {
+                command.CommandType = CommandType.StoredProcedure;
+
+                if (parameters != null)
+                {
+                    foreach (var kvp in parameters)
+                    {
+                        var paramName = kvp.Key.StartsWith("@") ? kvp.Key : "@" + kvp.Key;
+                        command.Parameters.AddWithValue(paramName, kvp.Value ?? DBNull.Value);
+                    }
+                }
+
+                await connection.OpenAsync();
+
+                using (var reader = await command.ExecuteReaderAsync())
+                {
+                    do
+                    {
+                        var results = new List<IDictionary<string, object?>>();
+                        while (await reader.ReadAsync())
+                        {
+                            var row = new Dictionary<string, object?>();
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                var name = reader.GetName(i);
+                                var value = await reader.IsDBNullAsync(i) ? null : reader.GetValue(i);
+                                row[name] = value;
+                            }
+                            results.Add(row);
+                        }
+                        dataSets.Add(results);
+                    }
+                    while (await reader.NextResultAsync());
+                }
+            }
+        }
+
+        return dataSets;
+    }
 }
 }

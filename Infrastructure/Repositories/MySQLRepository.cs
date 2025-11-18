@@ -42,5 +42,17 @@ namespace FinalProjectAPI.Infrastructure.Interfaces.Repositories
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Executes a stored procedure with parameters and returns multiple result sets.
+        /// </summary>
+        /// <param name="storedProc">The name of the stored procedure to execute.</param>
+        /// <param name="parameters">A dictionary of parameter names and values to pass to the stored procedure.</param>
+        /// <returns>A list of result sets, where each result set is a collection of rows.</returns>
+        /// <exception cref="NotImplementedException">This method is not yet implemented.</exception>
+        public Task<List<List<IDictionary<string, object?>>>> GetDataSetsAsync(string storedProc, IDictionary<string, object?> parameters)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

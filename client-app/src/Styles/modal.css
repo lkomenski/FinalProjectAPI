@@ -179,6 +179,10 @@
   background-color: #f9fafb;
 }
 
+.invoice-table .text-right {
+  text-align: right;
+}
+
 /* Financial Totals */
 .invoice-totals {
   background-color: #f9fafb;

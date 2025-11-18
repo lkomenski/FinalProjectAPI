@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { fetchData } from "./Api";
+import Api from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import InvoiceDetailModal from "./InvoiceDetailModal";
@@ -10,6 +10,7 @@ import "../Styles/Dashboard.css";
 export default function SalesDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
+  const invoiceListRef = useRef(null);
   const [invoices, setInvoices] = useState([]);
   const [filteredInvoices, setFilteredInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -21,10 +22,13 @@ export default function SalesDashboard() {
   const [error, setError] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [dateRange, setDateRange] = useState("all");
+  const [customStartDate, setCustomStartDate] = useState("");
+  const [customEndDate, setCustomEndDate] = useState("");
 
   const loadInvoices = useCallback(async () => {
     try {
-      const data = await fetchData("invoices");
+      const data = await Api.get("/api/invoices");
       setInvoices(data || []);
       setFilteredInvoices(data || []);
     } catch (err) {
@@ -129,7 +133,7 @@ export default function SalesDashboard() {
 
   const handleInvoiceClick = async (invoiceId) => {
     try {
-      const data = await fetchData(`invoices/${invoiceId}`);
+      const data = await Api.get(`/api/invoices/${invoiceId}`);
       setSelectedInvoice(data);
       setShowModal(true);
     } catch (err) {
@@ -142,62 +146,104 @@ export default function SalesDashboard() {
     setSelectedInvoice(null);
   };
 
-  // Calculate summary stats
-  const totalSales = invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
-  const totalOutstanding = invoices.reduce((sum, inv) => sum + (inv.amountDue || 0), 0);
-  const paidInvoices = invoices.filter(inv => inv.isPaid || inv.amountDue === 0).length;
-  const unpaidInvoices = invoices.filter(inv => !inv.isPaid && inv.amountDue > 0).length;
+  // Memoize summary stats - only recalculate when invoices change
+  const totalSales = useMemo(() => 
+    invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0),
+    [invoices]
+  );
 
-  // Prepare chart data - Sales by Category
-  const getCategoryData = () => {
+  const totalOutstanding = useMemo(() => 
+    invoices.reduce((sum, inv) => sum + (inv.amountDue || 0), 0),
+    [invoices]
+  );
+
+  const paidInvoices = useMemo(() => 
+    invoices.filter(inv => inv.isPaid || inv.amountDue === 0).length,
+    [invoices]
+  );
+
+  const unpaidInvoices = useMemo(() => 
+    invoices.filter(inv => !inv.isPaid && inv.amountDue > 0).length,
+    [invoices]
+  );
+
+  // Handler to filter invoices and scroll to list
+  const handleCardClick = (filter) => {
+    setStatusFilter(filter);
+    setCurrentPage(1);
+    setTimeout(() => {
+      invoiceListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  // Memoize chart data - Sales by GL Account Category
+  const categoryData = useMemo(() => {
     const categoryMap = {};
+    
+    // Aggregate by line item description from invoices
     invoices.forEach(inv => {
-      if (inv.lineItems && Array.isArray(inv.lineItems)) {
+      if (inv.lineItems && Array.isArray(inv.lineItems) && inv.lineItems.length > 0) {
         inv.lineItems.forEach(item => {
-          const category = item.category || 'Uncategorized';
-          const amount = (item.quantity || 0) * (item.unitPrice || 0);
+          const category = item.invoiceLineItemDescription || 'Uncategorized';
+          const amount = item.invoiceLineItemAmount || 0;
           categoryMap[category] = (categoryMap[category] || 0) + amount;
         });
+      } else {
+        // Fallback: group by vendor if no line items available yet
+        const vendor = inv.vendorName || 'Unknown';
+        categoryMap[vendor] = (categoryMap[vendor] || 0) + (inv.totalAmount || 0);
       }
     });
     
-    return Object.entries(categoryMap).map(([name, value]) => ({
-      name,
-      value: parseFloat(value.toFixed(2))
-    }));
-  };
+    return Object.entries(categoryMap)
+      .map(([name, value]) => ({
+        name,
+        value: parseFloat(value.toFixed(2))
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 6); // Top 6 categories
+  }, [invoices]);
 
-  // Prepare chart data - Sales Trend (last 6 months)
-  const getSalesTrendData = () => {
-    const monthMap = {};
-    const months = [];
+  // Memoize chart data - Sales Trend with date range filter
+  const salesTrendData = useMemo(() => {
+    let filteredData = [...invoices];
     
-    // Generate last 6 months
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date();
-      date.setMonth(date.getMonth() - i);
-      const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      monthMap[key] = 0;
-      months.push(key);
+    // Apply date range filter
+    const now = new Date();
+    if (dateRange === "6months") {
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(now.getMonth() - 6);
+      filteredData = filteredData.filter(inv => new Date(inv.invoiceDate) >= sixMonthsAgo);
+    } else if (dateRange === "1year") {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(now.getFullYear() - 1);
+      filteredData = filteredData.filter(inv => new Date(inv.invoiceDate) >= oneYearAgo);
+    } else if (dateRange === "custom" && customStartDate && customEndDate) {
+      const start = new Date(customStartDate);
+      const end = new Date(customEndDate);
+      filteredData = filteredData.filter(inv => {
+        const invDate = new Date(inv.invoiceDate);
+        return invDate >= start && invDate <= end;
+      });
     }
     
-    // Aggregate sales by month
-    invoices.forEach(inv => {
+    // Group by month
+    const monthMap = {};
+    filteredData.forEach(inv => {
       const date = new Date(inv.invoiceDate);
       const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-      if (monthMap.hasOwnProperty(key)) {
-        monthMap[key] += inv.totalAmount || 0;
-      }
+      monthMap[key] = (monthMap[key] || 0) + (inv.totalAmount || 0);
     });
     
-    return months.map(month => ({
-      month,
-      sales: parseFloat(monthMap[month].toFixed(2))
-    }));
-  };
-
-  const categoryData = getCategoryData();
-  const salesTrendData = getSalesTrendData();
+    // Sort by date
+    return Object.entries(monthMap)
+      .map(([month, sales]) => ({ month, sales: parseFloat(sales.toFixed(2)) }))
+      .sort((a, b) => {
+        const dateA = new Date(a.month);
+        const dateB = new Date(b.month);
+        return dateA - dateB;
+      });
+  }, [invoices, dateRange, customStartDate, customEndDate]);
   
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -213,23 +259,31 @@ export default function SalesDashboard() {
         <span className="breadcrumb-current">Sales Dashboard</span>
       </div>
 
-      <h2 className="dashboard-title">Sales Dashboard</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 className="dashboard-title" style={{ marginBottom: 0 }}>Sales Dashboard</h2>
+        <button 
+          onClick={() => navigate("/invoice-archive")}
+          className="dashboard-btn dashboard-btn-secondary"
+        >
+          View Invoice Archive
+        </button>
+      </div>
 
-      {/* Summary Cards */}
+      {/* Summary Cards - Clickable */}
       <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '30px' }}>
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-clickable" onClick={() => handleCardClick("all")}>
           <h3>Total Sales</h3>
           <div className="value">${totalSales.toFixed(2)}</div>
         </div>
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-clickable" onClick={() => handleCardClick("unpaid")}>
           <h3>Outstanding</h3>
           <div className="value">${totalOutstanding.toFixed(2)}</div>
         </div>
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-clickable" onClick={() => handleCardClick("paid")}>
           <h3>Paid Invoices</h3>
           <div className="value">{paidInvoices}</div>
         </div>
-        <div className="dashboard-card">
+        <div className="dashboard-card dashboard-clickable" onClick={() => handleCardClick("unpaid")}>
           <h3>Unpaid Invoices</h3>
           <div className="value">{unpaidInvoices}</div>
         </div>
@@ -238,18 +292,18 @@ export default function SalesDashboard() {
       {/* Charts Section */}
       <h3 className="dashboard-subtitle">Sales Analytics</h3>
       <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: '30px' }}>
-        <div className="dashboard-card" style={{ height: '350px' }}>
-          <h3 style={{ marginBottom: '15px' }}>Sales by Category</h3>
+        <div className="dashboard-card" style={{ height: '400px' }}>
+          <h3 style={{ marginBottom: '15px' }}>Sales by Item Description</h3>
           {categoryData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={330}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  labelLine={true}
+                  label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                  outerRadius={90}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -257,22 +311,60 @@ export default function SalesDashboard() {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                <Tooltip 
+                  formatter={(value) => `$${value.toFixed(2)}`}
+                  contentStyle={{ maxWidth: '200px', whiteSpace: 'normal', wordWrap: 'break-word' }}
+                />
+                <Legend 
+                  wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
+                  formatter={(value) => value.length > 25 ? value.substring(0, 25) + '...' : value}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '280px', color: '#6b7280' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '330px', color: '#6b7280' }}>
               No category data available
             </div>
           )}
         </div>
-        <div className="dashboard-card" style={{ height: '350px' }}>
-          <h3 style={{ marginBottom: '15px' }}>Sales Trend (Last 6 Months)</h3>
+        <div className="dashboard-card" style={{ height: '400px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+            <h3 style={{ margin: 0 }}>Sales Trend</h3>
+            <select 
+              value={dateRange} 
+              onChange={(e) => setDateRange(e.target.value)}
+              className="filter-select"
+              style={{ width: 'auto', minWidth: '120px' }}
+            >
+              <option value="all">All Time</option>
+              <option value="6months">Last 6 Months</option>
+              <option value="1year">Last Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+          </div>
+          {dateRange === "custom" && (
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+              <input 
+                type="date" 
+                value={customStartDate}
+                onChange={(e) => setCustomStartDate(e.target.value)}
+                className="dashboard-input"
+                style={{ flex: 1 }}
+              />
+              <input 
+                type="date" 
+                value={customEndDate}
+                onChange={(e) => setCustomEndDate(e.target.value)}
+                className="dashboard-input"
+                style={{ flex: 1 }}
+              />
+            </div>
+          )}
           {salesTrendData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={dateRange === "custom" ? 270 : 330}>
               <BarChart data={salesTrendData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
+                <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
                 <YAxis />
                 <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
                 <Legend />
@@ -280,19 +372,19 @@ export default function SalesDashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '280px', color: '#6b7280' }}>
-              No sales data available
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '330px', color: '#6b7280' }}>
+              No sales data available for selected range
             </div>
           )}
         </div>
       </div>
 
       {/* Filters */}
-      <h3 className="dashboard-subtitle">Invoice List</h3>
+      <h3 className="dashboard-subtitle" ref={invoiceListRef}>Invoice List</h3>
       <div className="filters-row">
         <input 
           className="dashboard-input" 
-          placeholder="Search by Invoice ID, Customer, or Vendor..." 
+          placeholder="Search by Invoice #, or Vendor..." 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
         />
@@ -310,7 +402,7 @@ export default function SalesDashboard() {
         </select>
       </div>
 
-      {/* Invoice List */}
+      {/* Invoice List - Vendor Dashboard Style */}
       <div style={{ marginTop: '20px' }}>
         {currentInvoices.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No invoices found.</p>
@@ -318,23 +410,40 @@ export default function SalesDashboard() {
           currentInvoices.map((inv) => (
             <div 
               key={inv.invoiceID} 
-              className="dashboard-list-item clickable"
+              className="dashboard-list-item dashboard-clickable"
               onClick={() => handleInvoiceClick(inv.invoiceID)}
-              style={{ cursor: 'pointer' }}
+              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
             >
               <div>
-                <strong>Invoice #{inv.invoiceID}</strong>
-                <p>Customer: {inv.customerName || 'N/A'} | Vendor: {inv.vendorName || 'N/A'}</p>
-                <p>Date: {new Date(inv.invoiceDate).toLocaleDateString()} | Due: {new Date(inv.dueDate).toLocaleDateString()}</p>
-                <span className={inv.isPaid || inv.amountDue === 0 ? "text-green-700" : "text-red-600"}>
-                  {inv.isPaid || inv.amountDue === 0 ? "Paid" : `Outstanding: $${inv.amountDue?.toFixed(2)}`}
-                </span>
+                <strong>Invoice #{inv.invoiceNumber || inv.invoiceID}</strong><br />
+                Vendor: {inv.vendorName || 'N/A'}<br />
+                Date: {new Date(inv.invoiceDate).toLocaleDateString()}<br />
+                Total: ${inv.totalAmount?.toFixed(2)}
               </div>
-              <div>
-                <div style={{ textAlign: 'right', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                  ${inv.totalAmount?.toFixed(2)}
-                </div>
-              </div>
+              
+              {/* STATUS BADGE - Right Side, Larger */}
+              <span
+                className={
+                  inv.isPaid || inv.amountDue === 0
+                    ? "badge badge-paid"
+                    : inv.amountDue > 0 && inv.amountDue < inv.totalAmount
+                    ? "badge badge-partial"
+                    : "badge badge-unpaid"
+                }
+                style={{ 
+                  fontSize: '1.1rem', 
+                  padding: '8px 16px',
+                  fontWeight: '600',
+                  minWidth: '100px',
+                  textAlign: 'center'
+                }}
+              >
+                {inv.isPaid || inv.amountDue === 0
+                  ? "Paid"
+                  : inv.amountDue > 0 && inv.amountDue < inv.totalAmount
+                  ? "Partial"
+                  : "Unpaid"}
+              </span>
             </div>
           ))
         )}

@@ -21,9 +21,14 @@ BEGIN
         i.InvoiceTotal,
         i.PaymentTotal,
         i.CreditTotal,
-        i.InvoiceDueDate
+        i.TermsID,
+        i.InvoiceDueDate,
+        i.PaymentDate,
+        t.TermsDescription,
+        t.TermsDueDays
     FROM Invoices i
     LEFT JOIN Vendors v ON i.VendorID = v.VendorID
+    LEFT JOIN Terms t ON i.TermsID = t.TermsID
     ORDER BY i.InvoiceDate DESC;
 END;
 GO

@@ -4,6 +4,17 @@ import "../Styles/modal.css";
 export default function InvoiceDetailModal({ invoice, onClose }) {
   if (!invoice) return null;
 
+  // Calculate subtotal from line items if available
+  const calculateSubtotal = () => {
+    if (invoice.lineItems && invoice.lineItems.length > 0) {
+      return invoice.lineItems.reduce((sum, item) => sum + (item.invoiceLineItemAmount || 0), 0);
+    }
+    return invoice.invoiceTotal || 0;
+  };
+
+  const subtotal = calculateSubtotal();
+  const amountDue = (invoice.invoiceTotal || 0) - (invoice.paymentTotal || 0) - (invoice.creditTotal || 0);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -18,13 +29,13 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
             <h3>Invoice Information</h3>
             <div className="invoice-grid">
               <div className="invoice-field">
-                <label>Invoice ID:</label>
-                <span>#{invoice.invoiceID}</span>
+                <label>Invoice Number:</label>
+                <span>#{invoice.invoiceNumber || invoice.invoiceID}</span>
               </div>
               <div className="invoice-field">
                 <label>Status:</label>
-                <span className={invoice.isPaid || invoice.amountDue === 0 ? "status-paid" : "status-unpaid"}>
-                  {invoice.isPaid || invoice.amountDue === 0 ? "Paid" : "Unpaid"}
+                <span className={amountDue <= 0 ? "status-paid" : "status-unpaid"}>
+                  {amountDue <= 0 ? "Paid" : "Unpaid"}
                 </span>
               </div>
               <div className="invoice-field">
@@ -33,52 +44,91 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
               </div>
               <div className="invoice-field">
                 <label>Due Date:</label>
-                <span>{new Date(invoice.dueDate).toLocaleDateString()}</span>
+                <span>{invoice.invoiceDueDate ? new Date(invoice.invoiceDueDate).toLocaleDateString() : 'N/A'}</span>
               </div>
+              {invoice.termsDescription && (
+                <div className="invoice-field">
+                  <label>Payment Terms:</label>
+                  <span>{invoice.termsDescription}</span>
+                </div>
+              )}
             </div>
+
+            {/* Line Items in Invoice Information Section */}
+            {invoice.lineItems && invoice.lineItems.length > 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <h4 style={{ marginBottom: '10px', fontSize: '0.95rem', color: '#374151' }}>Invoice Items:</h4>
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Account</th>
+                      <th>Description</th>
+                      <th className="text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoice.lineItems.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.invoiceSequence || index + 1}</td>
+                        <td>
+                          {item.accountNo || 'N/A'}
+                          {item.accountDescription && (
+                            <><br /><span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{item.accountDescription}</span></>
+                          )}
+                        </td>
+                        <td>{item.invoiceLineItemDescription || 'N/A'}</td>
+                        <td className="text-right">${item.invoiceLineItemAmount?.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
-          {/* Customer & Vendor Info */}
+          {/* Vendor Info */}
           <div className="invoice-section">
-            <h3>Parties</h3>
+            <h3>Vendor Information</h3>
             <div className="invoice-grid">
               <div className="invoice-field">
-                <label>Customer:</label>
-                <span>{invoice.customerName || 'N/A'}</span>
-              </div>
-              <div className="invoice-field">
-                <label>Vendor:</label>
+                <label>Vendor Name:</label>
                 <span>{invoice.vendorName || 'N/A'}</span>
               </div>
+              <div className="invoice-field">
+                <label>Contact Person:</label>
+                <span>
+                  {invoice.vendorContactFName && invoice.vendorContactLName
+                    ? `${invoice.vendorContactFName} ${invoice.vendorContactLName}`
+                    : 'N/A'}
+                </span>
+              </div>
+              {invoice.vendorPhone && (
+                <div className="invoice-field">
+                  <label>Phone:</label>
+                  <span>{invoice.vendorPhone}</span>
+                </div>
+              )}
+              {invoice.vendorEmail && (
+                <div className="invoice-field">
+                  <label>Email:</label>
+                  <span>{invoice.vendorEmail}</span>
+                </div>
+              )}
+              {(invoice.vendorAddress1 || invoice.vendorCity) && (
+                <div className="invoice-field" style={{ gridColumn: 'span 2' }}>
+                  <label>Address:</label>
+                  <span>
+                    {invoice.vendorAddress1 && <>{invoice.vendorAddress1}<br /></>}
+                    {invoice.vendorAddress2 && <>{invoice.vendorAddress2}<br /></>}
+                    {invoice.vendorCity && invoice.vendorState && invoice.vendorZipCode && (
+                      <>{invoice.vendorCity}, {invoice.vendorState} {invoice.vendorZipCode}</>
+                    )}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Line Items */}
-          {invoice.lineItems && invoice.lineItems.length > 0 && (
-            <div className="invoice-section">
-              <h3>Line Items</h3>
-              <table className="invoice-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {invoice.lineItems.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.productName || item.description || 'Product'}</td>
-                      <td>{item.quantity}</td>
-                      <td>${item.unitPrice?.toFixed(2)}</td>
-                      <td>${(item.quantity * item.unitPrice)?.toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
 
           {/* Financial Summary */}
           <div className="invoice-section">
@@ -86,34 +136,32 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
             <div className="invoice-totals">
               <div className="invoice-total-row">
                 <label>Subtotal:</label>
-                <span>${(invoice.totalAmount - (invoice.taxAmount || 0))?.toFixed(2)}</span>
+                <span>${subtotal.toFixed(2)}</span>
               </div>
-              {invoice.taxAmount > 0 && (
+              {invoice.paymentTotal > 0 && (
                 <div className="invoice-total-row">
-                  <label>Tax:</label>
-                  <span>${invoice.taxAmount?.toFixed(2)}</span>
+                  <label>Payments Applied:</label>
+                  <span>-${invoice.paymentTotal.toFixed(2)}</span>
+                </div>
+              )}
+              {invoice.creditTotal > 0 && (
+                <div className="invoice-total-row">
+                  <label>Credits Applied:</label>
+                  <span>-${invoice.creditTotal.toFixed(2)}</span>
                 </div>
               )}
               <div className="invoice-total-row total">
                 <label>Total Amount:</label>
-                <span>${invoice.totalAmount?.toFixed(2)}</span>
+                <span>${invoice.invoiceTotal?.toFixed(2)}</span>
               </div>
-              {invoice.amountDue > 0 && (
+              {amountDue > 0 && (
                 <div className="invoice-total-row outstanding">
                   <label>Amount Due:</label>
-                  <span>${invoice.amountDue?.toFixed(2)}</span>
+                  <span>${amountDue.toFixed(2)}</span>
                 </div>
               )}
             </div>
           </div>
-
-          {/* Notes */}
-          {invoice.notes && (
-            <div className="invoice-section">
-              <h3>Notes</h3>
-              <p className="invoice-notes">{invoice.notes}</p>
-            </div>
-          )}
         </div>
 
         <div className="modal-footer">
