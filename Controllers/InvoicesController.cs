@@ -22,6 +22,42 @@ namespace FinalProjectAPI.Controllers
         }
 
         // ---------------------------------------------------------
+        // GET: api/invoices   (get all invoices)
+        // ---------------------------------------------------------
+        /// <summary>
+        /// Retrieves all invoices in the system.
+        /// </summary>
+        /// <returns>A list of all invoices.</returns>
+        /// <response code="200">Returns the list of all invoices.</response>
+        [HttpGet]
+        public async Task<IActionResult> GetAllInvoices()
+        {
+            var results = await _repoAP.GetDataAsync("GetAllInvoices", new Dictionary<string, object?>());
+
+            return Ok(results.Select(r => new
+            {
+                InvoiceID = Convert.ToInt32(r["InvoiceID"]),
+                VendorID = r["VendorID"] != DBNull.Value ? Convert.ToInt32(r["VendorID"]) : (int?)null,
+                VendorName = r["VendorName"]?.ToString(),
+                CustomerName = r.ContainsKey("CustomerName") ? r["CustomerName"]?.ToString() : null,
+                InvoiceNumber = r["InvoiceNumber"]?.ToString(),
+                InvoiceDate = Convert.ToDateTime(r["InvoiceDate"]),
+                TotalAmount = Convert.ToDecimal(r["InvoiceTotal"]),
+                PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
+                CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
+                AmountDue = Convert.ToDecimal(r["InvoiceTotal"]) - 
+                            Convert.ToDecimal(r["PaymentTotal"]) - 
+                            Convert.ToDecimal(r["CreditTotal"]),
+                DueDate = r["InvoiceDueDate"] == DBNull.Value
+                    ? (DateTime?)null
+                    : Convert.ToDateTime(r["InvoiceDueDate"]),
+                IsPaid = (Convert.ToDecimal(r["InvoiceTotal"]) - 
+                         Convert.ToDecimal(r["PaymentTotal"]) - 
+                         Convert.ToDecimal(r["CreditTotal"])) <= 0
+            }));
+        }
+
+        // ---------------------------------------------------------
         // GET: api/invoices/vendor/122   (get all invoices for vendor)
         // ---------------------------------------------------------
         /// <summary>

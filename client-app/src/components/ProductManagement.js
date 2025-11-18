@@ -104,7 +104,7 @@ export default function ProductManagement() {
 
       <h2 className="dashboard-title">Product Management</h2>
 
-      <div className="filters-row">
+      <div className="filters-row" style={{ marginTop: '30px' }}>
         <input 
           className="dashboard-input" 
           placeholder="Search products..." 

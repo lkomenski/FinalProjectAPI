@@ -93,6 +93,12 @@
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
+/* Individual clickable stats within cards */
+.clickable-stat:hover {
+  background-color: #f3f4f6;
+  transform: scale(1.02);
+}
+
 .dashboard-card h3 {
   font-size: 1.1rem;
   font-weight: 600;
@@ -403,8 +409,9 @@
 .pagination-pages {
   display: flex;
   gap: 5px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .pagination-page {
@@ -416,6 +423,7 @@
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .pagination-page:hover {
@@ -427,6 +435,14 @@
   background-color: #3b82f6;
   color: white;
   border-color: #3b82f6;
+}
+
+.pagination-ellipsis {
+  padding: 8px 4px;
+  color: #6b7280;
+  font-size: 14px;
+  user-select: none;
+  flex-shrink: 0;
 }
 
 .pagination-info {

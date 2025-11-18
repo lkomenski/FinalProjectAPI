@@ -143,7 +143,7 @@ export default function CustomerManagement() {
 
       <h2 className="dashboard-title">Customer Management</h2>
 
-      <div className="filters-row">
+      <div className="filters-row" style={{ marginTop: '30px' }}>
         <input 
           className="dashboard-input" 
           placeholder="Search customers..." 
@@ -219,14 +219,18 @@ export default function CustomerManagement() {
           </button>
           
           <div className="pagination-pages">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                className={`pagination-page ${currentPage === index + 1 ? 'active' : ''}`}
-                onClick={() => goToPage(index + 1)}
-              >
-                {index + 1}
-              </button>
+            {getPageNumbers().map((page, index) => (
+              page === '...' ? (
+                <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={page}
+                  className={`pagination-page ${currentPage === page ? 'active' : ''}`}
+                  onClick={() => goToPage(page)}
+                >
+                  {page}
+                </button>
+              )
             ))}
           </div>
 

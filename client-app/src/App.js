@@ -10,6 +10,7 @@ import AdminDashboard from "./components/EmployeeDashboard";
 import CustomerManagement from "./components/CustomerManagement";
 import VendorManagement from "./components/VendorManagement";
 import ProductManagement from "./components/ProductManagement";
+import SalesDashboard from "./components/SalesDashboard";
 import ProductDetails from "./components/ProductDetails";
 import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
@@ -120,6 +121,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <ProductManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sales-dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <SalesDashboard />
               </ProtectedRoute>
             }
           />

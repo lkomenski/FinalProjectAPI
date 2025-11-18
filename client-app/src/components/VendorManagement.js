@@ -117,7 +117,7 @@ export default function VendorManagement() {
 
       <h2 className="dashboard-title">Vendor Management</h2>
 
-      <div className="filters-row">
+      <div className="filters-row" style={{ marginTop: '30px' }}>
         <input 
           className="dashboard-input" 
           placeholder="Search vendors..." 
