@@ -183,6 +183,17 @@ namespace FinalProjectAPI.Controllers
                 if (summary is null)
                     return StatusCode(500, "Admin summary data missing.");
 
+                // Get customers
+                var customerRows = await _repoGuitarShop.GetDataAsync("GetAllCustomers");
+                var customers = customerRows.Select(row => new
+                {
+                    customerID = Convert.ToInt32(row["CustomerID"]),
+                    firstName = row["FirstName"]?.ToString(),
+                    lastName = row["LastName"]?.ToString(),
+                    emailAddress = row["EmailAddress"]?.ToString(),
+                    isActive = Convert.ToBoolean(row["IsActive"] ?? true)
+                }).ToList();
+
                 var vendorRows = await _repoAP.GetDataAsync("GetAllVendors");
                 var vendors = vendorRows.Select(VendorsController.MapRowToVendor).ToList();
 
@@ -199,6 +210,7 @@ namespace FinalProjectAPI.Controllers
                     totalSales = Convert.ToDecimal(summary["TotalSales"] ?? 0),
                     totalOutstandingInvoices = Convert.ToDecimal(summary["TotalOutstandingInvoices"] ?? 0),
 
+                    customers = customers,
                     vendors = vendors,
                     products = products
                 });

@@ -7,6 +7,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import CustomerDashboard from "./components/CustomerDashboard";
 import VendorDashboard from "./components/VendorDashboard";
 import AdminDashboard from "./components/EmployeeDashboard";
+import CustomerManagement from "./components/CustomerManagement";
+import VendorManagement from "./components/VendorManagement";
+import ProductManagement from "./components/ProductManagement";
 import ProductDetails from "./components/ProductDetails";
 import CartPage from "./components/CartPage";
 import { CartProvider } from "./context/CartContext";
@@ -85,6 +88,38 @@ function App() {
             element={
               <ProtectedRoute requiredRole="admin">
                 <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employee-dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customer-management"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <CustomerManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/vendor-management"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <VendorManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/product-management"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ProductManagement />
               </ProtectedRoute>
             }
           />
