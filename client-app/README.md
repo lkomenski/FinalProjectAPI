@@ -2,15 +2,16 @@
 
 A React-based frontend for the Guitar Shop Management System, providing separate interfaces for customers, vendors, and administrators to manage products, orders, and business operations.
 
-## 🎯 Project Overview
+##  Project Overview
 
-This client application is part of a comprehensive Guitar Shop Management System. For detailed project specifications, architecture, and business requirements, see [📋 ProjectOverview.md](../Documentation/ProjectOverview.md).
+This client application is part of a comprehensive Guitar Shop Management System. For detailed project specifications, architecture, and business requirements, see [ ProjectOverview.md](../Documentation/ProjectOverview.md).
 
 **Key Application Areas:**
 - **Customer Portal**: Browse products, manage shopping cart, view order history, update profile
 - **Vendor Dashboard**: Manage product inventory, view sales analytics, handle vendor operations  
 - **Admin Panel**: Comprehensive business oversight, user management, system analytics
-- **Authentication System**: Role-based access with secure login/registration
+- **Authentication System**: Role-based access with secure login/registration, BCrypt password encryption
+- **Vendor Registration**: Secure token-based vendor account activation system
 
 ## 🛠 Technology Stack
 
@@ -21,14 +22,14 @@ This client application is part of a comprehensive Guitar Shop Management System
 - **HTTP Client**: Fetch API for REST API communication
 - **Build Tool**: Create React App (Webpack, Babel)
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js 16.x or higher
 - npm or yarn package manager
 - Running backend API (ASP.NET Core Web API)
 
-> 📖 **Complete Setup Guide**: For full development environment setup including database configuration, API setup, and troubleshooting, see [🔧 SetupInstructions.md](../Documentation/SetupInstructions.md)
+>  **Complete Setup Guide**: For full development environment setup including database configuration, API setup, and troubleshooting, see [ SetupInstructions.md](../Documentation/SetupInstructions.md)
 
 ### Quick Start
 
@@ -48,7 +49,7 @@ This client application is part of a comprehensive Guitar Shop Management System
    npm run build
    ```
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 src/
@@ -98,7 +99,7 @@ src/
 └── index.css            # Base CSS styles
 ```
 
-## 🔑 Key Features
+##  Key Features
 
 ### Customer Features
 - **Product Browsing**: Featured products, categories, search functionality
@@ -117,7 +118,7 @@ src/
 - **Product Oversight**: System-wide inventory management
 - **Business Intelligence**: Sales analytics and reporting
 
-## 🔗 API Integration
+##  API Integration
 
 The frontend communicates with the ASP.NET Core Web API:
 - **Base URL**: `http://localhost:5077/api`
@@ -125,7 +126,7 @@ The frontend communicates with the ASP.NET Core Web API:
 - **Data Format**: JSON REST API
 - **Error Handling**: Comprehensive error messaging and validation
 
-> 📚 **Complete API Documentation**: For detailed endpoint specifications, request/response schemas, and testing examples, see [🔌 APIEndpoints.md](../Documentation/APIEndpoints.md)
+>  **Complete API Documentation**: For detailed endpoint specifications, request/response schemas, and testing examples, see [ APIEndpoints.md](../Documentation/APIEndpoints.md)
 
 ### Key API Endpoints
 ```
@@ -137,7 +138,7 @@ PUT    /api/customer/change-password # Change customer password
 POST   /api/products              # Add new product (admin)
 ```
 
-## 🎨 UI/UX Features
+##  UI/UX Features
 
 - **Responsive Design**: Mobile-first approach with flexible layouts
 - **Accessibility**: WCAG 2.1 compliant with keyboard navigation
@@ -145,7 +146,7 @@ POST   /api/products              # Add new product (admin)
 - **Visual Design**: Modern card-based layouts with consistent styling
 - **Interactive Elements**: Modals, carousels, dynamic filtering
 
-## 🛡 Security Features
+##  Security Features
 
 - **Password Requirements**: 8+ characters with number requirement
 - **Input Validation**: Client and server-side validation
@@ -153,7 +154,7 @@ POST   /api/products              # Add new product (admin)
 - **Role Protection**: Route guards for different user types
 - **CSRF Protection**: Secure form submissions
 
-## 🧪 Development Scripts
+##  Development Scripts
 
 ```bash
 # Development server with hot reload
@@ -169,9 +170,9 @@ npm run build
 npm run build && npx serve -s build
 ```
 
-> 🧪 **Testing Documentation**: For comprehensive testing procedures, API testing examples, and quality assurance guidelines, see [✅ TestingPlan.md](../Documentation/TestingPlan.md)
+>  **Testing Documentation**: For comprehensive testing procedures, API testing examples, and quality assurance guidelines, see [ TestingPlan.md](../Documentation/TestingPlan.md)
 
-## 📋 Dependencies
+##  Dependencies
 
 ### Core Dependencies
 - `react` & `react-dom` - Core React framework
@@ -184,7 +185,7 @@ npm run build && npx serve -s build
 - Automatic browser refresh on file changes
 - Source maps for debugging
 
-## 🚀 Deployment
+##  Deployment
 
 1. **Build for Production**
    ```bash
@@ -202,18 +203,18 @@ npm run build && npx serve -s build
    - Configure CORS settings on backend API
    - Set up domain and SSL certificates
 
-## 📚 Additional Documentation
+##  Additional Documentation
 
 Comprehensive project documentation is available in the `/Documentation` folder:
 
-- **[📋 ProjectOverview.md](../Documentation/ProjectOverview.md)** - Complete project specifications, goals, and architecture
-- **[🔧 SetupInstructions.md](../Documentation/SetupInstructions.md)** - Full development environment setup guide
-- **[🔌 APIEndpoints.md](../Documentation/APIEndpoints.md)** - Complete REST API documentation with examples
-- **[🏗️ SQLDesign.md](../Documentation/SQLDesign.md)** - Database schema, relationships, and stored procedures
-- **[✅ TestingPlan.md](../Documentation/TestingPlan.md)** - Testing procedures, API testing, and QA guidelines
-- **[🎯 OOPConceptsSummary.md](../Documentation/OOPConceptsSummary.md)** - Object-oriented programming implementation details
+- **[ ProjectOverview.md](../Documentation/ProjectOverview.md)** - Complete project specifications, goals, and architecture
+- **[ SetupInstructions.md](../Documentation/SetupInstructions.md)** - Full development environment setup guide
+- **[ APIEndpoints.md](../Documentation/APIEndpoints.md)** - Complete REST API documentation with examples
+- **[ SQLDesign.md](../Documentation/SQLDesign.md)** - Database schema, relationships, and stored procedures
+- **[ TestingPlan.md](../Documentation/TestingPlan.md)** - Testing procedures, API testing, and QA guidelines
+- **[ OOPConceptsSummary.md](../Documentation/OOPConceptsSummary.md)** - Object-oriented programming implementation details
 
-## 📞 Support & Maintenance
+##  Support & Maintenance
 
 For issues, feature requests, or contributions:
 - Review the comprehensive documentation above
