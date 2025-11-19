@@ -13,6 +13,44 @@
   color: #222;
 }
 
+/* ================================
+   BREADCRUMB NAVIGATION
+===================================*/
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.breadcrumb-link {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 8px;
+  color: #9ca3af;
+}
+
+.breadcrumb-current {
+  color: #374151;
+  font-weight: 600;
+}
+
 .profile-title {
   text-align: center;
   font-size: 2rem;

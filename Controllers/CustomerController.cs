@@ -6,7 +6,8 @@ using BCrypt.Net;
 namespace FinalProjectAPI.Controllers
 {
     /// <summary>
-    /// Controller for managing customer accounts and authentication.
+    /// Controller for managing customer profile, addresses, and account operations.
+    /// Authentication is handled by AuthController.
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
@@ -46,68 +47,7 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
-        /// <summary>
-        /// Registers a new customer account. Addresses will be added later during checkout or profile update.
-        /// </summary>
-        /// <param name="request">The customer registration information.</param>
-        /// <returns>The newly created customer.</returns>
-        /// <response code="200">Returns the newly registered customer.</response>
-        /// <response code="400">If the registration data is invalid or email already exists.</response>
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] CustomerRegisterRequest request)
-        {
-            // Validate required fields
-            if (string.IsNullOrEmpty(request.EmailAddress) || string.IsNullOrEmpty(request.Password) ||
-                string.IsNullOrEmpty(request.FirstName) || string.IsNullOrEmpty(request.LastName))
-            {
-                return BadRequest("Email, password, first name, and last name are required.");
-            }
 
-            // Validate password confirmation
-            if (request.Password != request.ConfirmPassword)
-            {
-                return BadRequest("Password and confirmation password do not match.");
-            }
-
-            var parameters = new Dictionary<string, object?>
-            {
-                { "@EmailAddress", request.EmailAddress },
-                { "@Password", request.Password },
-                { "@FirstName", request.FirstName },
-                { "@LastName", request.LastName }
-            };
-
-            var result = await _repo.GetDataAsync("CustomerRegister", parameters);
-            var response = result.FirstOrDefault();
-
-            if (response != null && Convert.ToInt32(response["CustomerID"]) == -1)
-            {
-                return BadRequest(response["ErrorMessage"]?.ToString() ?? "Registration failed.");
-            }
-
-            return Ok(response);
-        }
-
-        /// <summary>
-        /// Authenticates a customer and returns their information.
-        /// </summary>
-        /// <param name="login">The customer login credentials.</param>
-        /// <returns>The authenticated customer information.</returns>
-        /// <response code="200">Returns the customer information.</response>
-        /// <response code="401">If the credentials are invalid.</response>
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] Customer login)
-        {
-            var parameters = new Dictionary<string, object?>
-            {
-                { "@EmailAddress", login.EmailAddress },
-                { "@Password", login.Password }
-            };
-
-            var result = await _repo.GetDataAsync("CustomerLogin", parameters);
-            if (!result.Any()) return Unauthorized("Invalid credentials");
-            return Ok(result.First());
-        }
 
         /// <summary>
         /// Checks if a customer account exists with the given email address.

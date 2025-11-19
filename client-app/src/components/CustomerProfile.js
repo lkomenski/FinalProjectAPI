@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../Styles/ProfilePage.css";
 import { fetchData } from "./Api";
 import ConfirmationModal from "./ConfirmationModal";
 
 export default function CustomerProfile() {
+  const navigate = useNavigate();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
@@ -250,6 +252,18 @@ export default function CustomerProfile() {
 
   return (
     <div className="profile-container">
+      {/* Breadcrumb Navigation */}
+      <nav className="breadcrumb">
+        <button 
+          onClick={() => navigate('/customer-dashboard')} 
+          className="breadcrumb-link"
+        >
+          Dashboard
+        </button>
+        <span className="breadcrumb-separator"> / </span>
+        <span className="breadcrumb-current">Account Settings</span>
+      </nav>
+
       <h2 className="profile-title">My Account</h2>
 
       {error && <p className="profile-message error">{error}</p>}

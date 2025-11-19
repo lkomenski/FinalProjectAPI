@@ -137,7 +137,7 @@ namespace FinalProjectAPI.Controllers
         {
             try
             {
-                if (id <= 0) // edit this later based on valid VendorID criteria
+                if (id <= 0) 
                 {
                     return BadRequest("Invalid VendorID.");
                 }
