@@ -125,30 +125,125 @@ export default function CustomerManagement() {
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
 
+  // Calculate customer statistics
+  const activeCustomers = customers.filter(c => c.isActive);
+  const inactiveCustomers = customers.filter(c => !c.isActive);
+  const recentCustomers = [...customers].slice(0, 5);
+
   return (
-    <div className="dashboard-container">
-      {/* Breadcrumbs */}
-      <div className="breadcrumbs">
-        <span onClick={() => navigate("/employee-dashboard")} className="breadcrumb-link">Dashboard</span>
-        <span className="breadcrumb-separator"> / </span>
-        <span className="breadcrumb-current">Customer Management</span>
+    <>
+    <div style={{ display: 'flex', gap: '25px', padding: '30px', maxWidth: '100%' }}>
+      {/* Left Panel - Customer Information */}
+      <div style={{ width: '280px', flexShrink: 0 }}>
+        <div className="dashboard-card" style={{ padding: '20px' }}>
+          {/* Quick Tip */}
+          <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+              Quick Tip
+            </h4>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6', lineHeight: '1.4' }}>
+              Click on any customer to view their complete profile, order history, and manage their account status.
+            </p>
+          </div>
+
+          {/* Statistics */}
+          <div style={{ marginBottom: '25px' }}>
+            <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+              Overview
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                <div style={{ fontSize: '0.75rem', color: '#059669', marginBottom: '4px', fontWeight: '500' }}>Active Customers</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>{activeCustomers.length}</div>
+              </div>
+              <div style={{ padding: '12px', backgroundColor: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px', fontWeight: '500' }}>Total Customers</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>{customers.length}</div>
+              </div>
+              {inactiveCustomers.length > 0 && (
+                <div style={{ padding: '12px', backgroundColor: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#dc2626', marginBottom: '4px', fontWeight: '500' }}>Inactive</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>{inactiveCustomers.length}</div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Customers */}
+          {recentCustomers.length > 0 && (
+            <div>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+                Recent Customers
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {recentCustomers.map((customer) => (
+                  <div 
+                    key={customer.customerID}
+                    onClick={() => openCustomerDetail(customer)}
+                    style={{
+                      fontSize: '0.8rem',
+                      padding: '10px',
+                      backgroundColor: '#f9fafb',
+                      borderRadius: '6px',
+                      border: '1px solid #e5e7eb',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.style.borderColor = '#d1d5db';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f9fafb';
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                    }}
+                  >
+                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', fontSize: '0.85rem' }}>
+                      {customer.firstName} {customer.lastName}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '6px' }}>
+                      {customer.emailAddress}
+                    </div>
+                    <div style={{
+                      fontSize: '0.7rem',
+                      color: customer.isActive ? '#059669' : '#6b7280',
+                      fontWeight: '500'
+                    }}>
+                      {customer.isActive ? '● Active' : '○ Inactive'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      <h2 className="dashboard-title">Customer Management</h2>
+      {/* Main Content Area */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="dashboard-container" style={{ padding: 0 }}>
+          {/* Breadcrumbs */}
+          <div className="breadcrumbs">
+            <span onClick={() => navigate("/employee-dashboard")} className="breadcrumb-link">Dashboard</span>
+            <span className="breadcrumb-separator"> / </span>
+            <span className="breadcrumb-current">Customer Management</span>
+          </div>
 
-      <div className="filters-row" style={{ marginTop: '30px' }}>
-        <input 
-          className="dashboard-input" 
-          placeholder="Search customers..." 
-          value={customerSearch}
-          onChange={(e) => setCustomerSearch(e.target.value)} 
-        />
-        <select className="dashboard-select" value={customerSort} onChange={(e) => setCustomerSort(e.target.value)}>
-          <option value="">Sort By</option>
-          <option value="firstName">First Name</option>
-          <option value="lastName">Last Name</option>
-          <option value="emailAddress">Email</option>
-          <option value="isActive">Status</option>
+          <h2 className="dashboard-title">Customer Management</h2>
+
+          <div className="filters-row" style={{ marginTop: '30px' }}>
+            <input 
+              className="dashboard-input" 
+              placeholder="Search customers..." 
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)} 
+            />
+            <select className="dashboard-select" value={customerSort} onChange={(e) => setCustomerSort(e.target.value)}>
+              <option value="">Sort By</option>
+              <option value="firstName">First Name</option>
+              <option value="lastName">Last Name</option>
+              <option value="emailAddress">Email</option>
+              <option value="isActive">Status</option>
         </select>
         <select className="dashboard-select" value={customerFilter} onChange={(e) => setCustomerFilter(e.target.value)}>
           <option value="">Show All</option>
@@ -220,6 +315,66 @@ export default function CustomerManagement() {
       <div className="pagination-info">
         Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCustomers.length)} of {filteredCustomers.length} customers
       </div>
+        </div>
+      </div>
+
+      {/* Right Panel - Metrics */}
+      <div style={{ width: '280px', flexShrink: 0 }}>
+        <div className="dashboard-card" style={{ padding: '20px' }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+            Customer Metrics
+          </h3>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Total Customers */}
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+                Total Customers
+              </div>
+              <div style={{ fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>
+                {customers.length}
+              </div>
+            </div>
+
+            {/* Active Customers */}
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+                Active
+              </div>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>
+                {activeCustomers.length}
+              </div>
+            </div>
+
+            {/* Inactive Customers */}
+            {inactiveCustomers.length > 0 && (
+              <div>
+                <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+                  Inactive
+                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>
+                  {inactiveCustomers.length}
+                </div>
+              </div>
+            )}
+
+            {/* Account Status */}
+            <div style={{ marginTop: '10px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
+                Account Health
+              </div>
+              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: inactiveCustomers.length === 0 ? '#059669' : inactiveCustomers.length <= customers.length * 0.1 ? '#d97706' : '#dc2626' }}>
+                {inactiveCustomers.length === 0 ? 'Excellent' : 
+                 inactiveCustomers.length <= customers.length * 0.1 ? 'Good' : 'Needs Review'}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
+                {((activeCustomers.length / customers.length) * 100).toFixed(1)}% active
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
       {showDetailModal && selectedCustomer && (
         <CustomerDetailModal
@@ -230,6 +385,6 @@ export default function CustomerManagement() {
           onDelete={deleteCustomer}
         />
       )}
-    </div>
+    </>
   );
 }

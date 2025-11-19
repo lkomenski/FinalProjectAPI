@@ -125,20 +125,23 @@ namespace FinalProjectAPI.Controllers
             // -------------------------------
             // Invoice Summary
             // -------------------------------
+            // Filter out rows where InvoiceID is NULL or 0 (no actual invoice)
+            var invoiceRows = results.Where(r => r["InvoiceID"] != DBNull.Value && Convert.ToInt32(r["InvoiceID"]) > 0).ToList();
+            
             var invoiceSummary = new
             {
-                TotalInvoices = results.Count(),
-                TotalOutstanding = results.Sum(r => Convert.ToDecimal(r["InvoiceTotal"]) -
+                TotalInvoices = invoiceRows.Count(),
+                TotalOutstanding = invoiceRows.Sum(r => Convert.ToDecimal(r["InvoiceTotal"]) -
                                                     Convert.ToDecimal(r["PaymentTotal"]) -
                                                     Convert.ToDecimal(r["CreditTotal"])),
-                TotalPaid = results.Sum(r => Convert.ToDecimal(r["PaymentTotal"]) +
+                TotalPaid = invoiceRows.Sum(r => Convert.ToDecimal(r["PaymentTotal"]) +
                                              Convert.ToDecimal(r["CreditTotal"]))
             };
 
             // -------------------------------
             // Recent Invoices (Top 5)
             // -------------------------------
-            var recentInvoices = results
+            var recentInvoices = invoiceRows
                 .Select(r => new
                 {
                     InvoiceID = Convert.ToInt32(r["InvoiceID"]),

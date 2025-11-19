@@ -28,7 +28,6 @@ export default function TokenModal({ tokenData, onClose }) {
         </div>
 
         <div className="modal-body">
-          {/* Security Warning */}
           <div 
             style={{
               backgroundColor: '#fef3c7',
@@ -48,7 +47,6 @@ export default function TokenModal({ tokenData, onClose }) {
             </ul>
           </div>
 
-          {/* Vendor Information */}
           <div className="modal-section">
             <h3>Vendor Information</h3>
             <div className="info-grid">
@@ -71,7 +69,6 @@ export default function TokenModal({ tokenData, onClose }) {
             </div>
           </div>
 
-          {/* Token Display */}
           <div className="modal-section">
             <h3>Registration Token</h3>
             <div 
@@ -93,11 +90,10 @@ export default function TokenModal({ tokenData, onClose }) {
               onClick={copyToClipboard}
               style={{ width: '100%' }}
             >
-              {copied ? 'âœ“ Copied to Clipboard!' : 'ðŸ“‹ Copy Token to Clipboard'}
+              {copied ? 'âœ“ Copied to Clipboard!' : 'í³‹ Copy Token to Clipboard'}
             </button>
           </div>
 
-          {/* Expiration Info */}
           <div className="modal-section">
             <h3>Token Expiration</h3>
             <div 
@@ -117,7 +113,6 @@ export default function TokenModal({ tokenData, onClose }) {
             </div>
           </div>
 
-          {/* Instructions */}
           <div className="modal-section">
             <h3>Next Steps</h3>
             <ol style={{ lineHeight: '1.8', color: '#374151' }}>
