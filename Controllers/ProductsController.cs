@@ -96,7 +96,8 @@ namespace FinalProjectAPI.Controllers
                 {"@Description", product.Description},
                 {"@ListPrice", product.ListPrice},
                 {"@DiscountPercent", product.DiscountPercent},
-                {"@ImageURL", product.ImageURL}
+                {"@ImageURL", product.ImageURL},
+                {"@QuantityOnHand", product.QuantityOnHand}
             };
 
             var result = await _repo.GetDataAsync("AddProduct", parameters);
@@ -129,7 +130,8 @@ namespace FinalProjectAPI.Controllers
                 {"@Description", product.Description ?? string.Empty},
                 {"@ListPrice", product.ListPrice > 0 ? product.ListPrice : 0},
                 {"@DiscountPercent", product.DiscountPercent >= 0 ? product.DiscountPercent : 0},
-                {"@ImageURL", product.ImageURL ?? string.Empty}
+                {"@ImageURL", product.ImageURL ?? string.Empty},
+                {"@QuantityOnHand", product.QuantityOnHand >= 0 ? (object)product.QuantityOnHand : DBNull.Value}
             };
 
             var result = await _repo.GetDataAsync("UpdateProduct", parameters);
@@ -205,7 +207,7 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves featured products for display on the homepage.
+        /// Retrieves featured products for display (products with highest discounts).
         /// </summary>
         /// <returns>A list of featured products.</returns>
         /// <response code="200">Returns the list of featured products.</response>
@@ -245,6 +247,77 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
+        /// Uploads a product image to the appropriate category folder.
+        /// </summary>
+        /// <param name="file">The image file to upload.</param>
+        /// <param name="categoryName">The category name (Guitars, Basses, or Drums) to determine the folder.</param>
+        /// <returns>The URL path to the uploaded image.</returns>
+        /// <response code="200">Returns the image URL path.</response>
+        /// <response code="400">If no file is uploaded or the file type is invalid.</response>
+        [HttpPost("upload-image")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromForm] string categoryName)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                    return BadRequest("No file uploaded.");
+
+                // Validate file type
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+                if (!allowedExtensions.Contains(extension))
+                    return BadRequest("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.");
+
+                // Validate file size (max 5MB)
+                if (file.Length > 5 * 1024 * 1024)
+                    return BadRequest("File size must be less than 5MB.");
+
+                // Determine the appropriate folder based on category
+                string folderPath;
+                switch (categoryName?.ToLower())
+                {
+                    case "guitars":
+                        folderPath = "guitars";
+                        break;
+                    case "basses":
+                        folderPath = "basses";
+                        break;
+                    case "drums":
+                        folderPath = "drums";
+                        break;
+                    default:
+                        folderPath = "guitars"; // Default to guitars if unknown
+                        break;
+                }
+
+                // Get the client app's public/images directory
+                var clientAppPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "client-app", "public", "images", folderPath);
+                
+                // Ensure directory exists
+                if (!Directory.Exists(clientAppPath))
+                    Directory.CreateDirectory(clientAppPath);
+
+                // Generate unique filename to avoid collisions
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var filePath = Path.Combine(clientAppPath, fileName);
+
+                // Save the file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // Return the relative URL path
+                var imageUrl = $"/images/{folderPath}/{fileName}";
+                return Ok(new { imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error uploading image: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Maps a database row to a Product object.
         /// </summary>
         /// <param name="row">The database row containing product data.</param>
@@ -255,6 +328,7 @@ namespace FinalProjectAPI.Controllers
             {
                 ProductID = Convert.ToInt32(row["ProductID"]),
                 CategoryID = Convert.ToInt32(row["CategoryID"]),
+                CategoryName = row.ContainsKey("CategoryName") ? row["CategoryName"]?.ToString() : null,
                 ProductCode = row["ProductCode"]?.ToString() ?? "",
                 ProductName = row["ProductName"]?.ToString() ?? "",
                 Description = row["Description"]?.ToString() ?? "",
@@ -268,11 +342,54 @@ namespace FinalProjectAPI.Controllers
                 IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value
                     ? Convert.ToBoolean(row["IsActive"])
                     : true,
+                QuantityOnHand = row.ContainsKey("QuantityOnHand") && row["QuantityOnHand"] != DBNull.Value
+                    ? Convert.ToInt32(row["QuantityOnHand"])
+                    : 0,
                 DateUpdated = row["DateUpdated"] == DBNull.Value 
                     ? null 
                     : Convert.ToDateTime(row["DateUpdated"])
             };
         }
 
+        /// <summary>
+        /// Deactivates a product by setting IsActive to false.
+        /// </summary>
+        /// <param name="request">Object containing the ProductID to deactivate.</param>
+        /// <returns>A success message if the product was deactivated.</returns>
+        /// <response code="200">Product deactivated successfully.</response>
+        /// <response code="400">If the request is invalid or ProductID is missing.</response>
+        /// <response code="500">If there is a server error while deactivating the product.</response>
+        [HttpPost("deactivate")]
+        public async Task<IActionResult> DeactivateProduct([FromBody] DeactivateProductRequest request)
+        {
+            try
+            {
+                if (request?.ProductID == null || request.ProductID <= 0)
+                {
+                    return BadRequest("Invalid ProductID.");
+                }
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@ProductID", request.ProductID }
+                };
+
+                await _repo.GetDataAsync("DeactivateProduct", parameters);
+                return Ok(new { message = "Product deactivated successfully." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Request model for deactivating a product.
+    /// </summary>
+    public class DeactivateProductRequest
+    {
+        public int ProductID { get; set; }
     }
 }

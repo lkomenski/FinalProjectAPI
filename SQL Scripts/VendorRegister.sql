@@ -7,10 +7,11 @@ GO
 -- =============================================
 -- Author:		Leena Komenski
 -- Create date: 11/18/2025
+-- Updated:     11/19/2025 - Added token expiry validation and clear expiry on registration
 -- Description:	Vendor completes registration using token from admin
 -- exec VendorRegister @RegistrationToken='abc-123-xyz', @VendorEmail='vendor@example.com', @Password='SecurePass123'
 -- =============================================
-CREATE PROCEDURE [dbo].[VendorRegister]
+CREATE OR ALTER PROCEDURE [dbo].[VendorRegister]
     @RegistrationToken NVARCHAR(50),
     @VendorEmail NVARCHAR(255),
     @Password NVARCHAR(255)
@@ -18,10 +19,13 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
-    -- Validate token exists and vendor doesn't have password yet
+    -- Validate token exists, vendor doesn't have password yet, and token hasn't expired
     DECLARE @VendorID INT;
+    DECLARE @TokenExpiry DATETIME;
     
-    SELECT @VendorID = VendorID
+    SELECT 
+        @VendorID = VendorID,
+        @TokenExpiry = RegistrationTokenExpiry
     FROM Vendors
     WHERE RegistrationToken = @RegistrationToken
       AND VendorPassword IS NULL
@@ -32,6 +36,15 @@ BEGIN
         SELECT 
             'Error' AS Status, 
             'Invalid or expired registration token' AS Message;
+        RETURN;
+    END
+    
+    -- Check if token has expired
+    IF @TokenExpiry IS NULL OR @TokenExpiry < GETDATE()
+    BEGIN
+        SELECT 
+            'Error' AS Status, 
+            'Registration token has expired. Please contact your administrator for a new token' AS Message;
         RETURN;
     END
     
@@ -53,10 +66,11 @@ BEGIN
         RETURN;
     END
     
-    -- Set password and clear token (password should already be hashed from C#)
+    -- Set password and clear token + expiry (password should already be hashed from C#)
     UPDATE Vendors
     SET VendorPassword = @Password,
         RegistrationToken = NULL,
+        RegistrationTokenExpiry = NULL,
         DateUpdated = GETDATE()
     WHERE VendorID = @VendorID;
     

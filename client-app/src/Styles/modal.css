@@ -28,6 +28,20 @@
   margin: auto;
 }
 
+/* Wide modal for vendor/product details */
+.modal-content.wide {
+  width: 700px;
+  max-width: 90vw;
+}
+
+/* Two-column layout for product modal */
+.modal-two-column {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
 /* Title */
 .modal-title {
   font-size: 1.4rem;
@@ -92,17 +106,93 @@
   padding: 0;
 }
 
-/* Invoice Sections */
+/* Vendor/Product Sections */
+.vendor-section,
+.product-section,
 .invoice-section {
   margin-bottom: 30px;
 }
 
+.vendor-section h3,
+.product-section h3,
 .invoice-section h3 {
   font-size: 1.1rem;
   color: #374151;
   margin-bottom: 15px;
   padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
+}
+
+/* Product image */
+.product-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 10px;
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 250px;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+/* Recent invoices list */
+.recent-invoices-list {
+  margin-top: 15px;
+}
+
+.invoice-item {
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.invoice-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.invoice-item-id {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.invoice-item-date {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.invoice-item-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.invoice-item-amount {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1.1rem;
 }
 
 .invoice-grid {
@@ -140,6 +230,26 @@
 }
 
 .status-unpaid {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-active {
+  color: #047857;
+  background-color: #d1fae5;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-inactive {
   color: #dc2626;
   background-color: #fee2e2;
   padding: 4px 12px;
@@ -271,3 +381,73 @@
     padding: 8px;
   }
 }
+
+/* Form Validation Styles */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 2px;
+}
+
+.input-error {
+  border-color: #dc3545 !important;
+  background-color: #fff5f5;
+}
+
+.input-error:focus {
+  outline: none;
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  display: block;
+}
+
+.character-count {
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: block;
+  margin-top: -2px;
+}
+
+/* Product Review Modal Styles */
+.review-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.review-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.review-value {
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Quantity Button Hover Effects */
+.quantity-btn:hover {
+  background-color: #f3f4f6 !important;
+  border-color: #9ca3af !important;
+}
+
+.quantity-btn:active {
+  background-color: #e5e7eb !important;
+}
+

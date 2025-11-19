@@ -3,19 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import "../Styles/Dashboard.css";
+
+// Cache configuration outside component to avoid recreating on every render
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_KEY = "adminDashboardCache";
 
 export default function EmployeeDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshingSection, setRefreshingSection] = useState(null);
 
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
+  // Memoize user to prevent it from changing on every render
+  const user = useMemo(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  }, []);
 
-  const loadDashboard = useCallback(async () => {
+  const loadDashboard = useCallback(async (forceRefresh = false, section = null) => {
     try {
       if (!user || user.role !== "admin") {
         setError("Unauthorized access. Admins only.");
@@ -23,9 +31,31 @@ export default function EmployeeDashboard() {
         return;
       }
 
+      if (section) {
+        setRefreshingSection(section);
+      }
+
+      // Check cache first (unless force refresh)
+      if (!forceRefresh) {
+        const cachedData = sessionStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          const age = Date.now() - timestamp;
+          
+          if (age < CACHE_DURATION) {
+            console.log("Loading from cache (age:", Math.round(age / 1000), "seconds)");
+            setStats(data);
+            setLoading(false);
+            setRefreshingSection(null);
+            return;
+          }
+        }
+      }
+
+      console.log("Fetching fresh data from API...");
       const data = await fetchData("dashboard/admin");
 
-      setStats({
+      const statsData = {
         totalCustomers: data.totalCustomers,
         activeCustomers: data.activeCustomers,
         totalVendors: data.totalVendors,
@@ -33,11 +63,21 @@ export default function EmployeeDashboard() {
         totalProducts: data.totalProducts,
         totalSales: data.totalSales,
         totalOutstandingInvoices: data.totalOutstandingInvoices,
-      });
+      };
+
+      setStats(statsData);
+
+      // Cache the data with timestamp
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({
+        data: statsData,
+        timestamp: Date.now()
+      }));
+
     } catch (err) {
       setError(err.message || "Failed to load dashboard.");
     } finally {
       setLoading(false);
+      setRefreshingSection(null);
     }
   }, [user]);
 
@@ -48,26 +88,33 @@ export default function EmployeeDashboard() {
   // Memoize chart data - only recalculate when stats change
   const customerData = useMemo(() => {
     if (!stats) return [];
+    const active = stats.activeCustomers || 0;
+    const inactive = Math.max((stats.totalCustomers || 0) - active, 0);
     return [
-      { name: 'Active', value: stats.activeCustomers, color: '#10b981' },
-      { name: 'Inactive', value: stats.totalCustomers - stats.activeCustomers, color: '#ef4444' }
-    ];
+      { name: 'Active', value: active, color: '#10b981' },
+      { name: 'Inactive', value: inactive, color: '#ef4444' }
+    ].filter(item => item.value > 0);
   }, [stats]);
 
   const vendorData = useMemo(() => {
     if (!stats) return [];
+    const active = stats.activeVendors || 0;
+    const inactive = Math.max((stats.totalVendors || 0) - active, 0);
     return [
-      { name: 'Active', value: stats.activeVendors, color: '#3b82f6' },
-      { name: 'Inactive', value: stats.totalVendors - stats.activeVendors, color: '#f59e0b' }
-    ];
+      { name: 'Active', value: active, color: '#3b82f6' },
+      { name: 'Inactive', value: inactive, color: '#f59e0b' }
+    ].filter(item => item.value > 0);
   }, [stats]);
 
   const salesData = useMemo(() => {
     if (!stats) return [];
+    const totalSales = stats.totalSales || 0;
+    const outstanding = stats.totalOutstandingInvoices || 0;
+    const paid = Math.max(totalSales - outstanding, 0);
     return [
-      { name: 'Paid', value: stats.totalSales - stats.totalOutstandingInvoices, color: '#10b981' },
-      { name: 'Outstanding', value: stats.totalOutstandingInvoices, color: '#ef4444' }
-    ];
+      { name: 'Paid', value: paid, color: '#10b981' },
+      { name: 'Outstanding', value: outstanding, color: '#ef4444' }
+    ].filter(item => item.value > 0);
   }, [stats]);
 
   if (loading) return <LoadingSpinner />;
@@ -96,20 +143,16 @@ export default function EmployeeDashboard() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '25px' }}>
             <div>
+              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>First Name</div>
+              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>{user?.firstName || 'N/A'}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Last Name</div>
+              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>{user?.lastName || 'N/A'}</div>
+            </div>
+            <div>
               <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Email</div>
-              <div style={{ fontSize: '0.9rem', color: '#1f2937', wordBreak: 'break-word' }}>{user?.email || 'N/A'}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Employee ID</div>
-              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>{user?.id || 'N/A'}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Status</div>
-              <div style={{ fontSize: '0.9rem' }}>
-                <span style={{ padding: '3px 10px', backgroundColor: '#d1fae5', color: '#047857', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '600' }}>
-                  Active
-                </span>
-              </div>
+              <div style={{ fontSize: '0.9rem', color: '#1f2937', wordBreak: 'break-word' }}>{user?.emailAddress || 'N/A'}</div>
             </div>
           </div>
 
@@ -126,13 +169,26 @@ export default function EmployeeDashboard() {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
           <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#111827', margin: 0 }}>Admin Dashboard</h2>
-          <button 
-            className="dashboard-btn dashboard-btn-primary" 
-            style={{ padding: '12px 24px', fontSize: '1rem' }}
-            onClick={() => navigate("/sales-dashboard")}
-          >
-            View Sales Dashboard
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button 
+              className="dashboard-btn dashboard-btn-secondary" 
+              style={{ padding: '12px 24px', fontSize: '1rem' }}
+              onClick={() => {
+                setLoading(true);
+                loadDashboard(true);
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Refreshing...' : 'Refresh All'}
+            </button>
+            <button 
+              className="dashboard-btn dashboard-btn-primary" 
+              style={{ padding: '12px 24px', fontSize: '1rem' }}
+              onClick={() => navigate("/sales-dashboard")}
+            >
+              View Sales Dashboard
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '25px' }}>
@@ -142,32 +198,68 @@ export default function EmployeeDashboard() {
             {/* Customers Section */}
             <div 
               className="dashboard-card" 
-              style={{ padding: '25px', display: 'flex', flexDirection: 'column' }}
+              style={{ padding: '25px', display: 'flex', flexDirection: 'column', position: 'relative' }}
             >
+              <button
+                onClick={() => loadDashboard(true, 'customers')}
+                disabled={refreshingSection === 'customers'}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'transparent',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  opacity: refreshingSection === 'customers' ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (refreshingSection !== 'customers') {
+                    e.target.style.background = '#f3f4f6';
+                    e.target.style.borderColor = '#9ca3af';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.borderColor = '#d1d5db';
+                }}
+              >
+                {refreshingSection === 'customers' ? '...' : '↻'}
+              </button>
               <h3 style={{ marginBottom: '20px', fontSize: '1.3rem', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
                 Customers
               </h3>
               
               {/* Chart on top */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={customerData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {customerData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {customerData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={customerData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {customerData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ color: '#6b7280', fontSize: '0.9rem', textAlign: 'center' }}>
+                    No customer data available
+                  </div>
+                )}
               </div>
 
               {/* Stats side by side below chart */}
@@ -194,32 +286,68 @@ export default function EmployeeDashboard() {
             {/* Vendors Section */}
             <div 
               className="dashboard-card" 
-              style={{ padding: '25px', display: 'flex', flexDirection: 'column' }}
+              style={{ padding: '25px', display: 'flex', flexDirection: 'column', position: 'relative' }}
             >
+              <button
+                onClick={() => loadDashboard(true, 'vendors')}
+                disabled={refreshingSection === 'vendors'}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'transparent',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  opacity: refreshingSection === 'vendors' ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (refreshingSection !== 'vendors') {
+                    e.target.style.background = '#f3f4f6';
+                    e.target.style.borderColor = '#9ca3af';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.borderColor = '#d1d5db';
+                }}
+              >
+                {refreshingSection === 'vendors' ? '...' : '↻'}
+              </button>
               <h3 style={{ marginBottom: '20px', fontSize: '1.3rem', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
                 Vendors
               </h3>
               
               {/* Chart on top */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={vendorData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {vendorData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                {vendorData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={vendorData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {vendorData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ color: '#6b7280', fontSize: '0.9rem', textAlign: 'center' }}>
+                    No vendor data available
+                  </div>
+                )}
               </div>
 
               {/* Stats side by side below chart */}
@@ -246,32 +374,68 @@ export default function EmployeeDashboard() {
             {/* Sales Section */}
             <div 
               className="dashboard-card" 
-              style={{ padding: '25px', display: 'flex', flexDirection: 'column' }}
+              style={{ padding: '25px', display: 'flex', flexDirection: 'column', position: 'relative' }}
             >
+              <button
+                onClick={() => loadDashboard(true, 'sales')}
+                disabled={refreshingSection === 'sales'}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'transparent',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  opacity: refreshingSection === 'sales' ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (refreshingSection !== 'sales') {
+                    e.target.style.background = '#f3f4f6';
+                    e.target.style.borderColor = '#9ca3af';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.borderColor = '#d1d5db';
+                }}
+              >
+                {refreshingSection === 'sales' ? '...' : '↻'}
+              </button>
               <h3 style={{ marginBottom: '20px', fontSize: '1.3rem', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
                 Sales & Invoices
               </h3>
               
               {/* Chart on top */}
               <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '20px' }}>
-                <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={salesData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {salesData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-                  </PieChart>
-                </ResponsiveContainer>
+                {salesData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={200}>
+                    <PieChart>
+                      <Pie
+                        data={salesData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {salesData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div style={{ color: '#6b7280', fontSize: '0.9rem', textAlign: 'center' }}>
+                    No sales data available
+                  </div>
+                )}
               </div>
 
               {/* Stats side by side below chart */}
@@ -298,8 +462,38 @@ export default function EmployeeDashboard() {
             {/* Products Section */}
             <div 
               className="dashboard-card" 
-              style={{ padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+              style={{ padding: '25px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative' }}
             >
+              <button
+                onClick={() => loadDashboard(true, 'products')}
+                disabled={refreshingSection === 'products'}
+                style={{
+                  position: 'absolute',
+                  top: '15px',
+                  right: '15px',
+                  background: 'transparent',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  opacity: refreshingSection === 'products' ? 0.5 : 1
+                }}
+                onMouseEnter={(e) => {
+                  if (refreshingSection !== 'products') {
+                    e.target.style.background = '#f3f4f6';
+                    e.target.style.borderColor = '#9ca3af';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.borderColor = '#d1d5db';
+                }}
+              >
+                {refreshingSection === 'products' ? '...' : '↻'}
+              </button>
               <h3 style={{ marginBottom: '20px', fontSize: '1.3rem', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
                 Products
               </h3>

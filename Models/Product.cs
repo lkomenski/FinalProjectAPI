@@ -16,6 +16,11 @@ namespace FinalProjectAPI.Models
         public int CategoryID { get; set; }
 
         /// <summary>
+        /// Gets or sets the category name (populated from join query).
+        /// </summary>
+        public string? CategoryName { get; set; }
+
+        /// <summary>
         /// Gets or sets the product code/SKU.
         /// </summary>
         public string ProductCode { get; set; } = string.Empty;
@@ -49,6 +54,11 @@ namespace FinalProjectAPI.Models
         /// Gets or sets whether the product is active and available for purchase.
         /// </summary>
         public bool IsActive { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the quantity available in stock.
+        /// </summary>
+        public int QuantityOnHand { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the date when the product was added to the system.

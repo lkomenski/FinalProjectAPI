@@ -7,7 +7,9 @@ GO
 -- =============================================
 -- Author:		Leena Komenski
 -- Create date: 11/18/2025
+-- Updated:     11/19/2025 - Added token expiration and security improvements
 -- Description:	Admin generates a registration token for a vendor (after vendor is added to database)
+--              Token expires in 48 hours and invalidates any previous tokens
 -- exec GenerateVendorRegistrationToken @VendorID=1
 -- =============================================
 CREATE PROCEDURE [dbo].[GenerateVendorRegistrationToken]
@@ -29,12 +31,33 @@ BEGIN
         RETURN;
     END
     
+    -- Check if there's an existing valid (non-expired) token
+    DECLARE @ExistingToken NVARCHAR(50);
+    DECLARE @ExistingExpiry DATETIME;
+    
+    SELECT 
+        @ExistingToken = RegistrationToken,
+        @ExistingExpiry = RegistrationTokenExpiry
+    FROM Vendors
+    WHERE VendorID = @VendorID;
+    
+    IF @ExistingToken IS NOT NULL AND @ExistingExpiry IS NOT NULL AND @ExistingExpiry > GETDATE()
+    BEGIN
+        SELECT 
+            'Warning' AS Status,
+            'A valid token already exists and will be replaced' AS Message,
+            @ExistingToken AS OldToken,
+            @ExistingExpiry AS OldExpiry;
+    END
+    
     -- Generate unique registration token
     DECLARE @Token NVARCHAR(50) = NEWID();
+    DECLARE @Expiry DATETIME = DATEADD(HOUR, 48, GETDATE()); -- Token expires in 48 hours
     
-    -- Store token in vendor record (we'll add a RegistrationToken column)
+    -- Store token and expiry in vendor record (invalidates any previous token)
     UPDATE Vendors
     SET RegistrationToken = @Token,
+        RegistrationTokenExpiry = @Expiry,
         DateUpdated = GETDATE()
     WHERE VendorID = @VendorID;
     
@@ -42,6 +65,8 @@ BEGIN
     SELECT 
         'Success' AS Status,
         @Token AS RegistrationToken,
+        @Expiry AS TokenExpiry,
+        DATEDIFF(HOUR, GETDATE(), @Expiry) AS HoursUntilExpiry,
         VendorID,
         VendorName,
         VendorContactFName AS FirstName,

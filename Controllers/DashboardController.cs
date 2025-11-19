@@ -183,23 +183,8 @@ namespace FinalProjectAPI.Controllers
                 if (summary is null)
                     return StatusCode(500, "Admin summary data missing.");
 
-                // Get customers
-                var customerRows = await _repoGuitarShop.GetDataAsync("GetAllCustomers");
-                var customers = customerRows.Select(row => new
-                {
-                    customerID = Convert.ToInt32(row["CustomerID"]),
-                    firstName = row["FirstName"]?.ToString(),
-                    lastName = row["LastName"]?.ToString(),
-                    emailAddress = row["EmailAddress"]?.ToString(),
-                    isActive = Convert.ToBoolean(row["IsActive"] ?? true)
-                }).ToList();
-
-                var vendorRows = await _repoAP.GetDataAsync("GetAllVendors");
-                var vendors = vendorRows.Select(VendorsController.MapRowToVendor).ToList();
-
-                var productRows = await _repoGuitarShop.GetDataAsync("GetAllProducts");
-                var products = productRows.Select(ProductsController.MapRowToProduct).ToList();
-
+                // Only return summary statistics for dashboard charts
+                // Full lists can be fetched by dedicated management endpoints
                 return Ok(new
                 {
                     totalCustomers = Convert.ToInt32(summary["TotalCustomers"] ?? 0),
@@ -208,11 +193,7 @@ namespace FinalProjectAPI.Controllers
                     activeVendors = Convert.ToInt32(summary["ActiveVendors"] ?? 0),
                     totalProducts = Convert.ToInt32(summary["TotalProducts"] ?? 0),
                     totalSales = Convert.ToDecimal(summary["TotalSales"] ?? 0),
-                    totalOutstandingInvoices = Convert.ToDecimal(summary["TotalOutstandingInvoices"] ?? 0),
-
-                    customers = customers,
-                    vendors = vendors,
-                    products = products
+                    totalOutstandingInvoices = Convert.ToDecimal(summary["TotalOutstandingInvoices"] ?? 0)
                 });
             }
             catch (Exception ex)

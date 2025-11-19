@@ -27,6 +27,26 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
+        /// Retrieves all customers from the database.
+        /// </summary>
+        /// <returns>A list of all customers.</returns>
+        /// <response code="200">Returns the list of all customers.</response>
+        /// <response code="500">If there is a server error while retrieving customers.</response>
+        [HttpGet]
+        public async Task<IActionResult> GetAllCustomers()
+        {
+            try
+            {
+                var customers = await _repo.GetDataAsync("GetAllCustomers");
+                return Ok(customers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to load customers: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// Registers a new customer account. Addresses will be added later during checkout or profile update.
         /// </summary>
         /// <param name="request">The customer registration information.</param>

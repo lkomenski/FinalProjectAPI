@@ -4,6 +4,8 @@ import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import VendorForm from "./VendorForm";
+import VendorDetailModal from "./VendorDetailModal";
+import TokenModal from "../Components/TokenModal";
 import "../Styles/Dashboard.css";
 
 export default function VendorManagement() {
@@ -12,6 +14,10 @@ export default function VendorManagement() {
   const [filteredVendors, setFilteredVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [isAddingVendor, setIsAddingVendor] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailVendorId, setDetailVendorId] = useState(null);
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const [tokenData, setTokenData] = useState(null);
   const [vendorSearch, setVendorSearch] = useState("");
   const [vendorSort, setVendorSort] = useState("");
   const [vendorFilter, setVendorFilter] = useState("");
@@ -26,9 +32,9 @@ export default function VendorManagement() {
 
   async function loadVendors() {
     try {
-      const data = await fetchData("dashboard/admin");
-      setVendors(data.vendors || []);
-      setFilteredVendors(data.vendors || []);
+      const data = await fetchData("vendors");
+      setVendors(data || []);
+      setFilteredVendors(data || []);
     } catch (err) {
       setError(err.message || "Failed to load vendors.");
     } finally {
@@ -90,8 +96,24 @@ export default function VendorManagement() {
     try {
       const response = await fetch(`http://localhost:5077/api/vendors/generate-token/${vendorId}`, { method: "POST" });
       const data = await response.json();
-      alert(`Registration token generated: ${data.token}`);
-      loadVendors();
+      
+      if (response.ok) {
+        // Show token in modal instead of alert
+        setTokenData({
+          registrationToken: data.registrationToken,
+          tokenExpiry: data.tokenExpiry,
+          hoursUntilExpiry: data.hoursUntilExpiry,
+          vendorID: data.vendorID,
+          vendorName: data.vendorName,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          vendorEmail: data.vendorEmail
+        });
+        setShowTokenModal(true);
+        setShowDetailModal(false); // Close detail modal when showing token
+      } else {
+        alert(`Failed to generate token: ${data}`);
+      }
     } catch (err) {
       alert("Failed to generate token");
     }
@@ -101,6 +123,23 @@ export default function VendorManagement() {
     setSelectedVendor(null);
     setIsAddingVendor(false);
     loadVendors();
+  }
+
+  function openVendorDetail(vendorId) {
+    setDetailVendorId(vendorId);
+    setShowDetailModal(true);
+  }
+
+  function closeDetailModal() {
+    setShowDetailModal(false);
+    setDetailVendorId(null);
+    loadVendors(); // Reload in case any changes were made
+  }
+
+  function closeTokenModal() {
+    setShowTokenModal(false);
+    setTokenData(null);
+    loadVendors(); // Reload vendors after token generation
   }
 
   if (loading) return <LoadingSpinner />;
@@ -153,7 +192,12 @@ export default function VendorManagement() {
           <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No vendors found.</p>
         ) : (
           currentVendors.map((v) => (
-            <div key={v.vendorID} className="dashboard-list-item">
+            <div 
+              key={v.vendorID} 
+              className="dashboard-list-item"
+              onClick={() => openVendorDetail(v.vendorID)}
+              style={{ cursor: 'pointer' }}
+            >
               <div>
                 <strong>{v.vendorName}</strong>
                 <p>{v.vendorCity}, {v.vendorState}</p>
@@ -161,26 +205,6 @@ export default function VendorManagement() {
                 <span className={v.isActive ? "text-green-700" : "text-red-600"}>
                   {v.isActive ? "Active" : "Inactive"}
                 </span>
-              </div>
-
-              <div className="flex gap-2">
-                <button className="dashboard-btn" onClick={() => { setSelectedVendor(v); setIsAddingVendor(false); }}>
-                  Edit
-                </button>
-
-                {v.isActive ? (
-                  <button className="dashboard-btn dashboard-btn-warning" onClick={() => toggleVendorStatus(v.vendorID, false)}>
-                    Deactivate
-                  </button>
-                ) : (
-                  <button className="dashboard-btn dashboard-btn-success" onClick={() => toggleVendorStatus(v.vendorID, true)}>
-                    Activate
-                  </button>
-                )}
-
-                <button className="dashboard-btn dashboard-btn-info" onClick={() => generateToken(v.vendorID)}>
-                  Generate Token
-                </button>
               </div>
             </div>
           ))
@@ -228,6 +252,28 @@ export default function VendorManagement() {
         <VendorForm
           vendor={selectedVendor}
           onClose={handleFormClose}
+        />
+      )}
+
+      {showDetailModal && detailVendorId && (
+        <VendorDetailModal
+          vendor={vendors.find(v => v.vendorID === detailVendorId)}
+          onClose={closeDetailModal}
+          onEdit={() => {
+            const vendor = vendors.find(v => v.vendorID === detailVendorId);
+            setSelectedVendor(vendor);
+            setIsAddingVendor(false);
+            setShowDetailModal(false);
+          }}
+          onToggleStatus={toggleVendorStatus}
+          onGenerateToken={generateToken}
+        />
+      )}
+
+      {showTokenModal && tokenData && (
+        <TokenModal
+          tokenData={tokenData}
+          onClose={closeTokenModal}
         />
       )}
     </div>

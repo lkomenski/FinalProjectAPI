@@ -144,6 +144,15 @@
   background: #1d4ed8;
 }
 
+/* SECONDARY BUTTON */
+.dashboard-btn-secondary {
+  background: #6b7280;
+}
+
+.dashboard-btn-secondary:hover {
+  background: #4b5563;
+}
+
 /* DANGER BUTTON */
 .dashboard-btn-danger {
   background: #dc2626;

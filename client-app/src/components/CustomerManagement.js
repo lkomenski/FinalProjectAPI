@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "./Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
+import CustomerDetailModal from "./CustomerDetailModal";
 import "../Styles/Dashboard.css";
 
 export default function CustomerManagement() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [customerSearch, setCustomerSearch] = useState("");
   const [customerSort, setCustomerSort] = useState("");
   const [customerFilter, setCustomerFilter] = useState("");
@@ -23,9 +26,20 @@ export default function CustomerManagement() {
 
   async function loadCustomers() {
     try {
-      const data = await fetchData("dashboard/admin");
-      setCustomers(data.customers || []);
-      setFilteredCustomers(data.customers || []);
+      const data = await fetchData("customer");
+      console.log("Customers loaded:", data);
+      
+      // Normalize the data to handle both PascalCase and camelCase
+      const normalizedCustomers = (data || []).map(c => ({
+        customerID: c.CustomerID || c.customerID,
+        firstName: c.FirstName || c.firstName,
+        lastName: c.LastName || c.lastName,
+        emailAddress: c.EmailAddress || c.emailAddress,
+        isActive: c.IsActive !== undefined ? c.IsActive : c.isActive
+      }));
+      
+      setCustomers(normalizedCustomers);
+      setFilteredCustomers(normalizedCustomers);
     } catch (err) {
       setError(err.message || "Failed to load customers.");
     } finally {
@@ -75,42 +89,16 @@ export default function CustomerManagement() {
     setCurrentPage(pageNumber);
   };
 
-  // Generate page numbers with ellipsis
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxPagesToShow = 5;
-    
-    if (totalPages <= maxPagesToShow + 2) {
-      // Show all pages if total is small
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Always show first page
-      pages.push(1);
-      
-      if (currentPage > 3) {
-        pages.push('...');
-      }
-      
-      // Show pages around current page
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
-      
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-      
-      if (currentPage < totalPages - 2) {
-        pages.push('...');
-      }
-      
-      // Always show last page
-      pages.push(totalPages);
-    }
-    
-    return pages;
-  };
+  function openCustomerDetail(customer) {
+    setSelectedCustomer(customer);
+    setShowDetailModal(true);
+  }
+
+  function closeDetailModal() {
+    setShowDetailModal(false);
+    setSelectedCustomer(null);
+    loadCustomers(); // Reload in case any changes were made
+  }
 
   async function toggleCustomerStatus(id, activate) {
     const endpoint = activate
@@ -118,7 +106,7 @@ export default function CustomerManagement() {
       : `http://localhost:5077/api/customer/deactivate/${id}`;
 
     await fetch(endpoint, { method: "PUT" });
-    loadCustomers();
+    closeDetailModal();
   }
 
   async function deleteCustomer(id) {
@@ -126,7 +114,12 @@ export default function CustomerManagement() {
       return;
 
     await fetch(`http://localhost:5077/api/customer/delete/${id}`, { method: "DELETE" });
-    loadCustomers();
+    closeDetailModal();
+  }
+
+  function handleEdit() {
+    // TODO: Implement edit functionality
+    alert("Edit functionality coming soon!");
   }
 
   if (loading) return <LoadingSpinner />;
@@ -173,34 +166,18 @@ export default function CustomerManagement() {
           <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No customers found.</p>
         ) : (
           currentCustomers.map((c) => (
-            <div key={c.customerID} className="dashboard-list-item">
+            <div 
+              key={c.customerID} 
+              className="dashboard-list-item"
+              onClick={() => openCustomerDetail(c)}
+              style={{ cursor: 'pointer' }}
+            >
               <div>
                 <strong>{c.firstName} {c.lastName}</strong>
                 <p>{c.emailAddress}</p>
                 <span className={c.isActive ? "text-green-700" : "text-red-600"}>
                   {c.isActive ? "Active" : "Inactive"}
                 </span>
-              </div>
-
-              <div className="flex gap-2">
-                <button className="dashboard-btn">
-                  Edit
-                </button>
-                {c.isActive ? (
-                  <button className="dashboard-btn dashboard-btn-warning" onClick={() => toggleCustomerStatus(c.customerID, false)}>
-                    Deactivate
-                  </button>
-                ) : (
-                  <button className="dashboard-btn dashboard-btn-success" onClick={() => toggleCustomerStatus(c.customerID, true)}>
-                    Activate
-                  </button>
-                )}
-                <button
-                  className="dashboard-btn dashboard-btn-danger"
-                  onClick={() => deleteCustomer(c.customerID)}
-                >
-                  Delete
-                </button>
               </div>
             </div>
           ))
@@ -219,18 +196,14 @@ export default function CustomerManagement() {
           </button>
           
           <div className="pagination-pages">
-            {getPageNumbers().map((page, index) => (
-              page === '...' ? (
-                <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
-              ) : (
-                <button
-                  key={page}
-                  className={`pagination-page ${currentPage === page ? 'active' : ''}`}
-                  onClick={() => goToPage(page)}
-                >
-                  {page}
-                </button>
-              )
+            {[...Array(totalPages)].map((_, index) => (
+              <button
+                key={index + 1}
+                className={`pagination-page ${currentPage === index + 1 ? 'active' : ''}`}
+                onClick={() => goToPage(index + 1)}
+              >
+                {index + 1}
+              </button>
             ))}
           </div>
 
@@ -247,6 +220,16 @@ export default function CustomerManagement() {
       <div className="pagination-info">
         Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredCustomers.length)} of {filteredCustomers.length} customers
       </div>
+
+      {showDetailModal && selectedCustomer && (
+        <CustomerDetailModal
+          customer={selectedCustomer}
+          onClose={closeDetailModal}
+          onEdit={handleEdit}
+          onToggleStatus={toggleCustomerStatus}
+          onDelete={deleteCustomer}
+        />
+      )}
     </div>
   );
 }

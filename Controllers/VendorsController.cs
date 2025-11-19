@@ -230,10 +230,11 @@ namespace FinalProjectAPI.Controllers
 
         /// <summary>
         /// Generates a registration token for a vendor to create their login account.
+        /// Token expires in 48 hours and invalidates any previous tokens.
         /// </summary>
         /// <param name="vendorId">The ID of the vendor.</param>
-        /// <returns>The registration token and vendor information.</returns>
-        /// <response code="200">Returns the registration token.</response>
+        /// <returns>The registration token, expiration info, and vendor information.</returns>
+        /// <response code="200">Returns the registration token with expiration details.</response>
         /// <response code="400">If the vendor not found or already has an account.</response>
         [HttpPost("generate-token/{vendorId}")]
         public async Task<IActionResult> GenerateVendorToken(int vendorId)
@@ -254,11 +255,15 @@ namespace FinalProjectAPI.Controllers
             return Ok(new
             {
                 RegistrationToken = row["RegistrationToken"]?.ToString(),
+                TokenExpiry = row["TokenExpiry"],
+                HoursUntilExpiry = row["HoursUntilExpiry"],
                 VendorID = row["VendorID"],
                 VendorName = row["VendorName"]?.ToString(),
                 FirstName = row["FirstName"]?.ToString(),
                 LastName = row["LastName"]?.ToString(),
-                VendorEmail = row["VendorEmail"]?.ToString()
+                VendorEmail = row["VendorEmail"]?.ToString(),
+                Status = status,
+                Message = status == "Warning" ? row["Message"]?.ToString() : "Token generated successfully"
             });
         }
 

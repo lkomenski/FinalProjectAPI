@@ -7,8 +7,9 @@ GO
 -- =============================================
 -- Author:		Leena Komenski
 -- Create date: 11/18/2025
+-- Modified date: 11/19/2025 - Added QuantityOnHand parameter
 -- Description:	Adds a new product
--- exec AddProduct @CategoryID=1, @ProductCode='GTR001', @ProductName='Acoustic Guitar', @Description='A high-quality acoustic guitar.', @ListPrice=199.99, @DiscountPercent=10.00, @ImageURL='http://example.com/images/gtr001.jpg'
+-- exec AddProduct @CategoryID=1, @ProductCode='GTR001', @ProductName='Acoustic Guitar', @Description='A high-quality acoustic guitar.', @ListPrice=199.99, @DiscountPercent=10.00, @ImageURL='http://example.com/images/gtr001.jpg', @QuantityOnHand=10
 -- =============================================
 
 CREATE PROCEDURE [dbo].[AddProduct]
@@ -18,7 +19,8 @@ CREATE PROCEDURE [dbo].[AddProduct]
     @Description TEXT,
     @ListPrice MONEY,
     @DiscountPercent MONEY,
-    @ImageURL NVARCHAR(500) = NULL
+    @ImageURL NVARCHAR(500) = NULL,
+    @QuantityOnHand INT = 1
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -31,6 +33,7 @@ BEGIN
         ,[ListPrice]
         ,[DiscountPercent]
         ,[ImageURL]
+        ,[QuantityOnHand]
         ,[IsActive]
         ,[DateAdded]
         ,[DateUpdated])
@@ -42,6 +45,7 @@ BEGIN
         ,@ListPrice
         ,@DiscountPercent
         ,@ImageURL
+        ,@QuantityOnHand
         ,1
         ,GETDATE()
         ,GETDATE())
@@ -55,6 +59,7 @@ BEGIN
         ListPrice,
         DiscountPercent,
         ImageURL,
+        QuantityOnHand,
         IsActive,
         DateAdded,
         DateUpdated

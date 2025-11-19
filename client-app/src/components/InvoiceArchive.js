@@ -40,13 +40,13 @@ export default function InvoiceArchive() {
   const filteredInvoices = useMemo(() => {
     return invoices.filter(inv => {
       const matchesSearch = 
-        inv.invoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.vendorName?.toLowerCase().includes(searchTerm.toLowerCase());
+        inv.InvoiceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        inv.VendorName?.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = 
         statusFilter === "all" ||
-        (statusFilter === "paid" && inv.isPaid) ||
-        (statusFilter === "unpaid" && !inv.isPaid);
+        (statusFilter === "paid" && inv.IsPaid) ||
+        (statusFilter === "unpaid" && !inv.IsPaid);
       
       return matchesSearch && matchesStatus;
     });
@@ -57,13 +57,13 @@ export default function InvoiceArchive() {
     const sorted = [...filteredInvoices];
     switch (sortBy) {
       case "date":
-        sorted.sort((a, b) => new Date(b.invoiceDate) - new Date(a.invoiceDate));
+        sorted.sort((a, b) => new Date(b.InvoiceDate) - new Date(a.InvoiceDate));
         break;
       case "amount":
-        sorted.sort((a, b) => b.totalAmount - a.totalAmount);
+        sorted.sort((a, b) => b.TotalAmount - a.TotalAmount);
         break;
       case "vendor":
-        sorted.sort((a, b) => (a.vendorName || "").localeCompare(b.vendorName || ""));
+        sorted.sort((a, b) => (a.VendorName || "").localeCompare(b.VendorName || ""));
         break;
       default:
         break;
@@ -80,7 +80,7 @@ export default function InvoiceArchive() {
 
   const handleInvoiceClick = async (invoice) => {
     try {
-      const detail = await Api.get(`/api/invoices/archived/${invoice.invoiceID}`);
+      const detail = await Api.get(`/api/invoices/archived/${invoice.InvoiceID}`);
       setSelectedInvoice(detail);
       setShowModal(true);
     } catch (err) {
@@ -92,6 +92,17 @@ export default function InvoiceArchive() {
     setShowModal(false);
     setSelectedInvoice(null);
   };
+
+  // Format money
+  const money = (num) =>
+    typeof num === "number" ? num.toFixed(2) : "0.00";
+
+  // Status Badge Component
+  const StatusBadge = ({ status }) => (
+    <span className={status ? "badge-paid" : "badge-unpaid"}>
+      {status ? "PAID" : "UNPAID"}
+    </span>
+  );
 
   // Pagination with ellipses
   const getPageNumbers = () => {
@@ -136,18 +147,22 @@ export default function InvoiceArchive() {
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div>
-          <button onClick={() => navigate("/dashboard")} className="dashboard-btn dashboard-btn-secondary">
+          <button 
+            onClick={() => navigate("/dashboard")} 
+            className="dashboard-btn dashboard-btn-secondary"
+            style={{ marginBottom: '10px' }}
+          >
             ← Back to Dashboard
           </button>
-          <h1>Invoice Archive</h1>
-          <p>View historical invoices</p>
+          <h2 className="dashboard-title">Invoice Archive</h2>
+          <p style={{ color: '#6b7280', marginTop: '5px' }}>View historical invoices</p>
         </div>
       </div>
 
       {error && <ErrorMessage message={error} />}
 
       {/* Filters */}
-      <div className="filters-row" style={{ marginTop: '30px' }}>
+      <div className="filters-row">
         <input
           type="text"
           placeholder="Search by invoice # or vendor..."
@@ -156,7 +171,8 @@ export default function InvoiceArchive() {
             setSearchTerm(e.target.value);
             setCurrentPage(1);
           }}
-          className="search-input"
+          className="dashboard-input"
+          style={{ flex: '1', minWidth: '200px' }}
         />
 
         <select
@@ -165,7 +181,7 @@ export default function InvoiceArchive() {
             setStatusFilter(e.target.value);
             setCurrentPage(1);
           }}
-          className="filter-select"
+          className="dashboard-select"
         >
           <option value="all">All Status</option>
           <option value="paid">Paid</option>
@@ -175,7 +191,7 @@ export default function InvoiceArchive() {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="filter-select"
+          className="dashboard-select"
         >
           <option value="date">Sort by Date</option>
           <option value="amount">Sort by Amount</option>
@@ -184,57 +200,45 @@ export default function InvoiceArchive() {
       </div>
 
       {/* Invoice List */}
-      <div className="table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Invoice #</th>
-              <th>Vendor</th>
-              <th>Date</th>
-              <th>Due Date</th>
-              <th>Total</th>
-              <th>Amount Due</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedInvoices.length === 0 ? (
-              <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '40px' }}>
-                  No archived invoices found
-                </td>
-              </tr>
-            ) : (
-              paginatedInvoices.map((invoice) => (
-                <tr
-                  key={invoice.invoiceID}
-                  onClick={() => handleInvoiceClick(invoice)}
-                  style={{ cursor: 'pointer' }}
-                  className="table-row-hover"
-                >
-                  <td>{invoice.invoiceNumber || `#${invoice.invoiceID}`}</td>
-                  <td>{invoice.vendorName || 'N/A'}</td>
-                  <td>{new Date(invoice.invoiceDate).toLocaleDateString()}</td>
-                  <td>
-                    {invoice.dueDate
-                      ? new Date(invoice.dueDate).toLocaleDateString()
-                      : 'N/A'}
-                  </td>
-                  <td>${invoice.totalAmount?.toFixed(2)}</td>
-                  <td className={invoice.amountDue > 0 ? 'text-danger' : ''}>
-                    ${invoice.amountDue?.toFixed(2)}
-                  </td>
-                  <td>
-                    <span className={invoice.isPaid ? 'status-paid' : 'status-unpaid'}>
-                      {invoice.isPaid ? 'Paid' : 'Unpaid'}
-                    </span>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      {paginatedInvoices.length === 0 ? (
+        <p>No archived invoices found.</p>
+      ) : (
+        paginatedInvoices.map((invoice) => (
+          <div
+            key={invoice.InvoiceID}
+            className="dashboard-list-item dashboard-clickable"
+            onClick={() => handleInvoiceClick(invoice)}
+          >
+            <div>
+              <strong>Invoice #{invoice.InvoiceNumber || invoice.InvoiceID}</strong>
+              <br />
+              Vendor: {invoice.VendorName || 'N/A'}
+              <br />
+              Date: {new Date(invoice.InvoiceDate).toLocaleDateString()}
+              {invoice.DueDate && (
+                <>
+                  <br />
+                  Due: {new Date(invoice.DueDate).toLocaleDateString()}
+                </>
+              )}
+              <br />
+              Total: ${money(invoice.TotalAmount)}
+              {invoice.AmountDue > 0 && (
+                <>
+                  <br />
+                  <span style={{ color: '#b00020', fontWeight: '600' }}>
+                    Amount Due: ${money(invoice.AmountDue)}
+                  </span>
+                </>
+              )}
+            </div>
+
+            <div>
+              <StatusBadge status={invoice.IsPaid} />
+            </div>
+          </div>
+        ))
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -255,7 +259,7 @@ export default function InvoiceArchive() {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`pagination-btn ${currentPage === page ? 'active' : ''}`}
+                  className={`pagination-page ${currentPage === page ? 'active' : ''}`}
                 >
                   {page}
                 </button>
