@@ -57,7 +57,7 @@ Content-Type: application/json
 
 {
   "EmailAddress": "testcustomer@example.com",
-  "Password": "SecurePass123",
+  "Password": "password",
   "Role": "customer"
 }
 ```

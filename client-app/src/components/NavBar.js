@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import "../Styles/NavBar.css";
 
@@ -8,11 +8,21 @@ function NavigationBar() {
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   const { cart } = useContext(CartContext);
+  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.href = "/";
     localStorage.clear();
+    navigate("/");
+  };
+
+  const getDashboardLink = () => {
+    if (!user) return "/";
+    if (user.role === "customer") return "/customer-dashboard";
+    if (user.role === "vendor") return "/vendor-dashboard";
+    if (user.role === "admin") return "/admin-dashboard";
+    return "/";
   };
 
   return (
@@ -37,19 +47,39 @@ function NavigationBar() {
         {/* Logged-In View */}
         {user && (
           <>
-            {user.role === "customer" && (
-              <Link to="/customer-dashboard" className="nav-link">My Dashboard</Link>
-            )}
-            {user.role === "vendor" && (
-              <Link to="/vendor-dashboard" className="nav-link">Vendor Dashboard</Link>
-            )}
-            {user.role === "admin" && (
-              <Link to="/admin-dashboard" className="nav-link">Admin Dashboard</Link>
-            )}
-
-            <button onClick={handleLogout} className="logout-btn">
-              Logout
-            </button>
+            <span className="welcome-text">Welcome, {user.firstName}!</span>
+            
+            {/* User Menu */}
+            <div 
+              className="user-menu-container"
+              onMouseEnter={() => setIsMenuOpen(true)}
+              onMouseLeave={() => setIsMenuOpen(false)}
+            >
+              <button className="menu-button">
+                ☰
+              </button>
+              
+              {isMenuOpen && (
+                <div className="user-menu-dropdown">
+                  <Link 
+                    to={getDashboardLink()} 
+                    className="menu-dropdown-item"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Dashboard
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleLogout();
+                    }} 
+                    className="menu-dropdown-item menu-logout"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
 

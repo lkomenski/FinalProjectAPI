@@ -164,3 +164,39 @@
 .clear-btn:hover {
   background: #b91c1c;
 }
+
+/* BROWSE PRODUCTS BUTTON (Empty Cart) */
+.browse-products-btn {
+  background: #2563eb;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.browse-products-btn:hover {
+  background: #1d4ed8;
+}
+
+/* LOGIN PROMPT BUTTON */
+.login-prompt-btn {
+  background: #16a34a;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.login-prompt-btn:hover {
+  background: #15803d;
+}

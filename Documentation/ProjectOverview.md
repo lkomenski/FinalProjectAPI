@@ -98,15 +98,14 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Technical Implementation
 
 ### Controllers & API Endpoints
-1. **AuthController** - Universal authentication with BCrypt password verification for all user roles
-2. **CustomerController** - Customer account management with password change functionality
+1. **AuthController** - Universal authentication, registration, and password management for all user roles (customers, vendors, admins)
+2. **CustomerController** - Customer profile management, addresses, and account operations
 3. **ProductsController** - Product catalog operations with activation/deactivation
 4. **CategoriesController** - Product category management
-5. **VendorsController** - Vendor management with registration and authentication
+5. **VendorsController** - Vendor management with token-based registration
 6. **InvoicesController** - Invoice and payment tracking with detailed vendor invoices
 7. **DashboardController** - Analytics and reporting for customer, vendor, and admin roles
 8. **PasswordResetController** - Secure password recovery system with token generation
-9. **LoginController** - Legacy login support (deprecated in favor of AuthController)
 
 ### Data Models
 - **Customer** - User account and profile information
@@ -234,11 +233,12 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ### Code Deliverables
 - Complete ASP.NET Core Web API application (.NET 9.0)
-- React.js 19.x client application with React Router 7.x
+- React.js 19.x client application with React Router 7.x and breadcrumb navigation
 - SQL Server database with stored procedures
 - HTTP testing file for API validation (FinalProjectAPI.http)
 - BCrypt.Net-Next integration for password security
 - React Testing Library test suite
+- Token-based vendor registration system
 - Comprehensive documentation suite
 
 ### Database Assets
@@ -255,9 +255,12 @@ The system provides a solid foundation for a real-world guitar retail business w
 
 - **Modern Stack:** Utilizes the latest versions of .NET 9.0, React 19.x, and React Router 7.x
 - **Security Best Practices:** Implements BCrypt password hashing with work factor 12 for industry-standard security
+- **Token-Based Vendor Registration:** Secure 48-hour expiring tokens with one-time use for vendor account creation
+- **Consolidated Authentication:** Single AuthController handles all authentication flows for customers, vendors, and administrators
 - **Comprehensive Testing:** Includes React Testing Library integration for frontend testing
 - **Role-Based Architecture:** Separate authentication flows for customers, vendors, and administrators
 - **Professional API Design:** RESTful endpoints with comprehensive documentation and error handling
 - **Scalable Database Design:** Stored procedure architecture with proper separation of concerns
+- **Enhanced UX:** Breadcrumb navigation and modal-based secure token display
 
 The modular design, comprehensive feature set, and extensible architecture make this system suitable for both educational demonstration and potential commercial deployment with additional enhancements. The implementation of BCrypt password security and modern frontend frameworks demonstrates adherence to current industry standards and best practices.

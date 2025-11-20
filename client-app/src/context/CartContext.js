@@ -5,6 +5,7 @@ export const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load user from localStorage and set up cart for that user
   useEffect(() => {
@@ -20,10 +21,11 @@ export function CartProvider({ children }) {
         setCart([]);
       }
     } else {
-      // No user logged in, clear cart
+      // No user logged in, load guest cart
       setCurrentUser(null);
-      setCart([]);
+      loadGuestCart();
     }
+    setIsInitialized(true);
   }, []);
 
   // Function to load cart for specific user
@@ -48,24 +50,47 @@ export function CartProvider({ children }) {
     }
   };
 
+  // Function to load guest cart (before login)
+  const loadGuestCart = () => {
+    const guestCartKey = 'cart_guest';
+    const storedCart = localStorage.getItem(guestCartKey);
+    if (storedCart) {
+      try {
+        const parsed = JSON.parse(storedCart);
+        setCart(parsed);
+      } catch (error) {
+        console.error("Failed to parse guest cart from localStorage:", error);
+        setCart([]);
+      }
+    } else {
+      setCart([]);
+    }
+  };
+
   // Monitor for user changes (login/logout)
   useEffect(() => {
+    if (!isInitialized) return; // Don't run until initial load is complete
+    
     const handleStorageChange = () => {
       const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        try {
-          const user = JSON.parse(storedUser);
-          if (!currentUser || user.id !== currentUser.id) {
+      const storedUserId = storedUser ? JSON.parse(storedUser).id : null;
+      const currentUserId = currentUser ? currentUser.id : null;
+      
+      // Only act if user actually changed
+      if (storedUserId !== currentUserId) {
+        if (storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
             setCurrentUser(user);
-            loadUserCart(user.id);
+            // Don't load cart here - let refreshUserCart handle it
+          } catch (error) {
+            console.error("Failed to parse user from localStorage:", error);
           }
-        } catch (error) {
-          console.error("Failed to parse user from localStorage:", error);
+        } else {
+          // User logged out - keep cart in memory but switch to guest mode
+          setCurrentUser(null);
+          // Cart stays in memory and will be saved to guest cart by save effect
         }
-      } else {
-        // User logged out
-        setCurrentUser(null);
-        setCart([]);
       }
     };
 
@@ -79,22 +104,22 @@ export function CartProvider({ children }) {
       window.removeEventListener('storage', handleStorageChange);
       clearInterval(interval);
     };
-  }, [currentUser]);
+  }, [currentUser, isInitialized]);
 
-  // Save cart automatically whenever it changes (user-specific)
+  // Save cart automatically whenever it changes (user-specific or guest)
   useEffect(() => {
     if (currentUser && currentUser.id) {
       const userCartKey = `cart_user_${currentUser.id}`;
       localStorage.setItem(userCartKey, JSON.stringify(cart));
+    } else {
+      // Save guest cart
+      const guestCartKey = 'cart_guest';
+      localStorage.setItem(guestCartKey, JSON.stringify(cart));
     }
   }, [cart, currentUser]);
 
-  // Add item to cart (only if user is logged in)
+  // Add item to cart (works for both logged-in users and guests)
   const addToCart = (product) => {
-    if (!currentUser) {
-      alert("Please log in to add items to your cart.");
-      return;
-    }
     
     setCart((prev) => {
       const productId = product.productID || product.ProductID;
@@ -145,14 +170,55 @@ export function CartProvider({ children }) {
     setCart([]);
   };
 
-  // Function to manually refresh user cart (useful after login)
+  // Function to manually refresh user cart and merge with stored cart (called after login)
   const refreshUserCart = () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        
+        // Get the cart that's currently in memory before we change anything
+        const cartBeforeLogin = [...cart];
+        
+        // Update current user
         setCurrentUser(user);
-        loadUserCart(user.id);
+        
+        // Load user's saved cart from storage
+        const userCartKey = `cart_user_${user.id}`;
+        const userCartStr = localStorage.getItem(userCartKey);
+        let savedUserCart = [];
+        if (userCartStr) {
+          try {
+            savedUserCart = JSON.parse(userCartStr);
+          } catch (e) {
+            console.error("Failed to parse user cart:", e);
+          }
+        }
+        
+        // Merge the cart from memory (before login) with saved user cart
+        const mergedCart = [...savedUserCart];
+        cartBeforeLogin.forEach(memoryItem => {
+          const memoryId = memoryItem.productID || memoryItem.ProductID;
+          const existingItem = mergedCart.find(item => 
+            (item.productID || item.ProductID) === memoryId
+          );
+          
+          if (existingItem) {
+            // Increase quantity if item already in user cart
+            existingItem.quantity += memoryItem.quantity;
+          } else {
+            // Add new item from memory cart
+            mergedCart.push(memoryItem);
+          }
+        });
+        
+        // Set merged cart and save it
+        setCart(mergedCart);
+        localStorage.setItem(userCartKey, JSON.stringify(mergedCart));
+        
+        // Clear guest cart after merging
+        localStorage.removeItem('cart_guest');
+        
       } catch (error) {
         console.error("Failed to refresh user cart:", error);
       }

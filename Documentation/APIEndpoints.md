@@ -68,65 +68,10 @@ curl -X POST http://localhost:5077/api/auth/login \
 
 ---
 
-### Customer Login (Dedicated Endpoint)
-Authenticate customers with BCrypt password verification.
-
-**Endpoint:** `POST /api/auth/customer/login`
-
-**Security:** BCrypt password verification
-
-**Request Body:**
-```json
-{
-  "emailAddress": "string",
-  "password": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "customerID": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string"
-}
-```
-
----
-
-### Vendor Login (Dedicated Endpoint)
-Authenticate vendors with BCrypt password verification.
-
-**Endpoint:** `POST /api/auth/vendor/login`
-
-**Security:** BCrypt password verification
-
-**Request Body:**
-```json
-{
-  "emailAddress": "string",
-  "password": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "vendorID": "integer",
-  "vendorName": "string",
-  "vendorContactFName": "string",
-  "vendorContactLName": "string",
-  "emailAddress": "string"
-}
-```
-
----
-
 ### Customer Registration
 Register a new customer account with BCrypt password hashing.
 
-**Endpoint:** `POST /api/customer/register`
+**Endpoint:** `POST /api/auth/register-customer`
 
 **Security:** Password hashed with BCrypt before storage
 
@@ -157,49 +102,7 @@ Register a new customer account with BCrypt password hashing.
 - `400 Bad Request` - Email, password, first name, and last name are required
 - `409 Conflict` - Email address already exists
 
----
 
-### Vendor Registration
-Register a new vendor account with business information.
-
-**Endpoint:** `POST /api/vendors/register`
-
-**Security:** Password hashed with BCrypt before storage
-
-**Request Body:**
-```json
-{
-  "vendorName": "string",
-  "vendorAddress1": "string",
-  "vendorAddress2": "string",
-  "vendorCity": "string",
-  "vendorState": "string",
-  "vendorZipCode": "string",
-  "vendorPhone": "string",
-  "vendorContactLName": "string",
-  "vendorContactFName": "string",
-  "emailAddress": "string",
-  "password": "string",
-  "confirmPassword": "string",
-  "defaultTermsID": "integer",
-  "defaultAccountNo": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "vendorID": "integer",
-  "vendorName": "string",
-  "emailAddress": "string",
-  "message": "Vendor registration successful"
-}
-```
-
-**Error Responses:**
-- `400 Bad Request` - Password and confirmation password do not match
-- `400 Bad Request` - Required fields are missing
-- `409 Conflict` - Email address already exists
 
 ---
 
@@ -608,62 +511,7 @@ Update customer profile information.
 }
 ```
 
----
 
-### Customer Registration (Alternative Endpoint - Deprecated)
-Register a new customer account.
-
-**Endpoint:** `POST /api/customer/register`
-
-**Note:** Use `POST /api/customer/register` for new implementations.
-
-**Request Body:**
-```json
-{
-  "firstName": "string",
-  "lastName": "string", 
-  "emailAddress": "string",
-  "password": "string",
-  "confirmPassword": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "customerId": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string"
-}
-```
-
----
-
-### Customer Login (Alternative Endpoint - Deprecated)
-Authenticate a customer.
-
-**Endpoint:** `POST /api/customer/login`
-
-**Note:** Use `POST /api/auth/customer/login` for new implementations.
-
-**Request Body:**
-```json
-{
-  "emailAddress": "string",
-  "password": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "customerID": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string"
-}
-```
 
 ---
 
@@ -722,59 +570,47 @@ Remove a customer account.
 
 ## Vendor Management
 
-### Vendor Registration
-Register a new vendor account with complete business information.
+### Generate Vendor Registration Token
+Generate a secure registration token for a vendor to create their login account. Token expires in 48 hours.
 
-**Endpoint:** `POST /api/vendors/register`
+**Endpoint:** `POST /api/vendors/generate-token/{vendorId}`
 
-**Security:** Password hashed with BCrypt before storage
-
-**Request Body:**
-```json
-{
-  "vendorName": "string",
-  "vendorAddress1": "string",
-  "vendorAddress2": "string",
-  "vendorCity": "string",
-  "vendorState": "string",
-  "vendorZipCode": "string",
-  "vendorPhone": "string",
-  "vendorContactLName": "string",
-  "vendorContactFName": "string",
-  "emailAddress": "string",
-  "password": "string",
-  "confirmPassword": "string",
-  "defaultTermsID": "integer",
-  "defaultAccountNo": "string"
-}
-```
+**Path Parameters:**
+- `vendorId` (integer, required) - The ID of the vendor
 
 **Response (200 OK):**
 ```json
 {
+  "registrationToken": "string",
+  "tokenExpiry": "datetime",
+  "hoursUntilExpiry": "integer",
   "vendorID": "integer",
   "vendorName": "string",
-  "vendorContactFName": "string",
-  "vendorContactLName": "string",
-  "emailAddress": "string",
-  "isActive": true,
-  "message": "Vendor registration successful"
+  "firstName": "string",
+  "lastName": "string",
+  "vendorEmail": "string",
+  "status": "Success|Warning|Error",
+  "message": "string"
 }
 ```
 
+**Error Responses:**
+- `400 Bad Request` - Vendor already has an account or not found
+
 ---
 
-### Vendor Login
-Authenticate a vendor with BCrypt password verification.
+### Vendor Registration (Using Token)
+Register a vendor account using a registration token provided by admin. Token is one-time use and expires in 48 hours.
 
-**Endpoint:** `POST /api/auth/vendor/login`
+**Endpoint:** `POST /api/auth/register-vendor`
 
-**Security:** BCrypt password verification
+**Security:** Password hashed with BCrypt before storage, token validated for expiration and one-time use
 
 **Request Body:**
 ```json
 {
-  "emailAddress": "string",
+  "registrationToken": "string",
+  "vendorEmail": "string",
   "password": "string"
 }
 ```
@@ -782,13 +618,16 @@ Authenticate a vendor with BCrypt password verification.
 **Response (200 OK):**
 ```json
 {
+  "message": "string",
   "vendorID": "integer",
-  "vendorName": "string",
-  "vendorContactFName": "string",
-  "vendorContactLName": "string",
-  "emailAddress": "string"
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string"
 }
 ```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid or expired token, email mismatch, or vendor already has account
 
 ---
 
@@ -1195,34 +1034,7 @@ Reset customer password using a valid token. New password is hashed with BCrypt.
 - `400 Bad Request` - Invalid or expired token
 - `400 Bad Request` - New password does not meet requirements (min 8 characters)
 
----
 
-## Legacy Login Endpoint
-
-### Universal Login (Legacy)
-Alternative login endpoint for backward compatibility.
-
-**Endpoint:** `POST /api/login`
-
-**Request Body:**
-```json
-{
-  "emailAddress": "string",
-  "password": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "role": "string",
-  "user": {
-    "id": "integer",
-    "name": "string",
-    "email": "string"
-  }
-}
-```
 
 ---
 

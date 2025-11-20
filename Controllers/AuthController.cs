@@ -141,9 +141,22 @@ namespace FinalProjectAPI.Controllers
             if (row == null)
                 return Unauthorized("Invalid vendor credentials.");
 
-            // Verify password using BCrypt
-            string storedHashedPassword = row["VendorPassword"]?.ToString() ?? "";
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, storedHashedPassword))
+            // Verify password - support both hashed and plain text for backward compatibility
+            string storedPassword = row["VendorPassword"]?.ToString() ?? "";
+            bool passwordValid = false;
+            
+            // Check if password is hashed (BCrypt hashes start with $2a$, $2b$, etc.)
+            if (storedPassword.StartsWith("$2"))
+            {
+                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPassword);
+            }
+            else
+            {
+                // Plain text password (for testing/legacy data)
+                passwordValid = request.Password == storedPassword;
+            }
+            
+            if (!passwordValid)
                 return Unauthorized("Invalid vendor credentials.");
 
             var response = new LoginResponse

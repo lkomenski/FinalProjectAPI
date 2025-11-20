@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import "../Styles/Auth.css";
 
@@ -11,6 +12,7 @@ export default function LoginForm() {
   const [failedAttempts, setFailedAttempts] = useState(0);
   
   const { refreshUserCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const validateForm = () => {
     if (!emailAddress || !password) {
@@ -70,20 +72,14 @@ export default function LoginForm() {
       setSuccess(`Welcome back, ${data.firstName}!`);
       setError("");
 
-      // Refresh cart for the logged-in user
+      // Refresh cart for the logged-in user (this merges guest + user cart)
       refreshUserCart();
 
-      // Small delay to allow cart to load before redirect
+      // Use React Router navigation to avoid page reload
+      // Redirect all users to home page after login
       setTimeout(() => {
-        // REDIRECT
-        if (data.dashboard === "customer") {
-          window.location.href = "/customer-dashboard";
-        } else if (data.dashboard === "vendor") {
-          window.location.href = "/vendor-dashboard";
-        } else if (data.dashboard === "admin") {
-          window.location.href = "/admin-dashboard";
-        }
-      }, 500);
+        navigate("/");
+      }, 100);
 
     } catch (err) {
       setError("Server error. Please try again later.");
@@ -170,7 +166,7 @@ export default function LoginForm() {
           New vendor? 
           <button 
             className="auth-vendor-register-link"
-            onClick={() => window.location.href="/register-vendor"}
+            onClick={() => navigate("/register-vendor")}
             type="button"
           >
             Activate your account
@@ -184,7 +180,7 @@ export default function LoginForm() {
           Don't have an account? 
           <button 
             className="auth-register-link"
-            onClick={() => window.location.href="/register"}
+            onClick={() => navigate("/register")}
             type="button"
           >
             Register here
@@ -199,11 +195,11 @@ export default function LoginForm() {
             Having trouble logging in?
             <button 
               className="auth-reset-link"
-              onClick={() => window.location.href="/reset-password"}
+              onClick={() => navigate("/reset-password")}
               type="button"
-            >
-              Reset your password
-            </button>
+          >
+            Reset your password
+          </button>
           </p>
         </div>
       )}

@@ -114,12 +114,18 @@ namespace FinalProjectAPI.Controllers
             {
                 VendorID = vendorId,
                 VendorName = first["VendorName"]?.ToString(),
-                VendorContactFName = first["VendorContactFName"]?.ToString(),
-                VendorContactLName = first["VendorContactLName"]?.ToString(),
+                VendorAddress1 = first.ContainsKey("VendorAddress1") ? first["VendorAddress1"]?.ToString() : null,
+                VendorAddress2 = first.ContainsKey("VendorAddress2") ? first["VendorAddress2"]?.ToString() : null,
                 VendorCity = first["VendorCity"]?.ToString(),
                 VendorState = first["VendorState"]?.ToString(),
+                VendorZipCode = first.ContainsKey("VendorZipCode") ? first["VendorZipCode"]?.ToString() : null,
+                VendorContactFName = first["VendorContactFName"]?.ToString(),
+                VendorContactLName = first["VendorContactLName"]?.ToString(),
                 VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A",
-                TermsDescription = first.ContainsKey("TermsDescription") ? first["TermsDescription"]?.ToString() : "N/A"
+                DefaultTermsID = first.ContainsKey("DefaultTermsID") ? first["DefaultTermsID"] : DBNull.Value,
+                DefaultAccountNo = first.ContainsKey("DefaultAccountNo") ? first["DefaultAccountNo"] : DBNull.Value,
+                TermsDescription = first.ContainsKey("TermsDescription") ? first["TermsDescription"]?.ToString() : "N/A",
+                DateUpdated = first.ContainsKey("DateUpdated") ? first["DateUpdated"] : DBNull.Value
             };
 
             // -------------------------------
