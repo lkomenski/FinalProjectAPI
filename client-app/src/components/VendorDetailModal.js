@@ -35,57 +35,50 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '750px' }}>
-        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700' }}>
+      <div className="modal-content vendor-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header vendor-modal-header">
+          <h2 className="vendor-modal-title">
             {vendor.vendorName}
           </h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <div className="modal-body" style={{ padding: '20px 0' }}>
+        <div className="modal-body vendor-modal-body">
           {/* Vendor Information Section */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '2px solid #e5e7eb'
-            }}>
+          <div className="vendor-section">
+            <h3 className="vendor-section-title">
               Vendor Information
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+            <div className="vendor-info-grid">
+              <div className="vendor-info-item">
+                <div className="vendor-info-label">
                   Vendor ID:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                <div className="vendor-info-value">
                   #{vendor.vendorID}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="vendor-info-item">
+                <div className="vendor-info-label">
                   Status:
                 </div>
                 <span className={vendor.isActive ? "status-active" : "status-inactive"}>
                   {vendor.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="vendor-info-item">
+                <div className="vendor-info-label">
                   Contact Name:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                <div className="vendor-info-value">
                   {vendor.vendorContactFName} {vendor.vendorContactLName}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="vendor-info-item">
+                <div className="vendor-info-label">
                   Phone:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                <div className="vendor-info-value">
                   {vendor.vendorPhone || "Not provided"}
                 </div>
               </div>
@@ -93,18 +86,11 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
           </div>
 
           {/* Address Section */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '2px solid #e5e7eb'
-            }}>
+          <div className="vendor-section">
+            <h3 className="vendor-section-title">
               Address
             </h3>
-            <div style={{ fontSize: '0.95rem', lineHeight: '1.6', color: '#1f2937' }}>
+            <div className="vendor-address-text">
               <div>{vendor.vendorAddress1 || "No address provided"}</div>
               {vendor.vendorAddress2 && <div>{vendor.vendorAddress2}</div>}
               <div>{vendor.vendorCity}, {vendor.vendorState} {vendor.vendorZipCode}</div>
@@ -112,28 +98,21 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
           </div>
 
           {/* Recent Invoices Section */}
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '2px solid #e5e7eb'
-            }}>
+          <div className="vendor-section-last">
+            <h3 className="vendor-section-title">
               Recent Invoices
             </h3>
             {loading ? (
-              <div style={{ padding: '20px', textAlign: 'center' }}>
+              <div className="vendor-loading-container">
                 <LoadingSpinner />
               </div>
             ) : recentInvoices.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
+              <div className="vendor-no-invoices">
                 No recent invoices found.
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="vendor-invoices-container">
                   {recentInvoices.map((inv) => {
                     console.log("Invoice item:", inv);
                     const amountDue = (inv.invoiceTotal || 0) - (inv.paymentTotal || 0) - (inv.creditTotal || 0);
@@ -142,20 +121,13 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
                     return (
                       <div 
                         key={inv.invoiceID} 
-                        style={{ 
-                          padding: '12px', 
-                          backgroundColor: '#f9fafb',
-                          borderRadius: '6px',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
+                        className="vendor-invoice-item"
                       >
-                        <div>
-                          <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827' }}>
+                        <div className="vendor-invoice-info">
+                          <div className="vendor-invoice-number">
                             Invoice #{inv.invoiceNumber || 'N/A'}
                           </div>
-                          <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '2px' }}>
+                          <div className="vendor-invoice-date">
                             {inv.invoiceDate ? new Date(inv.invoiceDate).toLocaleDateString('en-US', { 
                               year: 'numeric', 
                               month: 'short', 
@@ -163,11 +135,11 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
                             }) : 'No date'}
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>
+                        <div className="vendor-invoice-amounts">
+                          <div className="vendor-invoice-total">
                             ${money(inv.invoiceTotal || 0)}
                           </div>
-                          <span className={isPaid ? "status-active" : "status-inactive"} style={{ fontSize: '0.75rem' }}>
+                          <span className={isPaid ? "status-active vendor-invoice-status" : "status-inactive vendor-invoice-status"}>
                             {isPaid ? "Paid" : "Unpaid"}
                           </span>
                         </div>
@@ -176,8 +148,7 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
                   })}
                 </div>
                 <button
-                  className="dashboard-btn"
-                  style={{ marginTop: '15px', width: '100%' }}
+                  className="dashboard-btn vendor-view-all-btn"
                   onClick={() => {
                     navigate("/vendor-invoices", {
                       state: { vendorId: vendor.vendorID, vendorName: vendor.vendorName },
@@ -192,31 +163,28 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
           </div>
         </div>
 
-        <div className="modal-footer" style={{ display: 'flex', gap: '10px', paddingTop: '15px', borderTop: '2px solid #e5e7eb' }}>
-          <button className="dashboard-btn" onClick={onEdit} style={{ flex: 1 }}>
+        <div className="modal-footer vendor-modal-footer">
+          <button className="dashboard-btn vendor-footer-btn" onClick={onEdit}>
             Edit Vendor
           </button>
           {vendor.isActive ? (
             <button
-              className="dashboard-btn dashboard-btn-danger"
+              className="dashboard-btn dashboard-btn-danger vendor-footer-btn"
               onClick={() => onToggleStatus(vendor.vendorID, false)}
-              style={{ flex: 1 }}
             >
               Deactivate
             </button>
           ) : (
             <button
-              className="dashboard-btn dashboard-btn-success"
+              className="dashboard-btn dashboard-btn-success vendor-footer-btn"
               onClick={() => onToggleStatus(vendor.vendorID, true)}
-              style={{ flex: 1 }}
             >
               Activate
             </button>
           )}
           <button 
-            className="dashboard-btn dashboard-btn-info" 
+            className="dashboard-btn dashboard-btn-info vendor-footer-btn" 
             onClick={() => onGenerateToken(vendor.vendorID)}
-            style={{ flex: 1 }}
           >
             Generate Token
           </button>

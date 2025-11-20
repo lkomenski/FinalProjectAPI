@@ -4,6 +4,7 @@ import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import InvoiceDetailModal from "./InvoiceDetailModal";
 import "../Styles/Dashboard.css";
+import "../Styles/VendorDashboard.css";
 import { useNavigate } from "react-router-dom";
 
 export default function VendorDashboard() {
@@ -86,78 +87,56 @@ export default function VendorDashboard() {
       )}
       
       {loadingInvoice && (
-        <div style={{ 
-          position: 'fixed', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          background: 'rgba(0,0,0,0.5)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          zIndex: 9999 
-        }}>
+        <div className="vendor-loading-overlay">
           <LoadingSpinner />
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '25px', padding: '30px', maxWidth: '100%' }}>
+      <div className="vendor-main-layout">
       {/* Left Panel - Business Info */}
-      <div style={{ width: '280px', flexShrink: 0, marginTop: '96px' }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+      <div className="vendor-left-panel">
+        <div className="dashboard-card vendor-left-panel-card">
+          <h3 className="vendor-business-info-title">
             Business Information
           </h3>
           
-          <div style={{ marginBottom: '20px' }}>
-            <div style={{ textAlign: 'center', marginBottom: '15px' }}>
-              <div style={{ 
-                width: '80px', 
-                height: '80px', 
-                borderRadius: '50%', 
-                backgroundColor: '#eff6ff', 
-                margin: '0 auto 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
-                border: '3px solid #bfdbfe'
-              }}>
+          <div className="vendor-business-info-section">
+            <div className="vendor-business-avatar-section">
+              <div className="vendor-business-avatar">
                 🏢
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#1f2937', marginBottom: '5px' }}>
+              <div className="vendor-business-name">
                 {vendorInfo?.vendorName}
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+              <div className="vendor-business-location">
                 {vendorInfo?.vendorCity}, {vendorInfo?.vendorState}
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+          <div className="vendor-contact-details">
             <div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Main Contact</div>
-              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>
+              <div className="vendor-detail-label">Main Contact</div>
+              <div className="vendor-detail-value">
                 {vendorInfo?.vendorContactFName} {vendorInfo?.vendorContactLName}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Address</div>
-              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>
+              <div className="vendor-detail-label">Address</div>
+              <div className="vendor-detail-value">
                 {vendorInfo?.vendorAddress1 || 'N/A'}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Phone</div>
-              <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>
+              <div className="vendor-detail-label">Phone</div>
+              <div className="vendor-detail-value">
                 {vendorInfo?.vendorPhone}
               </div>
             </div>
             {vendorInfo?.termsDescription && (
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Terms</div>
-                <div style={{ fontSize: '0.85rem', color: '#1f2937', lineHeight: '1.4' }}>
+                <div className="vendor-detail-label">Terms</div>
+                <div className="vendor-terms-value">
                   {vendorInfo.termsDescription}
                 </div>
               </div>
@@ -165,18 +144,17 @@ export default function VendorDashboard() {
           </div>
 
           <button
-            className="dashboard-btn dashboard-btn-primary"
-            style={{ width: '100%' }}
+            className="dashboard-btn dashboard-btn-primary vendor-btn-full-width"
             onClick={() => navigate("/vendor-account")}
           >
             View Full Account Info
           </button>
 
-          <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.85rem', fontWeight: '600', color: '#1e40af' }}>
+          <div className="vendor-tip-box">
+            <h4 className="vendor-tip-title">
               Quick Tip
             </h4>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#3b82f6', lineHeight: '1.4' }}>
+            <p className="vendor-tip-text">
               Click on invoice cards to view detailed information and payment history.
             </p>
           </div>
@@ -184,42 +162,39 @@ export default function VendorDashboard() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="vendor-main-content">
         <div className="dashboard-container">
           {/* Breadcrumbs */}
-          <div className="breadcrumbs" style={{ marginBottom: '20px' }}>
+          <div className="breadcrumbs vendor-breadcrumbs">
             <span className="breadcrumb-current">Dashboard</span>
           </div>
 
-          <h2 className="dashboard-title" style={{ marginBottom: '30px' }}>Vendor Dashboard</h2>
+          <h2 className="dashboard-title vendor-title">Vendor Dashboard</h2>
 
           {/* Invoice Summary Cards */}
           <h3 className="dashboard-subtitle">Invoice Summary</h3>
 
-          <div style={{ marginBottom: '30px', display: 'flex', gap: '15px' }}>
+          <div className="vendor-invoice-summary">
             <div 
-              style={{ flex: 1, cursor: 'pointer', padding: '20px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0', transition: 'transform 0.2s' }}
-              className="clickable-stat"
+              className="vendor-invoice-card-green clickable-stat"
               onClick={() => navigate("/vendor-invoices")}
             >
-              <div style={{ fontSize: '0.85rem', color: '#059669', marginBottom: '5px', fontWeight: '500' }}>Total Invoices</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#059669' }}>{summary?.TotalInvoices}</div>
+              <div className="vendor-invoice-label-green">Total Invoices</div>
+              <div className="vendor-invoice-value-green">{summary?.TotalInvoices}</div>
             </div>
             <div 
-              style={{ flex: 1, cursor: 'pointer', padding: '20px', backgroundColor: '#fef3c7', borderRadius: '8px', border: '1px solid #fcd34d', transition: 'transform 0.2s' }}
-              className="clickable-stat"
+              className="vendor-invoice-card-yellow clickable-stat"
               onClick={() => navigate("/vendor-invoices", { state: { filter: 'unpaid' } })}
             >
-              <div style={{ fontSize: '0.85rem', color: '#d97706', marginBottom: '5px', fontWeight: '500' }}>Total Outstanding</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#d97706' }}>${money(summary?.TotalOutstanding)}</div>
+              <div className="vendor-invoice-label-yellow">Total Outstanding</div>
+              <div className="vendor-invoice-value-yellow">${money(summary?.TotalOutstanding)}</div>
             </div>
             <div 
-              style={{ flex: 1, cursor: 'pointer', padding: '20px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe', transition: 'transform 0.2s' }}
-              className="clickable-stat"
+              className="vendor-invoice-card-blue clickable-stat"
               onClick={() => navigate("/vendor-invoices", { state: { filter: 'paid' } })}
             >
-              <div style={{ fontSize: '0.85rem', color: '#1e40af', marginBottom: '5px', fontWeight: '500' }}>Total Paid</div>
-              <div style={{ fontSize: '2rem', fontWeight: '700', color: '#1e40af' }}>${money(summary?.TotalPaid)}</div>
+              <div className="vendor-invoice-label-blue">Total Paid</div>
+              <div className="vendor-invoice-value-blue">${money(summary?.TotalPaid)}</div>
             </div>
           </div>
 
@@ -227,9 +202,9 @@ export default function VendorDashboard() {
           <h3 className="dashboard-subtitle">Recent Invoices</h3>
 
           {recentInvoices.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '20px', opacity: 0.3 }}>📄</div>
-              <p style={{ fontSize: '1.2rem', color: '#6b7280', marginBottom: '20px' }}>No recent invoices found.</p>
+            <div className="vendor-no-invoices">
+              <div className="vendor-no-invoices-icon">📄</div>
+              <p className="vendor-no-invoices-text">No recent invoices found.</p>
             </div>
           ) : (
             <>
@@ -237,8 +212,7 @@ export default function VendorDashboard() {
                 {recentInvoices.slice(0, showCount).map((inv) => (
                   <div
                     key={inv.invoiceID}
-                    className="dashboard-card"
-                    style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                    className="dashboard-card vendor-invoice-clickable"
                     onClick={() => handleInvoiceClick(inv.invoiceID)}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'translateY(-2px)';
@@ -249,12 +223,12 @@ export default function VendorDashboard() {
                       e.currentTarget.style.boxShadow = '';
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '10px' }}>
+                    <div className="vendor-invoice-header">
                       <div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: '#111827', margin: '0 0 5px 0' }}>
+                        <h3 className="vendor-invoice-title">
                           Invoice #{inv.invoiceNumber}
                         </h3>
-                        <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>
+                        <p className="vendor-invoice-date">
                           {new Date(inv.invoiceDate).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'long', 
@@ -262,8 +236,8 @@ export default function VendorDashboard() {
                           })}
                         </p>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '1.3rem', fontWeight: '700', color: '#059669' }}>
+                      <div className="vendor-invoice-amount-section">
+                        <div className="vendor-invoice-amount-value">
                           ${money(inv.invoiceTotal)}
                         </div>
                       </div>
@@ -271,14 +245,11 @@ export default function VendorDashboard() {
 
                     {inv.invoiceStatus && (
                       <span
-                        className={
-                          inv.invoiceStatus === "Paid"
+                        className={`${inv.invoiceStatus === "Paid"
                             ? "badge badge-paid"
                             : inv.invoiceStatus === "Unpaid"
                             ? "badge badge-unpaid"
-                            : "badge badge-none"
-                        }
-                        style={{ marginTop: '10px' }}
+                            : "badge badge-none"} vendor-badge-margin-top`}
                       >
                         {inv.invoiceStatus}
                       </span>
@@ -290,9 +261,8 @@ export default function VendorDashboard() {
               {/* Load More Button */}
               {showCount < recentInvoices.length && (
                 <button
-                  className="dashboard-btn dashboard-btn-secondary"
+                  className="dashboard-btn dashboard-btn-secondary vendor-show-more-margin"
                   onClick={() => setShowCount((prev) => prev + 5)}
-                  style={{ marginTop: '20px' }}
                 >
                   Load More
                 </button>
@@ -303,69 +273,56 @@ export default function VendorDashboard() {
       </div>
 
       {/* Right Panel - Quick Actions */}
-      <div style={{ width: '280px', flexShrink: 0, marginTop: '96px' }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+      <div className="vendor-right-panel">
+        <div className="dashboard-card vendor-right-panel-card">
+          <h3 className="vendor-user-info-title">
             User Information
           </h3>
 
-          <div style={{ textAlign: 'center', marginBottom: '20px', paddingBottom: '20px', borderBottom: '2px solid #e5e7eb' }}>
-            <div style={{ 
-              width: '80px', 
-              height: '80px', 
-              borderRadius: '50%', 
-              backgroundColor: '#eff6ff', 
-              margin: '0 auto 15px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              border: '3px solid #bfdbfe'
-            }}>
+          <div className="vendor-account-info-section">
+            <div className="vendor-account-avatar">
               👤
             </div>
-            <h3 style={{ margin: '0 0 5px 0', fontSize: '1.3rem', fontWeight: '700', color: '#111827' }}>
+            <h3 className="vendor-account-name">
               Hello, {user?.firstName || 'Vendor'}!
             </h3>
-            <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>
+            <p className="vendor-account-location">
               Welcome back
             </p>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+          <div className="vendor-account-details-section">
+            <h4 className="vendor-account-section-title">
               Account Information
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div className="vendor-account-info-grid">
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Name</div>
-                <div style={{ fontSize: '0.9rem', color: '#1f2937' }}>
+                <div className="vendor-detail-label">Name</div>
+                <div className="vendor-detail-value">
                   {user?.firstName} {user?.lastName}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '3px', fontWeight: '500' }}>Email</div>
-                <div style={{ fontSize: '0.9rem', color: '#1f2937', wordBreak: 'break-word' }}>
+                <div className="vendor-detail-label">Email</div>
+                <div className="vendor-account-email-value">
                   {user?.emailAddress}
                 </div>
               </div>
             </div>
           </div>
 
-          <h4 style={{ margin: '0 0 12px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1f2937', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+          <h4 className="vendor-quick-actions-title">
             Quick Actions
           </h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div className="vendor-quick-actions-buttons">
             <button
-              className="dashboard-btn dashboard-btn-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
+              className="dashboard-btn dashboard-btn-primary vendor-btn-full-width vendor-btn-center"
               onClick={() => navigate("/vendor-invoices")}
             >
               All Invoices
             </button>
             <button
-              className="dashboard-btn dashboard-btn-secondary"
-              style={{ width: '100%', justifyContent: 'center' }}
+              className="dashboard-btn dashboard-btn-secondary vendor-btn-full-width vendor-btn-center"
               onClick={() => navigate("/vendor-account")}
             >
               Account Details

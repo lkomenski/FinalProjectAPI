@@ -1,5 +1,10 @@
 USE [MyGuitarShop]
 GO
+-- =============================================
+-- Author:		Leena Komenski
+-- Updated: 11/19/2025 - Added QuantityOnHand column
+-- Description:	Alters Customers table to add necessary columns
+-- =============================================
 
 ALTER TABLE [dbo].[Customers]
 ADD 

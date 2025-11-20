@@ -1,0 +1,398 @@
+/* VendorDashboard Component Styles */
+
+/* Loading overlay */
+.vendor-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Main layout */
+.vendor-main-layout {
+  display: flex;
+  gap: 25px;
+  padding: 30px;
+  max-width: 100%;
+}
+
+/* Left sidebar */
+.vendor-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  margin-top: 96px;
+}
+
+/* Business info card */
+.vendor-business-card {
+  padding: 20px;
+}
+
+.vendor-business-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.vendor-business-info-section {
+  margin-bottom: 20px;
+}
+
+.vendor-business-avatar-section {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.vendor-business-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #eff6ff;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border: 3px solid #bfdbfe;
+}
+
+.vendor-business-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 5px;
+}
+
+.vendor-business-location {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.vendor-contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.vendor-detail-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 3px;
+  font-weight: 500;
+}
+
+.vendor-detail-value {
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+.vendor-terms-value {
+  font-size: 0.85rem;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.vendor-btn-full-width {
+  width: 100%;
+}
+
+.vendor-tip-box {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+}
+
+.vendor-tip-title {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e40af;
+}
+
+.vendor-tip-text {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #3b82f6;
+  line-height: 1.4;
+}
+
+/* Main content area */
+.vendor-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.vendor-breadcrumbs {
+  margin-bottom: 20px;
+}
+
+.vendor-title {
+  margin-bottom: 30px;
+}
+
+/* Invoice summary section */
+.vendor-invoice-summary {
+  margin-bottom: 30px;
+  display: flex;
+  gap: 15px;
+}
+
+.vendor-invoice-card-green {
+  flex: 1;
+  cursor: pointer;
+  padding: 20px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+  transition: transform 0.2s;
+}
+
+.vendor-invoice-card-yellow {
+  flex: 1;
+  cursor: pointer;
+  padding: 20px;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  border: 1px solid #fcd34d;
+  transition: transform 0.2s;
+}
+
+.vendor-invoice-card-blue {
+  flex: 1;
+  cursor: pointer;
+  padding: 20px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  transition: transform 0.2s;
+}
+
+.vendor-invoice-label-green {
+  font-size: 0.85rem;
+  color: #059669;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.vendor-invoice-value-green {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.vendor-invoice-label-yellow {
+  font-size: 0.85rem;
+  color: #d97706;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.vendor-invoice-value-yellow {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.vendor-invoice-label-blue {
+  font-size: 0.85rem;
+  color: #1e40af;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.vendor-invoice-value-blue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+/* No invoices section */
+.vendor-no-invoices {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.vendor-no-invoices-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.3;
+}
+
+.vendor-no-invoices-text {
+  font-size: 1.2rem;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+/* Invoice list items */
+.vendor-invoice-clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.vendor-invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.vendor-invoice-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 5px 0;
+}
+
+.vendor-invoice-date {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.vendor-invoice-amount-section {
+  text-align: right;
+}
+
+.vendor-invoice-amount-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.vendor-badge-margin-top {
+  margin-top: 10px;
+}
+
+.vendor-show-more-margin {
+  margin-top: 20px;
+}
+
+/* Account info sidebar (duplicate structure) */
+.vendor-account-info-section {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.vendor-account-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #eff6ff;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border: 3px solid #bfdbfe;
+}
+
+.vendor-account-name {
+  margin: 0 0 5px 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.vendor-account-location {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.vendor-account-details-section {
+  margin-bottom: 20px;
+}
+
+.vendor-account-section-title {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.vendor-account-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vendor-account-email-value {
+  font-size: 0.9rem;
+  color: #1f2937;
+  word-break: break-word;
+}
+
+/* Panel Styles */
+.vendor-left-panel {
+  width: 280px;
+  flex-shrink: 0;
+  margin-top: 96px;
+}
+
+.vendor-left-panel-card {
+  padding: 20px;
+}
+
+.vendor-business-info-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.vendor-right-panel {
+  width: 280px;
+  flex-shrink: 0;
+  margin-top: 96px;
+}
+
+.vendor-right-panel-card {
+  padding: 20px;
+}
+
+.vendor-user-info-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.vendor-quick-actions-title {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.vendor-quick-actions-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vendor-btn-center {
+  justify-content: center;
+}

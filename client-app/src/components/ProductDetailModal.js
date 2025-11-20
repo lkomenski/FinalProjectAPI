@@ -57,82 +57,72 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div 
-        className="modal-content wide" 
+        className="modal-content wide product-modal-content" 
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '900px', width: '90vw' }}
       >
         {/* Header with Product Name and Action Buttons */}
-        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '15px' }}>
-          <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '700' }}>{product.productName || product.ProductName}</h2>
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <button className="dashboard-btn" onClick={onEdit} style={{ fontSize: '0.9rem', padding: '6px 12px' }}>
+        <div className="modal-header product-modal-header">
+          <h2 className="product-modal-title">{product.productName || product.ProductName}</h2>
+          <div className="product-modal-actions">
+            <button className="dashboard-btn product-action-btn" onClick={onEdit}>
               Edit
             </button>
             {product.isActive ? (
               <button
-                className="dashboard-btn dashboard-btn-warning"
+                className="dashboard-btn dashboard-btn-warning product-action-btn"
                 onClick={() => onToggleStatus(product.productID, false)}
-                style={{ fontSize: '0.9rem', padding: '6px 12px' }}
               >
                 Deactivate
               </button>
             ) : (
               <button
-                className="dashboard-btn dashboard-btn-success"
+                className="dashboard-btn dashboard-btn-success product-action-btn"
                 onClick={() => onToggleStatus(product.productID, true)}
-                style={{ fontSize: '0.9rem', padding: '6px 12px' }}
               >
                 Activate
               </button>
             )}
-            <button className="modal-close" onClick={onClose} style={{ marginLeft: '10px' }}>×</button>
+            <button className="modal-close product-close-btn" onClick={onClose}>×</button>
           </div>
         </div>
 
-        <div className="modal-body" style={{ padding: '20px 0' }}>
+        <div className="modal-body product-modal-body">
           {/* Main Content Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+          <div className="product-main-grid">
             {/* Left Side - Product Information */}
             <div>
               {/* Product Details Section */}
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: '600', 
-                  color: '#374151', 
-                  marginBottom: '10px',
-                  paddingBottom: '8px',
-                  borderBottom: '2px solid #e5e7eb'
-                }}>
+              <div className="product-section">
+                <h3 className="product-section-title">
                   Product Details
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                <div className="product-details-grid">
+                  <div className="product-detail-item">
+                    <div className="product-detail-label">
                       Product Code:
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                    <div className="product-detail-value">
                       {product.productCode || product.ProductCode}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                  <div className="product-detail-item">
+                    <div className="product-detail-label">
                       Category:
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                    <div className="product-detail-value">
                       {getCategoryName()}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                  <div className="product-detail-item">
+                    <div className="product-detail-label">
                       Product ID:
                     </div>
-                    <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                    <div className="product-detail-value">
                       {product.productID || product.ProductID}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                  <div className="product-detail-item">
+                    <div className="product-detail-label">
                       Status:
                     </div>
                     <span className={product.isActive || product.IsActive ? "status-active" : "status-inactive"}>
@@ -143,40 +133,33 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
               </div>
 
               {/* Pricing Information Section */}
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: '600', 
-                  color: '#374151', 
-                  marginBottom: '10px',
-                  paddingBottom: '8px',
-                  borderBottom: '2px solid #e5e7eb'
-                }}>
+              <div className="product-section">
+                <h3 className="product-section-title">
                   Pricing Information
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                <div className="product-pricing-grid">
+                  <div className="product-price-item">
+                    <div className="product-price-label">
                       List Price:
                     </div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827' }}>
+                    <div className="product-list-price">
                       ${money(product.listPrice || product.ListPrice)}
                     </div>
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                  <div className="product-price-item">
+                    <div className="product-price-label">
                       Discount:
                     </div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>
+                    <div className="product-discount-value">
                       {(product.discountPercent || product.DiscountPercent || 0).toFixed(0)}%
                     </div>
                   </div>
                   {(product.discountPercent || product.DiscountPercent) > 0 && (
-                    <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                    <div className="product-price-item">
+                      <div className="product-price-label">
                         Sale Price:
                       </div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc2626' }}>
+                      <div className="product-sale-price">
                         ${money((product.listPrice || product.ListPrice) * (1 - ((product.discountPercent || product.DiscountPercent) || 0) / 100))}
                       </div>
                     </div>
@@ -186,24 +169,11 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
 
               {/* Description Section */}
               {(product.description || product.Description) && (
-                <div>
-                  <h3 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    color: '#374151', 
-                    marginBottom: '10px',
-                    paddingBottom: '8px',
-                    borderBottom: '2px solid #e5e7eb'
-                  }}>
+                <div className="product-section">
+                  <h3 className="product-section-title">
                     Description
                   </h3>
-                  <p style={{ 
-                    fontSize: '0.95rem',
-                    lineHeight: '1.6', 
-                    color: '#4b5563',
-                    margin: 0,
-                    whiteSpace: 'pre-line'
-                  }}>
+                  <p className="product-description">
                     {cleanDescription(product.description || product.Description)}
                   </p>
                 </div>
@@ -212,29 +182,14 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
 
             {/* Right Side - Product Image */}
             <div>
-              <h3 style={{ 
-                fontSize: '1rem', 
-                fontWeight: '600', 
-                color: '#374151', 
-                marginBottom: '10px',
-                paddingBottom: '8px',
-                borderBottom: '2px solid #e5e7eb'
-              }}>
+              <h3 className="product-section-title">
                 Product Image
               </h3>
               {getImageSrc() ? (
                 <img
                   src={getImageSrc()}
                   alt={product.productName || product.ProductName}
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '400px',
-                    objectFit: 'contain',
-                    borderRadius: '8px',
-                    border: '1px solid #e5e7eb',
-                    backgroundColor: '#f9fafb'
-                  }}
+                  className="product-image"
                   onError={(e) => {
                     console.error("Image failed to load:", getImageSrc());
                     e.target.style.display = 'none';
@@ -243,18 +198,7 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
                 />
               ) : null}
               <div
-                style={{
-                  display: getImageSrc() ? 'none' : 'flex',
-                  width: '100%',
-                  height: '300px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#f3f4f6',
-                  borderRadius: '8px',
-                  border: '2px dashed #d1d5db',
-                  color: '#9ca3af',
-                  fontSize: '0.95rem'
-                }}
+                className={getImageSrc() ? "product-no-image-hidden" : "product-no-image"}
               >
                 No Image Available
               </div>

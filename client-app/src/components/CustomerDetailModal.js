@@ -31,57 +31,50 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '700px' }}>
-        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: '700' }}>
+      <div className="modal-content customer-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header customer-modal-header">
+          <h2 className="customer-modal-title">
             {customer.firstName} {customer.lastName}
           </h2>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <div className="modal-body" style={{ padding: '20px 0' }}>
+        <div className="modal-body customer-modal-body">
           {/* Customer Information Section */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '2px solid #e5e7eb'
-            }}>
+          <div className="customer-section">
+            <h3 className="customer-section-title">
               Customer Information
             </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+            <div className="customer-info-grid">
+              <div className="customer-info-item">
+                <div className="customer-info-label">
                   Customer ID:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                <div className="customer-info-value">
                   #{customer.customerID}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="customer-info-item">
+                <div className="customer-info-label">
                   Status:
                 </div>
                 <span className={customer.isActive ? "status-active" : "status-inactive"}>
                   {customer.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="customer-info-item">
+                <div className="customer-info-label">
                   Full Name:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                <div className="customer-info-value">
                   {customer.firstName} {customer.lastName}
                 </div>
               </div>
-              <div>
-                <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+              <div className="customer-info-item">
+                <div className="customer-info-label">
                   Email Address:
                 </div>
-                <div style={{ fontSize: '0.95rem', color: '#2563eb', wordBreak: 'break-all' }}>
+                <div className="customer-info-email">
                   {customer.emailAddress}
                 </div>
               </div>
@@ -89,45 +82,31 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
           </div>
 
           {/* Order History Section */}
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ 
-              fontSize: '1rem', 
-              fontWeight: '600', 
-              color: '#374151', 
-              marginBottom: '10px',
-              paddingBottom: '8px',
-              borderBottom: '2px solid #e5e7eb'
-            }}>
+          <div className="customer-section-last">
+            <h3 className="customer-section-title">
               Order History
             </h3>
             {loading ? (
-              <div style={{ padding: '20px', textAlign: 'center' }}>
+              <div className="customer-loading-container">
                 <LoadingSpinner />
               </div>
             ) : recentOrders.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
+              <div className="customer-no-orders">
                 No orders found for this customer.
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="customer-orders-container">
                   {recentOrders.map((order) => (
                     <div 
                       key={order.orderID} 
-                      style={{ 
-                        padding: '12px', 
-                        backgroundColor: '#f9fafb',
-                        borderRadius: '6px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
+                      className="customer-order-item"
                     >
-                      <div>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#111827' }}>
+                      <div className="customer-order-info">
+                        <div className="customer-order-id">
                           Order #{order.orderID}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '2px' }}>
+                        <div className="customer-order-details">
                           {new Date(order.orderDate).toLocaleDateString('en-US', { 
                             year: 'numeric', 
                             month: 'short', 
@@ -135,13 +114,13 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
                           })} • {order.itemsCount} item{order.itemsCount !== 1 ? 's' : ''}
                         </div>
                       </div>
-                      <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#059669' }}>
+                      <div className="customer-order-total">
                         ${money(order.orderTotal)}
                       </div>
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: '10px', fontSize: '0.8rem', color: '#6b7280', textAlign: 'center' }}>
+                <div className="customer-orders-summary">
                   Showing {recentOrders.length} most recent order{recentOrders.length !== 1 ? 's' : ''}
                 </div>
               </>
@@ -149,31 +128,28 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
           </div>
         </div>
 
-        <div className="modal-footer" style={{ display: 'flex', gap: '10px', paddingTop: '15px', borderTop: '2px solid #e5e7eb' }}>
-          <button className="dashboard-btn" onClick={onEdit} style={{ flex: 1 }}>
+        <div className="modal-footer customer-modal-footer">
+          <button className="dashboard-btn customer-footer-btn" onClick={onEdit}>
             Edit Customer
           </button>
           {customer.isActive ? (
             <button
-              className="dashboard-btn dashboard-btn-warning"
+              className="dashboard-btn dashboard-btn-warning customer-footer-btn"
               onClick={() => onToggleStatus(customer.customerID, false)}
-              style={{ flex: 1 }}
             >
               Deactivate
             </button>
           ) : (
             <button
-              className="dashboard-btn dashboard-btn-success"
+              className="dashboard-btn dashboard-btn-success customer-footer-btn"
               onClick={() => onToggleStatus(customer.customerID, true)}
-              style={{ flex: 1 }}
             >
               Activate
             </button>
           )}
           <button 
-            className="dashboard-btn dashboard-btn-danger" 
+            className="dashboard-btn dashboard-btn-danger customer-footer-btn" 
             onClick={() => onDelete(customer.customerID)}
-            style={{ flex: 1 }}
           >
             Delete
           </button>

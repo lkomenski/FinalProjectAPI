@@ -1,3 +1,7 @@
+/* ================================== */
+/* MODAL BASE STYLES */
+/* ================================== */
+
 /* Modal background overlay */
 .modal-overlay {
   position: fixed;
@@ -14,7 +18,20 @@
   padding: 20px;
 }
 
-/* White popup box */
+/* Background blur overlay for confirmation modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+  z-index: 9999;
+}
+
+/* White popup box - Base modal content */
 .modal-content {
   background: white;
   padding: 24px;
@@ -28,57 +45,93 @@
   margin: auto;
 }
 
-/* Wide modal for vendor/product details */
-.modal-content.wide {
-  width: 700px;
-  max-width: 90vw;
+/* Modal container for confirmation modal */
+.modal-container {
+  background: white;
+  padding: 25px 30px;
+  width: 90%;
+  max-width: 380px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  animation: scaleIn 0.25s ease-out;
 }
 
-/* Two-column layout for product modal */
-.modal-two-column {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 30px;
-  margin-bottom: 20px;
+/* ================================== */
+/* MODAL SIZE VARIANTS */
+/* ================================== */
+
+/* Unified modal sizing system */
+.modal-content.wide,
+.customer-modal-content {
+  max-width: 700px;
 }
 
-/* Title */
-.modal-title {
-  font-size: 1.4rem;
-  margin-bottom: 16px;
-  font-weight: 700;
-  color: #111827;
+.vendor-modal-content {
+  max-width: 750px;
 }
 
-/* Form grid layout */
-.modal-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
+.product-modal-content {
+  max-width: 900px;
+  width: 90vw;
 }
 
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-}
+/* ================================== */
+/* MODAL HEADER STYLES */
+/* ================================== */
 
-/* Modal Header */
-.modal-header {
+/* Unified header layout */
+.modal-header,
+.product-modal-header,
+.customer-modal-header,
+.vendor-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.modal-header {
   padding: 0 0 20px 0;
   border-bottom: 2px solid #e5e7eb;
   margin-bottom: 20px;
 }
 
-.modal-header h2 {
+.product-modal-header {
+  padding-bottom: 15px;
+}
+
+/* Unified title styling */
+.modal-header h2,
+.modal-title,
+.product-modal-title,
+.customer-modal-title,
+.vendor-modal-title {
   margin: 0;
+  font-weight: 700;
+  color: #111827;
+  font-size: 1.4rem;
+}
+
+.modal-header h2 {
   font-size: 1.5rem;
   color: #1f2937;
 }
 
+.product-modal-title {
+  font-size: 2rem;
+}
+
+.customer-modal-title,
+.vendor-modal-title {
+  font-size: 1.75rem;
+}
+
+.modal-container .modal-title {
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Modal Close Button */
 .modal-close {
   background: none;
   border: none;
@@ -101,29 +154,207 @@
   color: #1f2937;
 }
 
-/* Modal Body */
+.product-close-btn {
+  margin-left: 10px;
+}
+
+/* ================================== */
+/* MODAL BODY STYLES */
+/* ================================== */
+
+/* Modal Body - All variants */
 .modal-body {
   padding: 0;
 }
 
-/* Vendor/Product Sections */
+.product-modal-body,
+.customer-modal-body,
+.vendor-modal-body {
+  padding: 20px 0;
+}
+
+/* Confirmation modal message */
+.modal-message {
+  font-size: 1rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ================================== */
+/* MODAL ACTION AREAS */
+/* ================================== */
+
+/* Product modal actions */
+.product-modal-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.product-action-btn {
+  font-size: 0.9rem;
+  padding: 6px 12px;
+}
+
+/* ================================== */
+/* LAYOUT GRIDS */
+/* ================================== */
+
+/* Base grid patterns */
+.product-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+.modal-two-column {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.modal-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Unified info grids */
+.product-details-grid,
+.customer-info-grid,
+.vendor-info-grid,
+.invoice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.product-details-grid,
+.customer-info-grid,
+.vendor-info-grid {
+  gap: 10px 20px;
+}
+
+.product-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+/* ================================== */
+/* SECTION STYLES */
+/* ================================== */
+
+/* Unified section spacing */
 .vendor-section,
 .product-section,
-.invoice-section {
-  margin-bottom: 30px;
+.invoice-section,
+.customer-section {
+  margin-bottom: 25px;
+}
+
+.customer-section-last,
+.vendor-section-last,
+.product-section {
+  margin-bottom: 20px;
+}
+
+/* Unified section titles */
+.vendor-section h3,
+.product-section h3,
+.invoice-section h3,
+.product-section-title,
+.customer-section-title,
+.vendor-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 .vendor-section h3,
 .product-section h3,
 .invoice-section h3 {
   font-size: 1.1rem;
-  color: #374151;
   margin-bottom: 15px;
-  padding-bottom: 8px;
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Product image */
+/* ================================== */
+/* DETAIL ITEM STYLES */
+/* ================================== */
+
+/* Unified detail labels */
+.product-detail-label,
+.product-price-label,
+.customer-info-label,
+.vendor-info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+
+/* Unified detail values */
+.product-detail-value,
+.customer-info-value,
+.vendor-info-value,
+.vendor-address-text {
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.vendor-address-text {
+  line-height: 1.6;
+}
+
+.customer-info-email {
+  color: #2563eb;
+  word-break: break-all;
+}
+
+/* ================================== */
+/* PRICE DISPLAY STYLES */
+/* ================================== */
+
+.product-list-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #111827;
+}
+
+.product-discount-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #059669;
+}
+
+.product-sale-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #dc2626;
+}
+
+/* ================================== */
+/* DESCRIPTION STYLES */
+/* ================================== */
+
+.product-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+  margin: 0;
+  white-space: pre-line;
+}
+
+/* ================================== */
+/* IMAGE STYLES */
+/* ================================== */
+
 .product-image-container {
   display: flex;
   flex-direction: column;
@@ -133,14 +364,17 @@
 .product-image {
   width: 100%;
   height: auto;
+  max-height: 400px;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
   margin-bottom: 10px;
 }
 
-.product-image-placeholder {
+.product-image-placeholder,
+.product-no-image {
   width: 100%;
-  height: 250px;
   background-color: #f3f4f6;
   border-radius: 8px;
   border: 2px dashed #d1d5db;
@@ -148,23 +382,68 @@
   align-items: center;
   justify-content: center;
   color: #9ca3af;
-  font-size: 1rem;
+  font-size: 0.95rem;
   margin-bottom: 10px;
 }
 
-/* Recent invoices list */
+.product-image-placeholder {
+  height: 250px;
+  font-size: 1rem;
+}
+
+.product-no-image {
+  height: 300px;
+}
+
+.product-no-image-hidden {
+  display: none;
+}
+
+/* ================================== */
+/* LOADING AND EMPTY STATES */
+/* ================================== */
+
+.customer-loading-container,
+.vendor-loading-container,
+.customer-no-orders,
+.vendor-no-invoices {
+  padding: 20px;
+  text-align: center;
+}
+
+.customer-no-orders,
+.vendor-no-invoices {
+  color: #9ca3af;
+}
+
+/* ================================== */
+
+/* Unified list containers */
+.customer-orders-container,
+.vendor-invoices-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .recent-invoices-list {
   margin-top: 15px;
 }
 
+/* Unified list items */
+.customer-order-item,
+.vendor-invoice-item,
 .invoice-item {
   padding: 12px;
   background-color: #f9fafb;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.invoice-item {
+  margin-bottom: 10px;
 }
 
 .invoice-item-details {
@@ -173,14 +452,41 @@
   gap: 5px;
 }
 
+/* Unified item content */
+.customer-order-id,
+.vendor-invoice-number,
 .invoice-item-id {
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #111827;
 }
 
+.customer-order-details,
+.vendor-invoice-date,
 .invoice-item-date {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #6b7280;
+  margin-top: 2px;
+}
+
+.customer-order-total,
+.vendor-invoice-total,
+.invoice-item-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.customer-order-total {
+  color: #059669;
+}
+
+.vendor-invoice-total {
+  margin-bottom: 4px;
+}
+
+.vendor-invoice-amounts {
+  text-align: right;
 }
 
 .invoice-item-right {
@@ -189,17 +495,112 @@
   gap: 15px;
 }
 
-.invoice-item-amount {
-  font-weight: 600;
-  color: #1f2937;
-  font-size: 1.1rem;
+.vendor-invoice-status {
+  font-size: 0.75rem;
 }
 
-.invoice-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
+.customer-orders-summary {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
 }
+
+/* ================================== */
+/* MODAL FOOTER AND BUTTONS */
+/* ================================== */
+
+/* Unified modal footers */
+.modal-footer,
+.customer-modal-footer,
+.vendor-modal-footer {
+  display: flex;
+  gap: 10px;
+  padding-top: 15px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.modal-footer {
+  padding: 20px 0 0 0;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.customer-modal-footer,
+.vendor-modal-footer {
+  padding-top: 15px;
+}
+
+/* Button containers and styling */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.cancel-btn {
+  background: #e5e5e5;
+}
+
+.confirm-btn {
+  color: white;
+}
+
+.modal-btn:hover {
+  opacity: 0.85;
+}
+
+.customer-footer-btn,
+.vendor-footer-btn {
+  flex: 1;
+}
+
+.vendor-view-all-btn {
+  margin-top: 15px;
+  width: 100%;
+}
+
+/* ================================== */
+/* STATUS BADGES */
+/* ================================== */
+
+/* Base status badge styling */
+.status-paid,
+.status-unpaid,
+.status-active,
+.status-inactive {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-paid,
+.status-active {
+  color: #047857;
+  background-color: #d1fae5;
+}
+
+.status-unpaid,
+.status-inactive {
+  color: #dc2626;
+  background-color: #fee2e2;
+}
+
+/* ================================== */
+/* INVOICE SPECIFIC STYLES */
+/* ================================== */
 
 .invoice-field {
   display: flex;
@@ -216,47 +617,6 @@
 .invoice-field span {
   color: #1f2937;
   font-size: 1rem;
-}
-
-/* Status Badges */
-.status-paid {
-  color: #047857;
-  background-color: #d1fae5;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-unpaid {
-  color: #dc2626;
-  background-color: #fee2e2;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-active {
-  color: #047857;
-  background-color: #d1fae5;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-inactive {
-  color: #dc2626;
-  background-color: #fee2e2;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  display: inline-block;
 }
 
 /* Invoice Table */
@@ -351,44 +711,19 @@
   margin-top: 10px;
 }
 
-/* Modal Footer */
-.modal-footer {
-  padding: 20px 0 0 0;
-  border-top: 2px solid #e5e7eb;
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
+/* ================================== */
+/* FORM STYLES */
+/* ================================== */
 
-/* Responsive */
-@media (max-width: 768px) {
-  .modal-content {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .invoice-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .invoice-table {
-    font-size: 0.875rem;
-  }
-
-  .invoice-table th,
-  .invoice-table td {
-    padding: 8px;
-  }
-}
-
-/* Form Validation Styles */
-.form-field {
+/* Unified form field containers */
+.form-field,
+.review-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
+/* Unified form labels */
 .form-label {
   font-size: 0.875rem;
   font-weight: 600;
@@ -396,6 +731,21 @@
   margin-bottom: 2px;
 }
 
+.review-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.review-value {
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Form validation styles */
 .input-error {
   border-color: #dc3545 !important;
   background-color: #fff5f5;
@@ -420,26 +770,9 @@
   margin-top: -2px;
 }
 
-/* Product Review Modal Styles */
-.review-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.review-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.review-value {
-  font-size: 1rem;
-  color: #1f2937;
-  font-weight: 500;
-}
+/* ================================== */
+/* INTERACTIVE ELEMENTS & ANIMATIONS */
+/* ================================== */
 
 /* Quantity Button Hover Effects */
 .quantity-btn:hover {
@@ -451,3 +784,49 @@
   background-color: #e5e7eb !important;
 }
 
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ================================== */
+/* RESPONSIVE STYLES */
+/* ================================== */
+
+@media (max-width: 768px) {
+  .modal-content,
+  .modal-content.wide,
+  .customer-modal-content,
+  .vendor-modal-content {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .product-main-grid,
+  .modal-two-column,
+  .product-details-grid,
+  .customer-info-grid,
+  .vendor-info-grid,
+  .invoice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .invoice-table {
+    font-size: 0.875rem;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    padding: 8px;
+  }
+}
