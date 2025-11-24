@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchData } from "./Api";
+import { fetchData } from "./shared/Api";
 import LoadingSpinner from "./shared/LoadingSpinner";
 import ErrorMessage from "./shared/ErrorMessage";
 import ProductForm from "./ProductForm";
 import ProductDetailModal from "./ProductDetailModal";
 import "../Styles/Dashboard.css";
+import "../Styles/ManagementPage.css";
 
 export default function ProductManagement() {
   const navigate = useNavigate();
@@ -124,13 +125,47 @@ export default function ProductManagement() {
   };
 
   async function activateProduct(id) {
-    await fetch(`http://localhost:5077/api/products/activate/${id}`, { method: "PUT" });
-    loadProducts();
+    try {
+      const response = await fetch(`http://localhost:5077/api/products/activate/${id}`, { 
+        method: "PUT" 
+      });
+      
+      if (response.ok) {
+        const responseData = await response.json().catch(() => null);
+        if (responseData && responseData.message) {
+          console.log(responseData.message);
+        }
+        loadProducts(); // Refresh the list
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        alert(`Error activating product: ${errorData.message || errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error activating product:', error);
+      alert('Failed to activate product. Please try again.');
+    }
   }
 
   async function deactivateProduct(id) {
-    await fetch(`http://localhost:5077/api/products/deactivate/${id}`, { method: "PUT" });
-    loadProducts();
+    try {
+      const response = await fetch(`http://localhost:5077/api/products/deactivate/${id}`, { 
+        method: "PUT" 
+      });
+      
+      if (response.ok) {
+        const responseData = await response.json().catch(() => null);
+        if (responseData && responseData.message) {
+          console.log(responseData.message);
+        }
+        loadProducts(); // Refresh the list
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        alert(`Error deactivating product: ${errorData.message || errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error deactivating product:', error);
+      alert('Failed to deactivate product. Please try again.');
+    }
   }
 
   function truncateDescription(text, maxLength = 80) {
@@ -176,36 +211,36 @@ export default function ProductManagement() {
 
   return (
     <>
-    <div style={{ display: 'flex', gap: '25px', padding: '30px', maxWidth: '100%' }}>
+    <div className="product-management-layout">
       {/* Left Panel - Product Lists */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
+      <div className="product-left-panel">
+        <div className="dashboard-card product-left-card">
           {/* Quick Tip */}
-          <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+          <div className="product-quick-tip">
+            <h4 className="product-quick-tip-title">
               Quick Tip
             </h4>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6', lineHeight: '1.4' }}>
+            <p className="product-quick-tip-text">
               Click on any product row to view details, edit, or manage status.
             </p>
           </div>
 
           {/* Featured Products */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+          <div className="product-featured-section">
+            <h3 className="product-section-title">
               Featured Products
             </h3>
             {featuredProducts.length === 0 ? (
-              <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0 }}>No featured products</p>
+              <p className="product-no-data">No featured products</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="product-list">
                 {featuredProducts.slice(0, 4).map(p => (
-                  <div key={p.productID} style={{ fontSize: '0.8rem', padding: '10px', backgroundColor: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', fontSize: '0.85rem' }}>{p.productName}</div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#059669', fontWeight: '600' }}>${p.listPrice?.toFixed(2)}</span>
+                  <div key={p.productID} className="product-item">
+                    <div className="product-item-name">{p.productName}</div>
+                    <div className="product-item-price-row">
+                      <span className="product-item-price">${p.listPrice?.toFixed(2)}</span>
                       {p.discountPercent > 0 && (
-                        <span style={{ fontSize: '0.75rem', color: '#dc2626', fontWeight: '600' }}>
+                        <span className="product-item-discount">
                           {p.discountPercent}% OFF
                         </span>
                       )}
@@ -217,18 +252,18 @@ export default function ProductManagement() {
           </div>
 
           {/* Best Sellers */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+          <div className="product-best-sellers-section">
+            <h3 className="product-section-title">
               Best Sellers
             </h3>
             {bestSellers.length === 0 ? (
-              <p style={{ fontSize: '0.8rem', color: '#9ca3af', margin: 0 }}>No sales data</p>
+              <p className="product-no-data">No sales data</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="product-list">
                 {bestSellers.slice(0, 4).map(p => (
-                  <div key={p.productID} style={{ fontSize: '0.8rem', padding: '10px', backgroundColor: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', fontSize: '0.85rem' }}>{p.productName}</div>
-                    <div style={{ color: '#059669', fontWeight: '600' }}>${p.listPrice?.toFixed(2)}</div>
+                  <div key={p.productID} className="product-item">
+                    <div className="product-item-name">{p.productName}</div>
+                    <div className="product-item-price">${p.listPrice?.toFixed(2)}</div>
                   </div>
                 ))}
               </div>
@@ -237,21 +272,21 @@ export default function ProductManagement() {
 
           {/* Out of Stock */}
           <div>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+            <h3 className="product-section-title">
               Out of Stock
             </h3>
             {outOfStockProducts.length === 0 ? (
-              <p style={{ fontSize: '0.8rem', color: '#059669', margin: 0 }}>All products in stock</p>
+              <p className="product-all-in-stock">All products in stock</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="product-list">
                 {outOfStockProducts.slice(0, 4).map(p => (
-                  <div key={p.productID} style={{ fontSize: '0.8rem', padding: '10px', backgroundColor: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
-                    <div style={{ fontWeight: '600', color: '#991b1b', fontSize: '0.85rem' }}>{p.productName}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#dc2626', marginTop: '2px' }}>Needs restock</div>
+                  <div key={p.productID} className="product-out-of-stock-item">
+                    <div className="product-out-of-stock-name">{p.productName}</div>
+                    <div className="product-out-of-stock-note">Needs restock</div>
                   </div>
                 ))}
                 {outOfStockProducts.length > 4 && (
-                  <div style={{ fontSize: '0.75rem', color: '#6b7280', textAlign: 'center', marginTop: '5px' }}>
+                  <div className="product-out-of-stock-more">
                     +{outOfStockProducts.length - 4} more
                   </div>
                 )}
@@ -262,8 +297,8 @@ export default function ProductManagement() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-    <div className="dashboard-container" style={{ padding: 0 }}>
+      <div className="product-main-content">
+    <div className="dashboard-container product-main-container">
       {/* Breadcrumbs */}
       <div className="breadcrumbs">
         <span onClick={() => navigate("/employee-dashboard")} className="breadcrumb-link">Dashboard</span>
@@ -273,7 +308,7 @@ export default function ProductManagement() {
 
       <h2 className="dashboard-title">Product Management</h2>
 
-      <div className="filters-row" style={{ marginTop: '30px' }}>
+      <div className="filters-row product-filters-row">
         <input 
           className="dashboard-input" 
           placeholder="Search products..." 
@@ -304,39 +339,25 @@ export default function ProductManagement() {
       </div>
 
       {/* Product List */}
-      <div style={{ marginTop: '20px' }}>
+      <div className="product-list-section">
         {currentProducts.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No products found.</p>
+          <p className="product-no-results">No products found.</p>
         ) : (
           currentProducts.map((p) => {
             const stock = getStockStatus(p);
             return (
             <div 
               key={p.productID} 
-              className="dashboard-list-item"
+              className="dashboard-list-item product-list-item"
               onClick={() => openProductDetail(p.productID)}
-              style={{ 
-                cursor: 'pointer', 
-                display: 'grid',
-                gridTemplateColumns: '50px 2.5fr 120px 100px 100px',
-                gap: '20px',
-                alignItems: 'center',
-                padding: '15px 18px'
-              }}
             >
               {/* Image */}
-              <div style={{ width: '50px', height: '50px', flexShrink: 0 }}>
+              <div className="product-image-container">
                 {p.imageURL ? (
                   <img
                     src={p.imageURL.startsWith('/') ? p.imageURL : `/${p.imageURL}`}
                     alt={p.productName}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '6px',
-                      border: '1px solid #e5e7eb'
-                    }}
+                    className="product-image"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -344,46 +365,35 @@ export default function ProductManagement() {
                   />
                 ) : null}
                 <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '6px',
-                    display: p.imageURL ? 'none' : 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '0.6rem',
-                    color: '#9ca3af',
-                    border: '1px solid #e5e7eb'
-                  }}
+                  className={`product-image-placeholder ${p.imageURL ? 'hidden' : ''}`}
                 >
                   N/A
                 </div>
               </div>
 
               {/* Product Info */}
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: '600', fontSize: '1rem', color: '#111827', marginBottom: '5px' }}>
+              <div className="product-info">
+                <div className="product-info-name">
                   {p.productName}
                 </div>
-                <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginBottom: '3px' }}>
+                <div className="product-info-category">
                   {p.categoryName || "Uncategorized"}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.2', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div className="product-info-description">
                   {truncateDescription(p.description, 50)}
                 </div>
               </div>
 
               {/* Price */}
               <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '500', color: '#6b7280', marginBottom: '3px' }}>
+                <div className="product-price-label">
                   Price
                 </div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: '#059669' }}>
+                <div className="product-price-value">
                   ${p.listPrice?.toFixed(2) || "0.00"}
                 </div>
                 {p.discountPercent > 0 && (
-                  <div style={{ fontSize: '0.7rem', color: '#dc2626', fontWeight: '600', marginTop: '2px' }}>
+                  <div className="product-price-discount">
                     -{p.discountPercent}%
                   </div>
                 )}
@@ -391,23 +401,18 @@ export default function ProductManagement() {
 
               {/* Stock */}
               <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '500', color: '#6b7280', marginBottom: '3px' }}>
+                <div className="product-stock-label">
                   Stock
                 </div>
-                <div style={{ fontSize: '1.1rem', fontWeight: '700', color: stock.color }}>
+                <div className="product-stock-value" style={{ color: stock.color }}>
                   {p.quantityOnHand || 0}
                 </div>
                 <span
+                  className="product-stock-badge"
                   style={{
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    fontSize: '0.65rem',
-                    fontWeight: '600',
                     backgroundColor: stock.bgColor,
                     color: stock.color,
-                    border: `1px solid ${stock.borderColor}`,
-                    marginTop: '3px'
+                    border: `1px solid ${stock.borderColor}`
                   }}
                 >
                   {stock.label}
@@ -416,10 +421,10 @@ export default function ProductManagement() {
 
               {/* Status */}
               <div>
-                <div style={{ fontSize: '0.7rem', fontWeight: '500', color: '#6b7280', marginBottom: '3px' }}>
+                <div className="product-status-label">
                   Status
                 </div>
-                <span className={p.isActive ? "status-active" : "status-inactive"} style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                <span className={`${p.isActive ? "status-active" : "status-inactive"} product-status-badge`}>
                   {p.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
@@ -469,72 +474,75 @@ export default function ProductManagement() {
       </div>
 
       {/* Right Panel - Metrics */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+      <div className="product-right-panel">
+        <div className="dashboard-card product-metrics-card">
+          <h3 className="product-metrics-title">
             Product Metrics
           </h3>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="product-metrics-container">
             {/* Total Products */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="product-metric-label">
                 Total Products
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>
+              <div className="product-metric-value">
                 {totalProducts}
               </div>
             </div>
 
             {/* Active Products */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="product-metric-label">
                 Active
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>
+              <div className="product-metric-value active">
                 {activeProducts}
               </div>
             </div>
 
             {/* Average Price */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="product-metric-label">
                 Average Price
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#2563eb' }}>
+              <div className="product-metric-value price">
                 ${avgPrice}
               </div>
             </div>
 
             {/* Low Stock Alert */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="product-metric-label">
                 Low Stock
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: lowStockCount > 0 ? '#dc2626' : '#059669' }}>
+              <div className={`product-metric-value low-stock ${lowStockCount > 0 ? 'warning' : 'good'}`}>
                 {lowStockCount}
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '2px' }}>
+              <div className="product-metric-note">
                 (&lt; 5 units)
               </div>
             </div>
 
             {/* Out of Stock */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="product-metric-label">
                 Out of Stock
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: outOfStockProducts.length > 0 ? '#dc2626' : '#059669' }}>
+              <div className={`product-metric-value out-of-stock ${outOfStockProducts.length > 0 ? 'warning' : 'good'}`}>
                 {outOfStockProducts.length}
               </div>
             </div>
 
             {/* Inventory Health */}
-            <div style={{ marginTop: '10px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
+            <div className="product-inventory-health">
+              <div className="product-inventory-health-label">
                 Inventory Health
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: outOfStockProducts.length === 0 && lowStockCount === 0 ? '#059669' : lowStockCount > 0 && outOfStockProducts.length === 0 ? '#d97706' : '#dc2626' }}>
+              <div className={`product-inventory-health-value ${
+                outOfStockProducts.length === 0 && lowStockCount === 0 ? 'excellent' : 
+                lowStockCount > 0 && outOfStockProducts.length === 0 ? 'fair' : 'attention'
+              }`}>
                 {outOfStockProducts.length === 0 && lowStockCount === 0 ? 'Excellent' : 
                  lowStockCount > 0 && outOfStockProducts.length === 0 ? 'Fair' : 'Needs Attention'}
               </div>

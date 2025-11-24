@@ -8,17 +8,17 @@ namespace FinalProjectAPI.Models
         /// <summary>
         /// Gets or sets the unique identifier for the product.
         /// </summary>
-        public int ProductID { get; set; }
+        public int ProductID { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the category identifier that this product belongs to.
         /// </summary>
-        public int CategoryID { get; set; }
+        public int CategoryID { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the category name (populated from join query).
         /// </summary>
-        public string? CategoryName { get; set; }
+        public string? CategoryName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the product code/SKU.
@@ -38,17 +38,16 @@ namespace FinalProjectAPI.Models
         /// <summary>
         /// Gets or sets the list price of the product.
         /// </summary>
-        public decimal ListPrice { get; set; }
+        public decimal ListPrice { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the discount percentage applied to the product.
         /// </summary>
-        public decimal DiscountPercent { get; set; }
-
+        public decimal DiscountPercent { get; set; } = 0;
         /// <summary>
         /// Gets or sets the URL path to the product image.
         /// </summary>
-        public string? ImageURL { get; set; }
+        public string? ImageURL { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets whether the product is active and available for purchase.
@@ -63,12 +62,12 @@ namespace FinalProjectAPI.Models
         /// <summary>
         /// Gets or sets the date when the product was added to the system.
         /// </summary>
-        public DateTime DateAdded { get; set; }
+        public DateTime DateAdded { get; set; } = DateTime.Now;
 
         /// <summary>
         /// Gets or sets the date when the product was last updated. Null if never updated.
         /// </summary>
-        public DateTime? DateUpdated { get; set; }
+        public DateTime? DateUpdated { get; set; } = null;
     }
 }
 

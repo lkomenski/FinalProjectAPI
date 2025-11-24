@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchData } from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
-import CustomerDetailModal from "./CustomerDetailModal";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
+import CustomerDetailModal from "../Customer View/CustomerDetailModal";
 import "../Styles/Dashboard.css";
+import "../Styles/ManagementPage.css";
 
 export default function CustomerManagement() {
   const navigate = useNavigate();
@@ -113,8 +114,32 @@ export default function CustomerManagement() {
     if (!window.confirm("This will permanently delete this customer. Continue?"))
       return;
 
-    await fetch(`http://localhost:5077/api/customer/delete/${id}`, { method: "DELETE" });
-    closeDetailModal();
+    try {
+      const response = await fetch(`http://localhost:5077/api/customer/delete/${id}`, { 
+        method: "DELETE" 
+      });
+      
+      if (response.ok) {
+        const responseData = await response.json().catch(() => null);
+        
+        // Show success message with any returned info
+        if (responseData && responseData.message) {
+          alert(responseData.message);
+        } else {
+          alert("Customer deleted successfully!");
+        }
+        
+        // Update local state to remove the deleted customer
+        setCustomers(prev => prev.filter(c => c.customerID !== id));
+        closeDetailModal();
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        alert(`Error deleting customer: ${errorData.message || errorData.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      alert('Failed to delete customer. Please try again.');
+    }
   }
 
   function handleEdit() {
@@ -132,38 +157,38 @@ export default function CustomerManagement() {
 
   return (
     <>
-    <div style={{ display: 'flex', gap: '25px', padding: '30px', maxWidth: '100%' }}>
+    <div className="customer-management-container">
       {/* Left Panel - Customer Information */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
+      <div className="customer-management-left-panel">
+        <div className="dashboard-card customer-management-left-card">
           {/* Quick Tip */}
-          <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+          <div className="customer-management-quick-tip">
+            <h4 className="customer-management-quick-tip-title">
               Quick Tip
             </h4>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6', lineHeight: '1.4' }}>
+            <p className="customer-management-quick-tip-text">
               Click on any customer to view their complete profile, order history, and manage their account status.
             </p>
           </div>
 
           {/* Statistics */}
-          <div style={{ marginBottom: '25px' }}>
-            <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+          <div className="customer-management-stats-section">
+            <h3 className="customer-management-section-title">
               Overview
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
-                <div style={{ fontSize: '0.75rem', color: '#059669', marginBottom: '4px', fontWeight: '500' }}>Active Customers</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>{activeCustomers.length}</div>
+            <div className="customer-management-stats-grid">
+              <div className="customer-management-stat-card-active">
+                <div className="customer-management-stat-label-active">Active Customers</div>
+                <div className="customer-management-stat-value-active">{activeCustomers.length}</div>
               </div>
-              <div style={{ padding: '12px', backgroundColor: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px', fontWeight: '500' }}>Total Customers</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>{customers.length}</div>
+              <div className="customer-management-stat-card-total">
+                <div className="customer-management-stat-label-total">Total Customers</div>
+                <div className="customer-management-stat-value-total">{customers.length}</div>
               </div>
               {inactiveCustomers.length > 0 && (
-                <div style={{ padding: '12px', backgroundColor: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#dc2626', marginBottom: '4px', fontWeight: '500' }}>Inactive</div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>{inactiveCustomers.length}</div>
+                <div className="customer-management-stat-card-inactive">
+                  <div className="customer-management-stat-label-inactive">Inactive</div>
+                  <div className="customer-management-stat-value-inactive">{inactiveCustomers.length}</div>
                 </div>
               )}
             </div>
@@ -172,43 +197,25 @@ export default function CustomerManagement() {
           {/* Recent Customers */}
           {recentCustomers.length > 0 && (
             <div>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+              <h3 className="customer-management-section-title">
                 Recent Customers
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="customer-management-recent-grid">
                 {recentCustomers.map((customer) => (
                   <div 
                     key={customer.customerID}
                     onClick={() => openCustomerDetail(customer)}
-                    style={{
-                      fontSize: '0.8rem',
-                      padding: '10px',
-                      backgroundColor: '#f9fafb',
-                      borderRadius: '6px',
-                      border: '1px solid #e5e7eb',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f3f4f6';
-                      e.currentTarget.style.borderColor = '#d1d5db';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f9fafb';
-                      e.currentTarget.style.borderColor = '#e5e7eb';
-                    }}
+                    className="customer-management-recent-customer"
                   >
-                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', fontSize: '0.85rem' }}>
+                    <div className="customer-management-recent-customer-name">
                       {customer.firstName} {customer.lastName}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '6px' }}>
+                    <div className="customer-management-recent-customer-email">
                       {customer.emailAddress}
                     </div>
-                    <div style={{
-                      fontSize: '0.7rem',
-                      color: customer.isActive ? '#059669' : '#6b7280',
-                      fontWeight: '500'
-                    }}>
+                    <div className={`customer-management-recent-customer-status ${
+                      customer.isActive ? 'active' : 'inactive'
+                    }`}>
                       {customer.isActive ? '● Active' : '○ Inactive'}
                     </div>
                   </div>
@@ -220,8 +227,8 @@ export default function CustomerManagement() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="dashboard-container" style={{ padding: 0 }}>
+      <div className="customer-management-main-content">
+        <div className="dashboard-container customer-management-main-container">
           {/* Breadcrumbs */}
           <div className="breadcrumbs">
             <span onClick={() => navigate("/employee-dashboard")} className="breadcrumb-link">Dashboard</span>
@@ -231,7 +238,7 @@ export default function CustomerManagement() {
 
           <h2 className="dashboard-title">Customer Management</h2>
 
-          <div className="filters-row" style={{ marginTop: '30px' }}>
+          <div className="filters-row customer-management-filters-section">
             <input 
               className="dashboard-input" 
               placeholder="Search customers..." 
@@ -256,16 +263,15 @@ export default function CustomerManagement() {
       </div>
 
       {/* Customer List */}
-      <div style={{ marginTop: '20px' }}>
+      <div className="customer-management-list-section">
         {currentCustomers.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No customers found.</p>
+          <p className="customer-management-no-customers">No customers found.</p>
         ) : (
           currentCustomers.map((c) => (
             <div 
               key={c.customerID} 
-              className="dashboard-list-item"
+              className="dashboard-list-item customer-management-list-item"
               onClick={() => openCustomerDetail(c)}
-              style={{ cursor: 'pointer' }}
             >
               <div>
                 <strong>{c.firstName} {c.lastName}</strong>
@@ -319,29 +325,29 @@ export default function CustomerManagement() {
       </div>
 
       {/* Right Panel - Metrics */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+      <div className="customer-management-right-panel">
+        <div className="dashboard-card customer-management-right-card">
+          <h3 className="customer-management-metrics-title">
             Customer Metrics
           </h3>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="customer-management-metrics-grid">
             {/* Total Customers */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="customer-management-metric-label">
                 Total Customers
               </div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700', color: '#111827' }}>
+              <div className="customer-management-metric-value-large">
                 {customers.length}
               </div>
             </div>
 
             {/* Active Customers */}
             <div>
-              <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+              <div className="customer-management-metric-label">
                 Active
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>
+              <div className="customer-management-metric-value-medium active">
                 {activeCustomers.length}
               </div>
             </div>
@@ -349,25 +355,28 @@ export default function CustomerManagement() {
             {/* Inactive Customers */}
             {inactiveCustomers.length > 0 && (
               <div>
-                <div style={{ fontSize: '0.8rem', fontWeight: '500', color: '#6b7280', marginBottom: '5px' }}>
+                <div className="customer-management-metric-label">
                   Inactive
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>
+                <div className="customer-management-metric-value-medium inactive">
                   {inactiveCustomers.length}
                 </div>
               </div>
             )}
 
             {/* Account Status */}
-            <div style={{ marginTop: '10px', padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
+            <div className="customer-management-health-card">
+              <div className="customer-management-health-label">
                 Account Health
               </div>
-              <div style={{ fontSize: '1.1rem', fontWeight: '700', color: inactiveCustomers.length === 0 ? '#059669' : inactiveCustomers.length <= customers.length * 0.1 ? '#d97706' : '#dc2626' }}>
+              <div className={`customer-management-health-value ${
+                inactiveCustomers.length === 0 ? 'excellent' : 
+                inactiveCustomers.length <= customers.length * 0.1 ? 'good' : 'needs-review'
+              }`}>
                 {inactiveCustomers.length === 0 ? 'Excellent' : 
                  inactiveCustomers.length <= customers.length * 0.1 ? 'Good' : 'Needs Review'}
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
+              <div className="customer-management-health-percentage">
                 {((activeCustomers.length / customers.length) * 100).toFixed(1)}% active
               </div>
             </div>

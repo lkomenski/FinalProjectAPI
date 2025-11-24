@@ -89,18 +89,19 @@ Register a new customer account with BCrypt password hashing.
 **Response (200 OK):**
 ```json
 {
-  "customerId": "integer",
+  "id": "integer",
+  "role": "customer",
   "firstName": "string",
   "lastName": "string",
   "emailAddress": "string",
-  "message": "Registration successful"
+  "dashboard": "customer"
 }
 ```
 
 **Error Responses:**
-- `400 Bad Request` - Password and confirmation password do not match
-- `400 Bad Request` - Email, password, first name, and last name are required
-- `409 Conflict` - Email address already exists
+- `400 Bad Request` - All fields are required
+- `400 Bad Request` - An account with this email already exists
+- `500 Internal Server Error` - Registration failed
 
 
 
@@ -109,32 +110,33 @@ Register a new customer account with BCrypt password hashing.
 ### Password Reset Request
 Request a password reset token.
 
-**Endpoint:** `POST /api/password-reset/request`
+**Endpoint:** `POST /api/password/request-reset`
 
 **Request Body:**
 ```json
 {
-  "email": "string"
+  "emailAddress": "string"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "token": "string",
-  "message": "Password reset token generated. Check your email."
+  "message": "Reset token sent to email (development: [token])",
+  "token": "string"
 }
 ```
 
 **Error Responses:**
-- `404 Not Found` - Email address not found
+- `400 Bad Request` - Email required
+- `400 Bad Request` - Email not found in system
 
 ---
 
 ### Reset Password
 Reset password using a valid token. New password is hashed with BCrypt.
 
-**Endpoint:** `POST /api/password-reset/reset`
+**Endpoint:** `POST /api/password/reset`
 
 **Security:** New password hashed with BCrypt before storage
 
@@ -149,13 +151,13 @@ Reset password using a valid token. New password is hashed with BCrypt.
 **Response (200 OK):**
 ```json
 {
-  "message": "Password reset successful"
+  "message": "Password updated successfully"
 }
 ```
 
 **Error Responses:**
+- `400 Bad Request` - Token and new password required
 - `400 Bad Request` - Invalid or expired token
-- `400 Bad Request` - New password does not meet requirements
 
 ---
 
@@ -981,112 +983,48 @@ Retrieve comprehensive dashboard data for administrators.
 
 ---
 
-## Password Reset Management
-
-### Request Password Reset
-Request a password reset for a customer.
-
-**Endpoint:** `POST /api/password-reset/request`
-
-**Request Body:**
-```json
-{
-  "email": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "token": "string",
-  "message": "Password reset token generated. Check your email."
-}
-```
-
-**Error Responses:**
-- `404 Not Found` - Email address not found
-
----
-
-### Reset Password
-Reset customer password using a valid token. New password is hashed with BCrypt.
-
-**Endpoint:** `POST /api/password-reset/reset`
-
-**Security:** New password hashed with BCrypt before storage
-
-**Request Body:**
-```json
-{
-  "token": "string",
-  "newPassword": "string"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "message": "Password reset successful"
-}
-```
-
-**Error Responses:**
-- `400 Bad Request` - Invalid or expired token
-- `400 Bad Request` - New password does not meet requirements (min 8 characters)
-
-
-
----
-
 ## Error Handling
 
 ### Error Response Format
-All error responses follow this format:
+All error responses return a simple string message with appropriate HTTP status codes:
+
+**Example Error Responses:**
+```json
+"Invalid ProductID."
+```
 
 ```json
-{
-  "error": "string",
-  "message": "string",
-  "statusCode": "integer"
-}
+"Internal server error: Failed to retrieve product."
+```
+
+```json
+"Invalid customer credentials."
 ```
 
 ### Common Error Codes
 
 #### 400 Bad Request
+Returns a string message describing the validation error:
 ```json
-{
-  "error": "Bad Request",
-  "message": "Invalid input parameters",
-  "statusCode": 400
-}
+"Email and password are required."
 ```
 
 #### 401 Unauthorized
+Returns a string message for authentication failures:
 ```json
-{
-  "error": "Unauthorized", 
-  "message": "Invalid credentials",
-  "statusCode": 401
-}
+"Invalid customer credentials."
 ```
 
 #### 404 Not Found
+Returns a string message when resource is not found:
 ```json
-{
-  "error": "Not Found",
-  "message": "Resource not found",
-  "statusCode": 404
-}
+"Product with ID 123 not found."
 ```
 
 #### 500 Internal Server Error
+Returns a generic error message:
 ```json
-{
-  "error": "Internal Server Error",
-  "message": "An unexpected error occurred",
-  "statusCode": 500
-}
+"Internal server error: Failed to retrieve products."
 ```
 
 ---

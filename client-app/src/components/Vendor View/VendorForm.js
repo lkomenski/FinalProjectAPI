@@ -30,17 +30,38 @@ export default function VendorForm({ vendor, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const endpoint = isEditing
-      ? "http://localhost:5077/api/vendors/update"
-      : "http://localhost:5077/api/vendors/add";
+    try {
+      const endpoint = isEditing
+        ? `http://localhost:5077/api/vendors/${form.VendorID}`
+        : "http://localhost:5077/api/vendors";
 
-    await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+      const method = isEditing ? "PUT" : "POST";
 
-    onClose();
+      const response = await fetch(endpoint, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        const savedVendor = responseData.vendor || responseData;
+        
+        if (isEditing) {
+          alert(`Vendor "${savedVendor.VendorName || savedVendor.vendorName}" updated successfully!`);
+        } else {
+          alert(`Vendor "${savedVendor.VendorName || savedVendor.vendorName}" added successfully with ID: ${savedVendor.VendorID || savedVendor.vendorID}`);
+        }
+        
+        onClose(savedVendor); // Pass back the saved vendor data
+      } else {
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        alert(`Error: ${errorData.message || errorData.error || "Failed to save vendor"}`);
+      }
+    } catch (error) {
+      console.error('Error submitting vendor:', error);
+      alert('An error occurred while saving the vendor. Please try again.');
+    }
   };
 
   return (

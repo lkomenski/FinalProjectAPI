@@ -115,7 +115,8 @@ namespace FinalProjectAPI.Controllers
                     { "@IsActive", vendor.IsActive }
                 });
 
-                return Ok(rows);
+                var newVendor = rows.Select(MapRowToVendor).FirstOrDefault();
+                return Ok(newVendor);
             }
             catch (Exception)
             {
@@ -141,18 +142,31 @@ namespace FinalProjectAPI.Controllers
                 {
                     return BadRequest("Invalid VendorID.");
                 }
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@VendorID", id }
+                };
+
+                var rows = await _repo.GetDataAsync("DeleteVendorById", parameters);
+                var result = rows.FirstOrDefault();
+                
+                if (result != null)
+                {
+                    return Ok(new
+                    {
+                        Status = result["Status"]?.ToString(),
+                        Message = result["Message"]?.ToString(),
+                        VendorID = id
+                    });
+                }
+                
+                return Ok($"Vendor {id} deleted successfully.");
             }
             catch (Exception)
             {
                 return StatusCode(500, "Internal server error: Failed to delete vendor.");
             }
-            var parameters = new Dictionary<string, object?>
-            {
-                { "@VendorID", id }
-            };
-
-            var result = await _repo.GetDataAsync("DeleteVendorById", parameters);
-            return Ok(result);
         }
 
         /// <summary>
@@ -172,32 +186,38 @@ namespace FinalProjectAPI.Controllers
                 {
                     return BadRequest("Vendor object is null.");
                 }
+
+                if (vendor.VendorID <= 0)
+                {
+                    return BadRequest("Invalid VendorID.");
+                }
+                
+                // Stored procedure will handle filling in missing data from existing record
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@VendorID", vendor.VendorID },
+                    { "@VendorName", vendor.VendorName ?? string.Empty },
+                    { "@VendorAddress1", vendor.VendorAddress1 ?? string.Empty },
+                    { "@VendorAddress2", vendor.VendorAddress2 ?? string.Empty },
+                    { "@VendorCity", vendor.VendorCity ?? string.Empty },
+                    { "@VendorState", vendor.VendorState ?? string.Empty },
+                    { "@VendorZipCode", vendor.VendorZipCode ?? string.Empty },
+                    { "@VendorPhone", vendor.VendorPhone ?? string.Empty },
+                    { "@VendorContactLName", vendor.VendorContactLName ?? string.Empty },
+                    { "@VendorContactFName", vendor.VendorContactFName ?? string.Empty },
+                    { "@DefaultTermsID", vendor.DefaultTermsID > 0 ? vendor.DefaultTermsID : 0 },
+                    { "@DefaultAccountNo", vendor.DefaultAccountNo > 0 ? vendor.DefaultAccountNo : 0 },
+                    { "@IsActive", vendor.IsActive }
+                };
+
+                var rows = await _repo.GetDataAsync("UpdateVendor", parameters);
+                var updatedVendor = rows.Select(MapRowToVendor).FirstOrDefault();
+                return Ok(updatedVendor);
             }
             catch (Exception)
             {
                 return StatusCode(500, "Internal server error: Failed to update vendor.");
             }
-            
-            // Stored procedure will handle filling in missing data from existing record
-            var parameters = new Dictionary<string, object?>
-            {
-                { "@VendorID", vendor.VendorID },
-                { "@VendorName", vendor.VendorName ?? string.Empty },
-                { "@VendorAddress1", vendor.VendorAddress1 ?? string.Empty },
-                { "@VendorAddress2", vendor.VendorAddress2 ?? string.Empty },
-                { "@VendorCity", vendor.VendorCity ?? string.Empty },
-                { "@VendorState", vendor.VendorState ?? string.Empty },
-                { "@VendorZipCode", vendor.VendorZipCode ?? string.Empty },
-                { "@VendorPhone", vendor.VendorPhone ?? string.Empty },
-                { "@VendorContactLName", vendor.VendorContactLName ?? string.Empty },
-                { "@VendorContactFName", vendor.VendorContactFName ?? string.Empty },
-                { "@DefaultTermsID", vendor.DefaultTermsID > 0 ? vendor.DefaultTermsID : 0 },
-                { "@DefaultAccountNo", vendor.DefaultAccountNo > 0 ? vendor.DefaultAccountNo : 0 },
-                { "@IsActive", vendor.IsActive }
-            };
-
-            var result = await _repo.GetDataAsync("UpdateVendor", parameters);
-            return Ok(result);
         }
 
         /// <summary>
@@ -206,12 +226,25 @@ namespace FinalProjectAPI.Controllers
         /// <param name="vendorId">The ID of the vendor to deactivate.</param>
         /// <returns>The deactivated vendor.</returns>
         /// <response code="200">Returns the deactivated vendor.</response>
+        /// <response code="400">If the vendor ID is invalid.</response>
+        /// <response code="500">If there is a server error while deactivating the vendor.</response>
         [HttpPut("deactivate/{vendorId}")]
         public async Task<IActionResult> DeactivateVendor(int vendorId)
         {
-            var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
-            var results = await _repo.GetDataAsync("DeactivateVendor", parameters);
-            return Ok(results.FirstOrDefault());
+            try
+            {
+                if (vendorId <= 0)
+                    return BadRequest("Invalid VendorID.");
+
+                var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
+                var rows = await _repo.GetDataAsync("DeactivateVendor", parameters);
+                var vendor = rows.Select(MapRowToVendor).FirstOrDefault();
+                return Ok(vendor);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to deactivate vendor.");
+            }
         }
         
         /// <summary>
@@ -220,12 +253,25 @@ namespace FinalProjectAPI.Controllers
         /// <param name="vendorId">The ID of the vendor to activate.</param>
         /// <returns>The activated vendor.</returns>
         /// <response code="200">Returns the activated vendor.</response>
+        /// <response code="400">If the vendor ID is invalid.</response>
+        /// <response code="500">If there is a server error while activating the vendor.</response>
         [HttpPut("activate/{vendorId}")]
         public async Task<IActionResult> ActivateVendor(int vendorId)
         {
-            var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
-            var results = await _repo.GetDataAsync("ActivateVendor", parameters);
-            return Ok(results.FirstOrDefault());
+            try
+            {
+                if (vendorId <= 0)
+                    return BadRequest("Invalid VendorID.");
+
+                var parameters = new Dictionary<string, object?> { { "@VendorID", vendorId } };
+                var rows = await _repo.GetDataAsync("ActivateVendor", parameters);
+                var vendor = rows.Select(MapRowToVendor).FirstOrDefault();
+                return Ok(vendor);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to activate vendor.");
+            }
         }
 
         /// <summary>
@@ -268,28 +314,27 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
-        /// Maps a database row to a Vendor object.
+        /// Maps a database row to a Vendor object with safe type conversion and null handling.
         /// </summary>
         /// <param name="row">The database row containing vendor data.</param>
-        /// <returns>A Vendor object populated with the row data.</returns>
+        /// <returns>A Vendor object populated with the row data, using default values for missing or null fields.</returns>
         public static Vendor MapRowToVendor(IDictionary<string, object?> row)
         {
             return new Vendor
             {
-                VendorID = Convert.ToInt32(row["VendorID"]),
-                VendorName = row["VendorName"]?.ToString() ?? string.Empty,
-                VendorAddress1 = row["VendorAddress1"]?.ToString() ?? string.Empty,
-                VendorAddress2 = row["VendorAddress2"]?.ToString(),
-                VendorCity = row["VendorCity"]?.ToString() ?? string.Empty,
-                VendorState = row["VendorState"]?.ToString() ?? string.Empty,
-                VendorZipCode = row["VendorZipCode"]?.ToString() ?? string.Empty,
-                VendorPhone = row["VendorPhone"]?.ToString() ?? string.Empty,
-                VendorContactLName = row["VendorContactLName"]?.ToString() ?? string.Empty,
-                VendorContactFName = row["VendorContactFName"]?.ToString() ?? string.Empty,
-                DefaultTermsID = Convert.ToInt32(row["DefaultTermsID"]),
-                DefaultAccountNo = Convert.ToInt32(row["DefaultAccountNo"]),
-                IsActive = Convert.ToBoolean(row["IsActive"])
-
+                VendorID = row.ContainsKey("VendorID") && row["VendorID"] != DBNull.Value ? Convert.ToInt32(row["VendorID"]) : 0,
+                VendorName = row.ContainsKey("VendorName") ? row["VendorName"]?.ToString() ?? string.Empty : string.Empty,
+                VendorAddress1 = row.ContainsKey("VendorAddress1") ? row["VendorAddress1"]?.ToString() ?? string.Empty : string.Empty,
+                VendorAddress2 = row.ContainsKey("VendorAddress2") ? row["VendorAddress2"]?.ToString() : null,
+                VendorCity = row.ContainsKey("VendorCity") ? row["VendorCity"]?.ToString() ?? string.Empty : string.Empty,
+                VendorState = row.ContainsKey("VendorState") ? row["VendorState"]?.ToString() ?? string.Empty : string.Empty,
+                VendorZipCode = row.ContainsKey("VendorZipCode") ? row["VendorZipCode"]?.ToString() ?? string.Empty : string.Empty,
+                VendorPhone = row.ContainsKey("VendorPhone") ? row["VendorPhone"]?.ToString() ?? string.Empty : string.Empty,
+                VendorContactLName = row.ContainsKey("VendorContactLName") ? row["VendorContactLName"]?.ToString() ?? string.Empty : string.Empty,
+                VendorContactFName = row.ContainsKey("VendorContactFName") ? row["VendorContactFName"]?.ToString() ?? string.Empty : string.Empty,
+                DefaultTermsID = row.ContainsKey("DefaultTermsID") && row["DefaultTermsID"] != DBNull.Value ? Convert.ToInt32(row["DefaultTermsID"]) : 0,
+                DefaultAccountNo = row.ContainsKey("DefaultAccountNo") && row["DefaultAccountNo"] != DBNull.Value ? Convert.ToInt32(row["DefaultAccountNo"]) : 0,
+                IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value ? Convert.ToBoolean(row["IsActive"]) : true
             };
         }
     }

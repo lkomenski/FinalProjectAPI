@@ -7,6 +7,7 @@ import VendorForm from "./VendorForm";
 import VendorDetailModal from "./VendorDetailModal";
 import TokenModal from "./TokenModal";
 import "../Styles/Dashboard.css";
+import "../Styles/ManagementPage.css";
 
 export default function VendorManagement() {
   const navigate = useNavigate();
@@ -193,16 +194,16 @@ export default function VendorManagement() {
 
   return (
     <>
-    <div style={{ display: 'flex', gap: '25px', padding: '30px', maxWidth: '100%' }}>
+    <div className="vendor-management-layout">
       {/* Left Panel - Quick Tips & Recently Added */}
-      <div style={{ width: '280px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
+      <div className="vendor-left-panel">
+        <div className="dashboard-card vendor-left-card">
           {/* Quick Tip */}
-          <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.9rem', fontWeight: '600', color: '#1e40af' }}>
+          <div className="vendor-quick-tip">
+            <h4 className="vendor-quick-tip-title">
               Quick Tip
             </h4>
-            <p style={{ margin: 0, fontSize: '0.8rem', color: '#3b82f6', lineHeight: '1.4' }}>
+            <p className="vendor-quick-tip-text">
               Generate tokens for vendors to allow them to view and manage their invoices through the vendor portal.
             </p>
           </div>
@@ -210,44 +211,23 @@ export default function VendorManagement() {
           {/* Recently Added Vendors */}
           {recentVendors.length > 0 && (
             <div>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: '0.95rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '8px' }}>
+              <h3 className="vendor-recently-added-title">
                 Recently Added
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="vendor-recent-list">
                 {recentVendors.map((vendor) => (
                   <div 
                     key={vendor.vendorID}
                     onClick={() => { setDetailVendorId(vendor.vendorID); setShowDetailModal(true); }}
-                    style={{
-                      fontSize: '0.8rem',
-                      padding: '10px',
-                      backgroundColor: '#f9fafb',
-                      borderRadius: '6px',
-                      border: '1px solid #e5e7eb',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f3f4f6';
-                      e.currentTarget.style.borderColor = '#d1d5db';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '#f9fafb';
-                      e.currentTarget.style.borderColor = '#e5e7eb';
-                    }}
+                    className="vendor-recent-item"
                   >
-                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px', fontSize: '0.85rem' }}>
+                    <div className="vendor-recent-name">
                       {vendor.vendorName}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                    <div className="vendor-recent-location">
                       {vendor.vendorCity}, {vendor.vendorState}
                     </div>
-                    <div style={{
-                      marginTop: '6px',
-                      fontSize: '0.7rem',
-                      color: vendor.isActive ? '#059669' : '#6b7280',
-                      fontWeight: '500'
-                    }}>
+                    <div className={`vendor-recent-status ${vendor.isActive ? 'active' : 'inactive'}`}>
                       {vendor.isActive ? '● Active' : '○ Inactive'}
                     </div>
                   </div>
@@ -259,7 +239,7 @@ export default function VendorManagement() {
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1 }}>
+      <div className="vendor-main-content">
         <div className="dashboard-container">
           {/* Breadcrumbs */}
           <div className="breadcrumbs">
@@ -301,16 +281,15 @@ export default function VendorManagement() {
           </div>
 
           {/* Vendor List */}
-          <div style={{ marginTop: '20px' }}>
+          <div className="vendor-list-section">
         {currentVendors.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No vendors found.</p>
+          <p className="vendor-no-results">No vendors found.</p>
         ) : (
           currentVendors.map((v) => (
             <div 
               key={v.vendorID} 
-              className="dashboard-list-item"
+              className="dashboard-list-item vendor-list-item"
               onClick={() => openVendorDetail(v.vendorID)}
-              style={{ cursor: 'pointer' }}
             >
               <div>
                 <strong>{v.vendorName}</strong>
@@ -365,41 +344,41 @@ export default function VendorManagement() {
       </div>
 
       {/* Right Panel - Business Metrics */}
-      <div style={{ width: '320px', flexShrink: 0 }}>
-        <div className="dashboard-card" style={{ padding: '20px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.1rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
+      <div className="vendor-right-panel">
+        <div className="dashboard-card vendor-metrics-card">
+          <h3 className="vendor-metrics-title">
             Vendor Metrics
           </h3>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          <div className="vendor-metrics-container">
             {/* Active vs Total Vendors */}
-            <div style={{ padding: '15px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#059669', marginBottom: '8px' }}>
+            <div className="vendor-metric-active">
+              <div className="vendor-metric-active-label">
                 Active Vendors
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                <div style={{ fontSize: '2rem', fontWeight: '700', color: '#059669' }}>
+              <div className="vendor-metric-active-numbers">
+                <div className="vendor-metric-active-count">
                   {activeVendors.length}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>
+                <div className="vendor-metric-active-total">
                   / {vendors.length} total
                 </div>
               </div>
-              <div style={{ fontSize: '0.7rem', color: '#059669', marginTop: '4px' }}>
+              <div className="vendor-metric-active-percentage">
                 {vendors.length > 0 ? ((activeVendors.length / vendors.length) * 100).toFixed(0) : 0}% of network
               </div>
             </div>
 
             {/* Outstanding Balances */}
             {vendorsWithBalance.length > 0 && (
-              <div style={{ padding: '15px', backgroundColor: '#fef3c7', borderRadius: '8px', border: '1px solid #fde68a' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#d97706', marginBottom: '8px' }}>
+              <div className="vendor-metric-outstanding">
+                <div className="vendor-metric-outstanding-label">
                   Outstanding Balances
                 </div>
-                <div style={{ fontSize: '1.75rem', fontWeight: '700', color: '#d97706' }}>
+                <div className="vendor-metric-outstanding-amount">
                   ${totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#92400e', marginTop: '4px' }}>
+                <div className="vendor-metric-outstanding-details">
                   {vendorsWithBalance.length} vendor{vendorsWithBalance.length !== 1 ? 's' : ''} with unpaid invoices
                 </div>
               </div>
@@ -407,14 +386,14 @@ export default function VendorManagement() {
 
             {/* Average Invoice Value */}
             {vendorsWithInvoices > 0 && (
-              <div style={{ padding: '15px', backgroundColor: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
+              <div className="vendor-metric-average">
+                <div className="vendor-metric-average-label">
                   Avg. Invoice per Vendor
                 </div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>
+                <div className="vendor-metric-average-amount">
                   ${avgInvoiceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
+                <div className="vendor-metric-average-details">
                   {vendorsWithInvoices} vendors with invoices
                 </div>
               </div>
@@ -422,58 +401,32 @@ export default function VendorManagement() {
 
             {/* Top Vendors by Invoice Amount */}
             {topVendorsByAmount.length > 0 && (
-              <div style={{ marginTop: '8px' }}>
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '0.85rem', fontWeight: '600', color: '#1f2937', borderBottom: '1px solid #e5e7eb', paddingBottom: '6px' }}>
+              <div className="vendor-top-vendors-section">
+                <h4 className="vendor-top-vendors-title">
                   Top Vendors by Total
                 </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="vendor-top-vendors-list">
                   {topVendorsByAmount.map((vendor, index) => (
                     <div 
                       key={vendor.vendorID}
                       onClick={() => { setDetailVendorId(vendor.vendorID); setShowDetailModal(true); }}
-                      style={{
-                        padding: '10px',
-                        backgroundColor: '#f9fafb',
-                        borderRadius: '6px',
-                        border: '1px solid #e5e7eb',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f3f4f6';
-                        e.currentTarget.style.borderColor = '#d1d5db';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = '#f9fafb';
-                        e.currentTarget.style.borderColor = '#e5e7eb';
-                      }}
+                      className="vendor-top-vendor-item"
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                        <div style={{ 
-                          width: '20px', 
-                          height: '20px', 
-                          borderRadius: '50%', 
-                          backgroundColor: index === 0 ? '#fbbf24' : index === 1 ? '#9ca3af' : '#cd7f32',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.7rem',
-                          fontWeight: '700',
-                          color: 'white'
-                        }}>
+                      <div className="vendor-top-vendor-header">
+                        <div className={`vendor-top-vendor-rank rank-${index + 1}`}>
                           {index + 1}
                         </div>
-                        <div style={{ flex: 1, fontSize: '0.8rem', fontWeight: '600', color: '#111827' }}>
+                        <div className="vendor-top-vendor-name">
                           {vendor.vendorName}
                         </div>
                       </div>
-                      <div style={{ fontSize: '0.85rem', fontWeight: '700', color: '#059669', marginLeft: '28px' }}>
+                      <div className="vendor-top-vendor-amount">
                         ${vendor.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div style={{ fontSize: '0.7rem', color: '#6b7280', marginLeft: '28px' }}>
+                      <div className="vendor-top-vendor-details">
                         {vendor.totalInvoices} invoice{vendor.totalInvoices !== 1 ? 's' : ''}
                         {vendor.outstandingAmount > 0 && (
-                          <span style={{ color: '#d97706', fontWeight: '500' }}>
+                          <span className="vendor-top-vendor-outstanding">
                             {' '}• ${vendor.outstandingAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })} due
                           </span>
                         )}
@@ -486,14 +439,14 @@ export default function VendorManagement() {
 
             {/* Inactive Vendors Alert */}
             {inactiveVendors.length > 0 && (
-              <div style={{ marginTop: '8px', padding: '12px', backgroundColor: '#fef2f2', borderRadius: '6px', border: '1px solid #fecaca' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#dc2626', marginBottom: '4px' }}>
+              <div className="vendor-inactive-alert">
+                <div className="vendor-inactive-alert-label">
                   ⚠ Inactive Vendors
                 </div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '700', color: '#dc2626' }}>
+                <div className="vendor-inactive-alert-count">
                   {inactiveVendors.length}
                 </div>
-                <div style={{ fontSize: '0.7rem', color: '#991b1b', marginTop: '2px' }}>
+                <div className="vendor-inactive-alert-note">
                   Consider reviewing or removing
                 </div>
               </div>

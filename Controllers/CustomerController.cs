@@ -38,12 +38,13 @@ namespace FinalProjectAPI.Controllers
         {
             try
             {
-                var customers = await _repo.GetDataAsync("GetAllCustomers");
+                var rows = await _repo.GetDataAsync("GetAllCustomers");
+                var customers = rows.Select(MapRowToCustomer).ToList();
                 return Ok(customers);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, $"Failed to load customers: {ex.Message}");
+                return StatusCode(500, "Internal server error: Failed to retrieve customers.");
             }
         }
 
@@ -58,13 +59,23 @@ namespace FinalProjectAPI.Controllers
         [HttpGet("exists/{email}")]
         public async Task<IActionResult> CheckExists(string email)
         {
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", email }
-            };
+                if (string.IsNullOrWhiteSpace(email))
+                    return BadRequest("Email address is required.");
 
-            var result = await _repo.GetDataAsync("CheckCustomerExists", parameters);
-            return Ok(result.FirstOrDefault());
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", email }
+                };
+
+                var result = await _repo.GetDataAsync("CheckCustomerExists", parameters);
+                return Ok(result.FirstOrDefault());
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to check customer existence.");
+            }
         }
 
         /// <summary>
@@ -77,17 +88,28 @@ namespace FinalProjectAPI.Controllers
         [HttpGet("{customerId}")]
         public async Task<IActionResult> GetCustomerProfile(int customerId)
         {
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@CustomerID", customerId }
-            };
+                if (customerId <= 0)
+                    return BadRequest("Invalid CustomerID.");
 
-            var result = await _repo.GetDataAsync("GetCustomerProfile", parameters);
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@CustomerID", customerId }
+                };
 
-            if (!result.Any())
-                return NotFound("Customer not found.");
+                var rows = await _repo.GetDataAsync("GetCustomerProfile", parameters);
 
-            return Ok(result.First());
+                if (!rows.Any())
+                    return NotFound("Customer not found.");
+
+                var customer = rows.Select(MapRowToCustomer).FirstOrDefault();
+                return Ok(customer);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve customer profile.");
+            }
         }
 
         /// <summary>
@@ -99,13 +121,23 @@ namespace FinalProjectAPI.Controllers
         [HttpPut("deactivate/{id}")]
         public async Task<IActionResult> DeactivateCustomer(int id)
         {
-            var repo = _factory.Create("MyGuitarShop");
+            try
+            {
+                if (id <= 0)
+                    return BadRequest("Invalid CustomerID.");
 
-            await repo.GetDataAsync("DeactivateCustomer", new Dictionary<string, object?> {
-                { "@CustomerID", id }
-            });
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@CustomerID", id }
+                };
 
-            return Ok($"Customer {id} deactivated.");
+                await _repo.GetDataAsync("DeactivateCustomer", parameters);
+                return Ok($"Customer {id} deactivated successfully.");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to deactivate customer.");
+            }
         }
 
         /// <summary>
@@ -114,16 +146,40 @@ namespace FinalProjectAPI.Controllers
         /// <param name="id">The ID of the customer to delete.</param>
         /// <returns>Confirmation message.</returns>
         /// <response code="200">Returns confirmation that the customer was deleted.</response>
+        /// <response code="400">If the customer ID is invalid.</response>
+        /// <response code="500">If there is a server error while deleting the customer.</response>
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var repo = _factory.Create("MyGuitarShop");
+            try
+            {
+                if (id <= 0)
+                    return BadRequest("Invalid CustomerID.");
 
-            await repo.GetDataAsync("DeleteCustomer", new Dictionary<string, object?> {
-                { "@CustomerID", id }
-            });
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@CustomerID", id }
+                };
 
-            return Ok($"Customer {id} deleted.");
+                var rows = await _repo.GetDataAsync("DeleteCustomer", parameters);
+                var result = rows.FirstOrDefault();
+                
+                if (result != null)
+                {
+                    return Ok(new
+                    {
+                        Status = result["Status"]?.ToString(),
+                        Message = result["Message"]?.ToString(),
+                        CustomerID = id
+                    });
+                }
+                
+                return Ok($"Customer {id} deleted successfully.");
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to delete customer.");
+            }
         }
 
         /// <summary>
@@ -259,6 +315,25 @@ namespace FinalProjectAPI.Controllers
                 return NotFound("Customer not found.");
 
             return Ok(response);
+        }
+
+        /// <summary>
+        /// Maps a database row to a Customer object with safe type conversion and null handling.
+        /// </summary>
+        /// <param name="row">The database row containing customer data.</param>
+        /// <returns>A Customer object populated with the row data, using default values for missing or null fields.</returns>
+        private static Customer MapRowToCustomer(IDictionary<string, object?> row)
+        {
+            return new Customer
+            {
+                CustomerID = row.ContainsKey("CustomerID") && row["CustomerID"] != DBNull.Value ? Convert.ToInt32(row["CustomerID"]) : 0,
+                EmailAddress = row.ContainsKey("EmailAddress") ? row["EmailAddress"]?.ToString() ?? string.Empty : string.Empty,
+                Password = row.ContainsKey("Password") ? row["Password"]?.ToString() ?? string.Empty : string.Empty,
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() ?? string.Empty : string.Empty,
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() ?? string.Empty : string.Empty,
+                ShippingAddressID = row.ContainsKey("ShippingAddressID") && row["ShippingAddressID"] != DBNull.Value ? Convert.ToInt32(row["ShippingAddressID"]) : null,
+                BillingAddressID = row.ContainsKey("BillingAddressID") && row["BillingAddressID"] != DBNull.Value ? Convert.ToInt32(row["BillingAddressID"]) : null
+            };
         }
 
     }

@@ -1,0 +1,703 @@
+/* =============================================================================
+   MANAGEMENT PAGES FOUNDATION
+   ============================================================================= */
+
+:root {
+  /* Color System */
+  --color-primary: #3b82f6;
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0891b2;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  
+  /* Success variants */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-600: #16a34a;
+  
+  /* Warning variants */
+  --color-warning-50: #fef3c7;
+  --color-warning-100: #fde68a;
+  --color-warning-600: #ca8a04;
+  --color-warning-800: #92400e;
+  
+  /* Danger variants */
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fecaca;
+  --color-danger-800: #991b1b;
+  
+  /* Primary variants */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  
+  /* Spacing System */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  
+  /* Typography */
+  --text-xs: 0.7rem;
+  --text-sm: 0.75rem;
+  --text-base: 0.8rem;
+  --text-lg: 0.85rem;
+  --text-xl: 0.9rem;
+  --text-2xl: 0.95rem;
+  --text-3xl: 1.1rem;
+  --text-4xl: 1.25rem;
+  --text-5xl: 1.5rem;
+  --text-6xl: 1.75rem;
+  --text-7xl: 2rem;
+}
+
+/* =============================================================================
+   BASE LAYOUT SYSTEM
+   ============================================================================= */
+
+.management-layout {
+  display: flex;
+  gap: 25px;
+  padding: 30px;
+  max-width: 100%;
+}
+
+.management-left-panel {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.management-main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.management-right-panel {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.management-right-panel.wide {
+  width: 320px;
+}
+
+/* =============================================================================
+   CARD SYSTEM
+   ============================================================================= */
+
+.management-card {
+  padding: var(--space-5);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+
+/* =============================================================================
+   QUICK TIP COMPONENT
+   ============================================================================= */
+
+.management-quick-tip {
+  margin-bottom: 25px;
+  padding: 15px;
+  background-color: var(--color-primary-50);
+  border-radius: 8px;
+  border: 1px solid var(--color-primary-200);
+}
+
+.management-quick-tip-title {
+  margin: 0 0 8px 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--color-primary-800);
+}
+
+.management-quick-tip-text {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--color-primary);
+  line-height: 1.4;
+}
+
+/* =============================================================================
+   SECTION TITLES
+   ============================================================================= */
+
+.management-section-title {
+  margin: 0 0 12px 0;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--color-gray-800);
+  border-bottom: 2px solid var(--color-gray-200);
+  padding-bottom: 8px;
+}
+
+.management-subsection-title {
+  margin: 0 0 12px 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-gray-800);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-bottom: 6px;
+}
+
+.management-metrics-title {
+  margin: 0 0 20px 0;
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  color: var(--color-gray-800);
+  border-bottom: 2px solid var(--color-gray-200);
+  padding-bottom: 10px;
+}
+
+/* =============================================================================
+   LIST COMPONENTS
+   ============================================================================= */
+
+.management-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.management-list-item {
+  font-size: var(--text-base);
+  padding: 10px;
+  background-color: var(--color-gray-50);
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-200);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.management-list-item:hover {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.management-list-item-name {
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: 4px;
+  font-size: var(--text-lg);
+}
+
+.management-list-item-detail {
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+}
+
+.management-list-item-status {
+  margin-top: 6px;
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+.management-list-item-status.active {
+  color: var(--color-success);
+}
+
+.management-list-item-status.inactive {
+  color: var(--color-gray-500);
+}
+
+/* =============================================================================
+   METRIC SYSTEM
+   ============================================================================= */
+
+.management-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.management-metric-card {
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.management-metric-card.success {
+  background-color: var(--color-success-50);
+  border-color: var(--color-success-200);
+}
+
+.management-metric-card.warning {
+  background-color: var(--color-warning-50);
+  border-color: var(--color-warning-100);
+}
+
+.management-metric-card.danger {
+  background-color: var(--color-danger-50);
+  border-color: var(--color-danger-100);
+}
+
+.management-metric-card.neutral {
+  background-color: var(--color-gray-50);
+  border-color: var(--color-gray-200);
+}
+
+.management-metric-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.management-metric-label.success { color: var(--color-success); }
+.management-metric-label.warning { color: var(--color-warning); }
+.management-metric-label.danger { color: var(--color-danger); }
+.management-metric-label.neutral { color: var(--color-gray-500); }
+
+.management-metric-value {
+  font-weight: 700;
+}
+
+.management-metric-value.xl {
+  font-size: var(--text-7xl);
+  color: var(--color-gray-900);
+}
+
+.management-metric-value.lg {
+  font-size: var(--text-6xl);
+}
+
+.management-metric-value.md {
+  font-size: var(--text-5xl);
+}
+
+.management-metric-value.success { color: var(--color-success); }
+.management-metric-value.warning { color: var(--color-warning); }
+.management-metric-value.danger { color: var(--color-danger); }
+.management-metric-value.neutral { color: var(--color-gray-900); }
+
+.management-metric-detail {
+  font-size: var(--text-xs);
+  margin-top: 4px;
+}
+
+.management-metric-detail.success { color: var(--color-success); }
+.management-metric-detail.warning { color: var(--color-warning-800); }
+.management-metric-detail.danger { color: var(--color-danger-800); }
+.management-metric-detail.neutral { color: var(--color-gray-400); }
+
+.management-metric-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.management-metric-secondary {
+  font-size: var(--text-xl);
+  color: var(--color-gray-500);
+}
+
+/* =============================================================================
+   SPECIALIZED COMPONENTS
+   ============================================================================= */
+
+/* Price row for products */
+.management-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.management-price {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
+.management-discount {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+/* Stock status items */
+.management-out-of-stock-item {
+  font-size: var(--text-base);
+  padding: 10px;
+  background-color: var(--color-danger-50);
+  border-radius: 6px;
+  border: 1px solid var(--color-danger-100);
+}
+
+.management-out-of-stock-name {
+  font-weight: 600;
+  color: var(--color-danger-800);
+  font-size: var(--text-lg);
+}
+
+.management-out-of-stock-note {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin-top: 2px;
+}
+
+.management-stock-more {
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+  text-align: center;
+  margin-top: 5px;
+}
+
+.management-all-in-stock {
+  font-size: var(--text-base);
+  color: var(--color-success);
+  margin: 0;
+}
+
+/* Top performers/rankings */
+.management-ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.management-ranking-item {
+  padding: 10px;
+  background-color: var(--color-gray-50);
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-200);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.management-ranking-item:hover {
+  background-color: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.management-ranking-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 4px;
+}
+
+.management-rank-badge {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: white;
+}
+
+.management-rank-badge.rank-1 { background-color: #fbbf24; }
+.management-rank-badge.rank-2 { background-color: var(--color-gray-400); }
+.management-rank-badge.rank-3 { background-color: #cd7f32; }
+
+.management-ranking-name {
+  flex: 1;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.management-ranking-amount {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-success);
+  margin-left: 28px;
+}
+
+.management-ranking-details {
+  font-size: var(--text-xs);
+  color: var(--color-gray-500);
+  margin-left: 28px;
+}
+
+.management-ranking-outstanding {
+  color: var(--color-warning);
+  font-weight: 500;
+}
+
+/* Alert components */
+.management-alert {
+  margin-top: var(--space-2);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.management-alert.danger {
+  background-color: var(--color-danger-50);
+  border-color: var(--color-danger-100);
+}
+
+.management-alert-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.management-alert-label.danger {
+  color: var(--color-danger);
+}
+
+.management-alert-value {
+  font-size: var(--text-4xl);
+  font-weight: 700;
+}
+
+.management-alert-value.danger {
+  color: var(--color-danger);
+}
+
+.management-alert-note {
+  font-size: var(--text-xs);
+  margin-top: 2px;
+}
+
+.management-alert-note.danger {
+  color: var(--color-danger-800);
+}
+
+/* =============================================================================
+   PRODUCT SPECIFIC COMPONENTS
+   ============================================================================= */
+
+.product-grid-layout {
+  display: grid;
+  grid-template-columns: 50px 2.5fr 120px 100px 100px;
+  gap: 20px;
+  align-items: center;
+  padding: 15px 18px;
+}
+
+.product-image-container {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-200);
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-gray-100);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: var(--color-gray-400);
+  border: 1px solid var(--color-gray-200);
+}
+
+.product-image-placeholder.hidden {
+  display: none;
+}
+
+.product-info {
+  min-width: 0;
+}
+
+.product-info-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-gray-900);
+  margin-bottom: 5px;
+}
+
+.product-info-category {
+  font-size: var(--text-base);
+  color: var(--color-gray-400);
+  margin-bottom: 3px;
+}
+
+.product-info-description {
+  font-size: var(--text-sm);
+  color: var(--color-gray-500);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-field-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-gray-500);
+  margin-bottom: 3px;
+}
+
+.product-price-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-success);
+}
+
+.product-price-discount {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.product-stock-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.product-stock-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.product-status-badge {
+  font-size: var(--text-sm);
+  padding: 4px 10px;
+}
+
+/* Health indicators */
+.management-health-card {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: var(--color-gray-50);
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
+}
+
+.management-health-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-500);
+  margin-bottom: 8px;
+}
+
+.management-health-value {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+}
+
+.management-health-value.excellent { color: var(--color-success); }
+.management-health-value.good { color: var(--color-warning); }
+.management-health-value.fair { color: var(--color-warning); }
+.management-health-value.attention { color: var(--color-danger); }
+.management-health-value.needs-review { color: var(--color-danger); }
+
+/* =============================================================================
+   UTILITY CLASSES
+   ============================================================================= */
+
+.no-data {
+  font-size: var(--text-base);
+  color: var(--color-gray-400);
+  margin: 0;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--color-gray-500);
+  padding: 40px;
+}
+
+.main-container {
+  padding: 0;
+}
+
+.filters-section {
+  margin-top: 30px;
+}
+
+.list-section {
+  margin-top: 20px;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+
+@media (max-width: 1024px) {
+  .management-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .management-left-panel,
+  .management-right-panel {
+    width: 100%;
+  }
+  
+  .product-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .management-layout {
+    padding: 15px;
+  }
+  
+  .management-metrics-container {
+    gap: 12px;
+  }
+}
+
+/* =============================================================================
+   LEGACY COMPATIBILITY (Use new system instead)
+   ============================================================================= */
+
+/* Vendor legacy */
+.vendor-management-layout { @extend .management-layout; }
+.vendor-left-panel { @extend .management-left-panel; }
+.vendor-main-content { @extend .management-main-content; }
+.vendor-right-panel { @extend .management-right-panel; }
+.vendor-left-card { @extend .management-card; }
+.vendor-quick-tip { @extend .management-quick-tip; }
+.vendor-quick-tip-title { @extend .management-quick-tip-title; }
+.vendor-quick-tip-text { @extend .management-quick-tip-text; }
+
+/* Product legacy */
+.product-management-layout { @extend .management-layout; }
+.product-left-panel { @extend .management-left-panel; }
+.product-main-content { @extend .management-main-content; }
+.product-right-panel { @extend .management-right-panel; }
+.product-left-card { @extend .management-card; }
+.product-quick-tip { @extend .management-quick-tip; }
+.product-quick-tip-title { @extend .management-quick-tip-title; }
+.product-quick-tip-text { @extend .management-quick-tip-text; }
+
+/* Customer legacy */
+.customer-management-container { @extend .management-layout; }
+.customer-management-left-panel { @extend .management-left-panel; }
+.customer-management-main-content { @extend .management-main-content; }
+.customer-management-right-panel { @extend .management-right-panel; }
+.customer-management-left-card { @extend .management-card; }
+.customer-management-quick-tip { @extend .management-quick-tip; }
+.customer-management-quick-tip-title { @extend .management-quick-tip-title; }
+.customer-management-quick-tip-text { @extend .management-quick-tip-text; }

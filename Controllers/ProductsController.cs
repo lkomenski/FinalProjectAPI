@@ -66,8 +66,9 @@ namespace FinalProjectAPI.Controllers
                     {"@ProductID", productId}
                 };
                 
-                var result = await _repo.GetDataAsync("GetProductById", parameters);
-                return Ok(result.FirstOrDefault());
+                var rows = await _repo.GetDataAsync("GetProductById", parameters);
+                var product = rows.Select(MapRowToProduct).FirstOrDefault();
+                return Ok(product);
             }
             catch (Exception)
             {
@@ -78,30 +79,40 @@ namespace FinalProjectAPI.Controllers
         /// <summary>
         /// Adds a new product to the inventory.
         /// </summary>
-        /// <param name="product">The product information to add.</param>
+        /// <param name="newProduct">The product information to add.</param>
         /// <returns>The newly created product.</returns>
         /// <response code="200">Returns the newly created product.</response>
         /// <response code="400">If the product data is null or invalid.</response>
+        /// <response code="500">If there is a server error while adding the product.</response>
         [HttpPost]
-        public async Task<IActionResult> AddProduct([FromBody] Product product)
+        public async Task<IActionResult> AddProduct([FromBody] Product newProduct)
         {
-            if (product == null)
-                return BadRequest("Product data is required.");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                {"@CategoryID", product.CategoryID},
-                {"@ProductCode", product.ProductCode},
-                {"@ProductName", product.ProductName},
-                {"@Description", product.Description},
-                {"@ListPrice", product.ListPrice},
-                {"@DiscountPercent", product.DiscountPercent},
-                {"@ImageURL", product.ImageURL},
-                {"@QuantityOnHand", product.QuantityOnHand}
-            };
+                if (newProduct == null)
+                    return BadRequest("Product data is required.");
 
-            var result = await _repo.GetDataAsync("AddProduct", parameters);
-            return Ok(result.FirstOrDefault());
+                var parameters = new Dictionary<string, object?>
+                {
+                    {"@CategoryID", newProduct.CategoryID},
+                    {"@ProductCode", newProduct.ProductCode},
+                    {"@ProductName", newProduct.ProductName},
+                    {"@Description", newProduct.Description},
+                    {"@ListPrice", newProduct.ListPrice},
+                    {"@DiscountPercent", newProduct.DiscountPercent},
+                    {"@ImageURL", newProduct.ImageURL},
+                    {"@QuantityOnHand", newProduct.QuantityOnHand}
+                };
+
+                var rows = await _repo.GetDataAsync("AddProduct", parameters);
+                var product = rows.Select(MapRowToProduct).FirstOrDefault();
+
+                return Ok(product);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to add product.");
+            }
         }
 
         /// <summary>
@@ -111,31 +122,43 @@ namespace FinalProjectAPI.Controllers
         /// <param name="product">The updated product information.</param>
         /// <returns>The updated product.</returns>
         /// <response code="200">Returns the updated product.</response>
-        /// <response code="400">If the product data is null or invalid.</response>
+        /// <response code="400">If the product data is null, invalid, or productId is invalid.</response>
+        /// <response code="500">If there is a server error while updating the product.</response>
         [HttpPut("{productId}")]
         public async Task<IActionResult> UpdateProduct(int productId, [FromBody] Product product)
         {
-            if (product == null)
-                return BadRequest("Product data is required.");
-
-            product.ProductID = productId;
-
-            // Stored procedure will handle filling in missing data from existing record
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                {"@ProductID", product.ProductID},
-                {"@CategoryID", product.CategoryID > 0 ? product.CategoryID : 0},
-                {"@ProductCode", product.ProductCode ?? string.Empty},
-                {"@ProductName", product.ProductName ?? string.Empty},
-                {"@Description", product.Description ?? string.Empty},
-                {"@ListPrice", product.ListPrice > 0 ? product.ListPrice : 0},
-                {"@DiscountPercent", product.DiscountPercent >= 0 ? product.DiscountPercent : 0},
-                {"@ImageURL", product.ImageURL ?? string.Empty},
-                {"@QuantityOnHand", product.QuantityOnHand >= 0 ? (object)product.QuantityOnHand : DBNull.Value}
-            };
+                if (product == null)
+                    return BadRequest("Product data is required.");
 
-            var result = await _repo.GetDataAsync("UpdateProduct", parameters);
-            return Ok(result.FirstOrDefault());
+                if (productId <= 0)
+                    return BadRequest("Invalid ProductID.");
+
+                product.ProductID = productId;
+
+                // Stored procedure will handle filling in missing data from existing record
+                var parameters = new Dictionary<string, object?>
+                {
+                    {"@ProductID", product.ProductID},
+                    {"@CategoryID", product.CategoryID > 0 ? product.CategoryID : 0},
+                    {"@ProductCode", product.ProductCode ?? string.Empty},
+                    {"@ProductName", product.ProductName ?? string.Empty},
+                    {"@Description", product.Description ?? string.Empty},
+                    {"@ListPrice", product.ListPrice > 0 ? product.ListPrice : 0},
+                    {"@DiscountPercent", product.DiscountPercent >= 0 ? product.DiscountPercent : 0},
+                    {"@ImageURL", product.ImageURL ?? string.Empty},
+                    {"@QuantityOnHand", product.QuantityOnHand >= 0 ? (object)product.QuantityOnHand : DBNull.Value}
+                };
+
+                var rows = await _repo.GetDataAsync("UpdateProduct", parameters);
+                var updatedProduct = rows.Select(MapRowToProduct).FirstOrDefault();
+                return Ok(updatedProduct);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to update product.");
+            }
         }
 
         /// <summary>
@@ -161,7 +184,19 @@ namespace FinalProjectAPI.Controllers
                     {"@ProductID", productId}
                 };
 
-                await _repo.GetDataAsync("DeleteProduct", parameters);
+                var rows = await _repo.GetDataAsync("DeleteProduct", parameters);
+                var result = rows.FirstOrDefault();
+                
+                if (result != null)
+                {
+                    return Ok(new
+                    {
+                        Status = result["Status"]?.ToString(),
+                        Message = result["Message"]?.ToString(),
+                        ProductID = productId
+                    });
+                }
+                
                 return Ok($"Product {productId} deleted successfully.");
             }
             catch (Exception)
@@ -176,34 +211,29 @@ namespace FinalProjectAPI.Controllers
         /// <param name="productId">The ID of the product to activate.</param>
         /// <returns>The activated product.</returns>
         /// <response code="200">Returns the activated product.</response>
+        /// <response code="400">If the product ID is invalid.</response>
+        /// <response code="500">If there is a server error while activating the product.</response>
         [HttpPut("activate/{productId}")]
         public async Task<IActionResult> ActivateProduct(int productId)
         {
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@ProductID", productId }
-            };
+                if (productId <= 0)
+                    return BadRequest("Invalid ProductID.");
 
-            var results = await _repo.GetDataAsync("ActivateProduct", parameters);
-            return Ok(results.FirstOrDefault());
-        }
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@ProductID", productId }
+                };
 
-        /// <summary>
-        /// Deactivates a product without deleting it from the database.
-        /// </summary>
-        /// <param name="productId">The ID of the product to deactivate.</param>
-        /// <returns>The deactivated product.</returns>
-        /// <response code="200">Returns the deactivated product.</response>
-        [HttpPut("deactivate/{productId}")]
-        public async Task<IActionResult> DeactivateProduct(int productId)
-        {
-            var parameters = new Dictionary<string, object?>
+                var rows = await _repo.GetDataAsync("ActivateProduct", parameters);
+                var product = rows.Select(MapRowToProduct).FirstOrDefault();
+                return Ok(product);
+            }
+            catch (Exception)
             {
-                { "@ProductID", productId }
-            };
-
-            var results = await _repo.GetDataAsync("DeactivateProduct", parameters);
-            return Ok(results.FirstOrDefault());
+                return StatusCode(500, "Internal server error: Failed to activate product.");
+            }
         }
 
         /// <summary>
@@ -218,11 +248,12 @@ namespace FinalProjectAPI.Controllers
             try
             {
                 var rows = await _repo.GetDataAsync("GetFeaturedProducts");
-                return Ok(rows);
+                var products = rows.Select(MapRowToProduct).ToList();
+                return Ok(products);
             }
             catch (Exception)
             {
-                return StatusCode(500, "Failed to load featured products.");
+                return StatusCode(500, "Internal server error: Failed to load featured products.");
             }
         }
 
@@ -238,11 +269,12 @@ namespace FinalProjectAPI.Controllers
             try
             {
                 var rows = await _repo.GetDataAsync("GetBestSellers");
-                return Ok(rows);
+                var products = rows.Select(MapRowToProduct).ToList();
+                return Ok(products);
             }
             catch (Exception)
             {
-                return StatusCode(500, "Failed to load best sellers.");
+                return StatusCode(500, "Internal server error: Failed to load best sellers.");
             }
         }
 
@@ -253,7 +285,8 @@ namespace FinalProjectAPI.Controllers
         /// <param name="categoryName">The category name (Guitars, Basses, or Drums) to determine the folder.</param>
         /// <returns>The URL path to the uploaded image.</returns>
         /// <response code="200">Returns the image URL path.</response>
-        /// <response code="400">If no file is uploaded or the file type is invalid.</response>
+        /// <response code="400">If no file is uploaded, file type is invalid, or file size exceeds 5MB.</response>
+        /// <response code="500">If there is a server error while uploading the image.</response>
         [HttpPost("upload-image")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file, [FromForm] string categoryName)
         {
@@ -318,45 +351,35 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
-        /// Maps a database row to a Product object.
+        /// Maps a database row to a Product object with safe type conversion and null handling.
         /// </summary>
         /// <param name="row">The database row containing product data.</param>
-        /// <returns>A Product object populated with the row data.</returns>
+        /// <returns>A Product object populated with the row data, using default values for missing or null fields.</returns>
         public static Product MapRowToProduct(IDictionary<string, object?> row)
         {
             return new Product
             {
-                ProductID = Convert.ToInt32(row["ProductID"]),
-                CategoryID = Convert.ToInt32(row["CategoryID"]),
-                CategoryName = row.ContainsKey("CategoryName") ? row["CategoryName"]?.ToString() : null,
-                ProductCode = row["ProductCode"]?.ToString() ?? "",
-                ProductName = row["ProductName"]?.ToString() ?? "",
-                Description = row["Description"]?.ToString() ?? "",
-                ListPrice = row["ListPrice"] == DBNull.Value
-                    ? 0
-                    : Convert.ToDecimal(row["ListPrice"]),
-                DiscountPercent = row["DiscountPercent"] == DBNull.Value
-                    ? 0
-                    : Convert.ToDecimal(row["DiscountPercent"]),
-                ImageURL = row.ContainsKey("ImageURL") ? row["ImageURL"]?.ToString() : null,
-                IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value
-                    ? Convert.ToBoolean(row["IsActive"])
-                    : true,
-                QuantityOnHand = row.ContainsKey("QuantityOnHand") && row["QuantityOnHand"] != DBNull.Value
-                    ? Convert.ToInt32(row["QuantityOnHand"])
-                    : 0,
-                DateUpdated = row["DateUpdated"] == DBNull.Value 
-                    ? null 
-                    : Convert.ToDateTime(row["DateUpdated"])
+                ProductID = row.ContainsKey("ProductID") && row["ProductID"] != DBNull.Value ? Convert.ToInt32(row["ProductID"]) : 0,
+                CategoryID = row.ContainsKey("CategoryID") && row["CategoryID"] != DBNull.Value ? Convert.ToInt32(row["CategoryID"]) : 0,
+                CategoryName = row.ContainsKey("CategoryName") ? row["CategoryName"]?.ToString() ?? string.Empty : string.Empty,
+                ProductCode = row.ContainsKey("ProductCode") ? row["ProductCode"]?.ToString() ?? string.Empty : string.Empty,
+                ProductName = row.ContainsKey("ProductName") ? row["ProductName"]?.ToString() ?? string.Empty : string.Empty,
+                Description = row.ContainsKey("Description") ? row["Description"]?.ToString() ?? string.Empty : string.Empty,
+                ListPrice = row.ContainsKey("ListPrice") && row["ListPrice"] != DBNull.Value ? Convert.ToDecimal(row["ListPrice"]) : 0.0m,
+                DiscountPercent = row.ContainsKey("DiscountPercent") && row["DiscountPercent"] != DBNull.Value ? Convert.ToDecimal(row["DiscountPercent"]) : 0.0m,
+                ImageURL = row.ContainsKey("ImageURL") && row["ImageURL"] != DBNull.Value ? row["ImageURL"]?.ToString() ?? string.Empty : string.Empty,
+                IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value ? Convert.ToBoolean(row["IsActive"]) : true,
+                QuantityOnHand = row.ContainsKey("QuantityOnHand") && row["QuantityOnHand"] != DBNull.Value ? Convert.ToInt32(row["QuantityOnHand"]) : 0,
+                DateAdded = row.ContainsKey("DateAdded") && row["DateAdded"] != DBNull.Value ? Convert.ToDateTime(row["DateAdded"]) : DateTime.Now,
+                DateUpdated = row.ContainsKey("DateUpdated") && row["DateUpdated"] != DBNull.Value ? Convert.ToDateTime(row["DateUpdated"]) : null
             };
         }
-
         /// <summary>
         /// Deactivates a product by setting IsActive to false.
         /// </summary>
         /// <param name="request">Object containing the ProductID to deactivate.</param>
-        /// <returns>A success message if the product was deactivated.</returns>
-        /// <response code="200">Product deactivated successfully.</response>
+        /// <returns>The deactivated product.</returns>
+        /// <response code="200">Returns the deactivated product.</response>
         /// <response code="400">If the request is invalid or ProductID is missing.</response>
         /// <response code="500">If there is a server error while deactivating the product.</response>
         [HttpPost("deactivate")]
@@ -374,12 +397,13 @@ namespace FinalProjectAPI.Controllers
                     { "@ProductID", request.ProductID }
                 };
 
-                await _repo.GetDataAsync("DeactivateProduct", parameters);
-                return Ok(new { message = "Product deactivated successfully." });
+                var rows = await _repo.GetDataAsync("DeactivateProduct", parameters);
+                var product = rows.Select(MapRowToProduct).FirstOrDefault();
+                return Ok(product);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, "Internal server error: Failed to deactivate product.");
             }
         }
 

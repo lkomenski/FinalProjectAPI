@@ -297,13 +297,24 @@ export default function ProductForm({ product, onClose }) {
       });
 
       if (response.ok) {
+        const responseData = await response.json();
+        
+        // Use returned data to update local state or display specific info
+        const savedProduct = responseData.product || responseData;
+        
         setHasUnsavedChanges(false);
         setShowPreview(false);
-        alert(isEditing ? "Product updated successfully!" : "Product added successfully!");
-        onClose(true); // Close and refresh product list
+        
+        if (isEditing) {
+          alert(`Product "${savedProduct.ProductName || savedProduct.productName}" updated successfully!`);
+        } else {
+          alert(`Product "${savedProduct.ProductName || savedProduct.productName}" added successfully with ID: ${savedProduct.ProductID || savedProduct.productID}`);
+        }
+        
+        onClose(true, savedProduct); // Pass the returned data back
       } else {
-        const error = await response.text();
-        alert(`Error: ${error}`);
+        const errorData = await response.json().catch(() => ({ message: "Unknown error" }));
+        alert(`Error: ${errorData.message || errorData.error || "Failed to save product"}`);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -399,81 +410,71 @@ export default function ProductForm({ product, onClose }) {
     return (
       <div className="modal-overlay" onClick={handlePreviewClose}>
         <div 
-          className="modal-content wide" 
+          className="modal-content wide product-form-preview-modal" 
           onClick={(e) => e.stopPropagation()}
-          style={{ maxWidth: '900px', width: '90vw' }}
         >
           {/* Header with Product Name and Action Buttons */}
-          <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '15px' }}>
-            <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: '700' }}>
+          <div className="modal-header product-form-preview-header">
+            <h2 className="product-form-preview-title">
               {isEditing ? "Review Product Updates" : "Review New Product"}
             </h2>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="product-form-preview-actions">
               <button 
-                className="dashboard-btn dashboard-btn-success" 
+                className="dashboard-btn dashboard-btn-success product-form-preview-confirm-btn" 
                 onClick={handleConfirmSave}
-                style={{ fontSize: '0.9rem', padding: '8px 16px', fontWeight: '600' }}
               >
                 {isEditing ? "Confirm & Update" : "Confirm & Add"}
               </button>
               <button
-                className="dashboard-btn"
+                className="dashboard-btn product-form-preview-edit-btn"
                 onClick={handleBackToEdit}
-                style={{ fontSize: '0.9rem', padding: '8px 16px' }}
               >
                 Back to Edit
               </button>
-              <button className="modal-close" onClick={handlePreviewClose} style={{ marginLeft: '10px' }}>×</button>
+              <button className="modal-close product-form-preview-close-btn" onClick={handlePreviewClose}>×</button>
             </div>
           </div>
 
-          <div className="modal-body" style={{ padding: '20px 0' }}>
+          <div className="modal-body product-form-preview-body">
             {/* Main Content Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '30px' }}>
+            <div className="product-form-preview-grid">
               {/* Left Side - Product Information */}
               <div>
                 {/* Product Details Section */}
-                <div style={{ marginBottom: '20px' }}>
-                  <h3 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    color: '#374151', 
-                    marginBottom: '10px',
-                    paddingBottom: '8px',
-                    borderBottom: '2px solid #e5e7eb'
-                  }}>
+                <div className="product-form-section">
+                  <h3 className="product-form-section-title">
                     Product Details
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 20px' }}>
+                  <div className="product-form-details-grid">
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         Product Code:
                       </div>
-                      <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                      <div className="product-form-field-value">
                         {previewProduct.productCode}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         Category:
                       </div>
-                      <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                      <div className="product-form-field-value">
                         {previewProduct.categoryName}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         Product Name:
                       </div>
-                      <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                      <div className="product-form-field-value">
                         {previewProduct.productName}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         Quantity On Hand:
                       </div>
-                      <div style={{ fontSize: '0.95rem', color: '#1f2937' }}>
+                      <div className="product-form-field-value">
                         {previewProduct.quantityOnHand}
                       </div>
                     </div>
@@ -481,40 +482,33 @@ export default function ProductForm({ product, onClose }) {
                 </div>
 
                 {/* Pricing Information Section */}
-                <div style={{ marginBottom: '20px' }}>
-                  <h3 style={{ 
-                    fontSize: '1rem', 
-                    fontWeight: '600', 
-                    color: '#374151', 
-                    marginBottom: '10px',
-                    paddingBottom: '8px',
-                    borderBottom: '2px solid #e5e7eb'
-                  }}>
+                <div className="product-form-section">
+                  <h3 className="product-form-section-title">
                     Pricing Information
                   </h3>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+                  <div className="product-form-pricing-grid">
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         List Price:
                       </div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827' }}>
+                      <div className="product-form-price-large">
                         ${previewProduct.listPrice.toFixed(2)}
                       </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                      <div className="product-form-field-label">
                         Discount:
                       </div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>
+                      <div className="product-form-discount-large">
                         {previewProduct.discountPercent.toFixed(0)}%
                       </div>
                     </div>
                     {previewProduct.discountPercent > 0 && (
                       <div>
-                        <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6b7280', marginBottom: '3px' }}>
+                        <div className="product-form-field-label">
                           Sale Price:
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#dc2626' }}>
+                        <div className="product-form-sale-price-large">
                           ${(previewProduct.listPrice * (1 - previewProduct.discountPercent / 100)).toFixed(2)}
                         </div>
                       </div>
@@ -525,23 +519,10 @@ export default function ProductForm({ product, onClose }) {
                 {/* Description Section */}
                 {previewProduct.description && (
                   <div>
-                    <h3 style={{ 
-                      fontSize: '1rem', 
-                      fontWeight: '600', 
-                      color: '#374151', 
-                      marginBottom: '10px',
-                      paddingBottom: '8px',
-                      borderBottom: '2px solid #e5e7eb'
-                    }}>
+                    <h3 className="product-form-section-title">
                       Description
                     </h3>
-                    <p style={{ 
-                      fontSize: '0.95rem',
-                      lineHeight: '1.6', 
-                      color: '#4b5563',
-                      margin: 0,
-                      whiteSpace: 'pre-line'
-                    }}>
+                    <p className="product-form-description-text">
                       {previewProduct.description}
                     </p>
                   </div>
@@ -550,29 +531,14 @@ export default function ProductForm({ product, onClose }) {
 
               {/* Right Side - Product Image */}
               <div>
-                <h3 style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: '600', 
-                  color: '#374151', 
-                  marginBottom: '10px',
-                  paddingBottom: '8px',
-                  borderBottom: '2px solid #e5e7eb'
-                }}>
+                <h3 className="product-form-section-title">
                   Product Image
                 </h3>
                 {previewProduct.imageURL ? (
                   <img
                     src={previewProduct.imageURL}
                     alt={previewProduct.productName}
-                    style={{
-                      width: '100%',
-                      height: 'auto',
-                      maxHeight: '400px',
-                      objectFit: 'contain',
-                      borderRadius: '8px',
-                      border: '1px solid #e5e7eb',
-                      backgroundColor: '#f9fafb'
-                    }}
+                    className="product-form-image"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -580,17 +546,9 @@ export default function ProductForm({ product, onClose }) {
                   />
                 ) : null}
                 <div
+                  className="product-form-no-image"
                   style={{
-                    display: previewProduct.imageURL ? 'none' : 'flex',
-                    width: '100%',
-                    height: '300px',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#f3f4f6',
-                    borderRadius: '8px',
-                    border: '2px dashed #d1d5db',
-                    color: '#9ca3af',
-                    fontSize: '0.95rem'
+                    display: previewProduct.imageURL ? 'none' : 'flex'
                   }}
                 >
                   No Image Selected
@@ -605,20 +563,20 @@ export default function ProductForm({ product, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content" style={{ width: "600px", maxWidth: "90vw" }}>
+      <div className="modal-content product-form-modal">
 
         <h2 className="modal-title">
           {isEditing ? "Edit Product" : "Add Product"}
         </h2>
 
         <form className="modal-form" onSubmit={handleSubmit}>
-          <div className="modal-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+          <div className="modal-grid product-form-grid">
 
             {/* Product Code */}
             <div className="form-field">
               <label className="form-label">Product Code *</label>
               <input
-                className={`dashboard-input ${errors.ProductCode ? "input-error" : ""}`}
+                className={`dashboard-input ${errors.ProductCode ? "input-error" : ""} ${isEditing ? "product-form-disabled-input" : ""}`}
                 name="ProductCode"
                 placeholder="e.g., GTR001"
                 value={form.ProductCode}
@@ -626,7 +584,6 @@ export default function ProductForm({ product, onClose }) {
                 maxLength="10"
                 required
                 disabled={isEditing}
-                style={isEditing ? { backgroundColor: "#f3f4f6", cursor: "not-allowed" } : {}}
               />
               {errors.ProductCode && (
                 <span className="error-message">{errors.ProductCode}</span>
@@ -640,7 +597,7 @@ export default function ProductForm({ product, onClose }) {
             <div className="form-field">
               <label className="form-label">Product Name *</label>
               <input
-                className={`dashboard-input ${errors.ProductName ? "input-error" : ""}`}
+                className={`dashboard-input ${errors.ProductName ? "input-error" : ""} ${isEditing ? "product-form-disabled-input" : ""}`}
                 name="ProductName"
                 placeholder="e.g., Fender Stratocaster"
                 value={form.ProductName}
@@ -648,7 +605,6 @@ export default function ProductForm({ product, onClose }) {
                 maxLength="255"
                 required
                 disabled={isEditing}
-                style={isEditing ? { backgroundColor: "#f3f4f6", cursor: "not-allowed" } : {}}
               />
               {errors.ProductName && (
                 <span className="error-message">{errors.ProductName}</span>
@@ -662,13 +618,12 @@ export default function ProductForm({ product, onClose }) {
             <div className="form-field">
               <label className="form-label">Category *</label>
               <select
-                className={`dashboard-input ${errors.CategoryID ? "input-error" : ""}`}
+                className={`dashboard-input ${errors.CategoryID ? "input-error" : ""} ${isEditing ? "product-form-disabled-input" : ""}`}
                 name="CategoryID"
                 value={form.CategoryID}
                 onChange={handleChange}
                 required
                 disabled={isEditing}
-                style={isEditing ? { backgroundColor: "#f3f4f6", cursor: "not-allowed" } : {}}
               >
                 <option value="">Select Category</option>
                 {categories.map((category) => (
@@ -723,29 +678,15 @@ export default function ProductForm({ product, onClose }) {
             {/* Quantity On Hand */}
             <div className="form-field">
               <label className="form-label">Quantity On Hand *</label>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className="product-form-quantity-controls">
                 <button
                   type="button"
                   onClick={decrementQuantity}
-                  className="quantity-btn"
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "6px",
-                    backgroundColor: "white",
-                    cursor: "pointer",
-                    fontSize: "1.2rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#6b7280"
-                  }}
+                  className="product-form-quantity-btn"
                 >
                   −
                 </button>
                 <input
-                  className={`dashboard-input ${errors.QuantityOnHand ? "input-error" : ""}`}
                   name="QuantityOnHand"
                   type="number"
                   min="0"
@@ -753,25 +694,12 @@ export default function ProductForm({ product, onClose }) {
                   value={form.QuantityOnHand}
                   onChange={handleChange}
                   required
-                  style={{ flex: 1 }}
+                  className={`dashboard-input product-form-quantity-input ${errors.QuantityOnHand ? "input-error" : ""}`}
                 />
                 <button
                   type="button"
                   onClick={incrementQuantity}
-                  className="quantity-btn"
-                  style={{
-                    width: "36px",
-                    height: "36px",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "6px",
-                    backgroundColor: "white",
-                    cursor: "pointer",
-                    fontSize: "1.2rem",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#6b7280"
-                  }}
+                  className="product-form-quantity-btn"
                 >
                   +
                 </button>
@@ -782,7 +710,7 @@ export default function ProductForm({ product, onClose }) {
             </div>
 
             {/* Image Upload Section */}
-            <div className="form-field" style={{ gridColumn: "1 / -1" }}>
+            <div className="form-field product-form-full-width">
               <label className="form-label">Product Image</label>
               <input
                 id="imageUpload"
@@ -791,7 +719,7 @@ export default function ProductForm({ product, onClose }) {
                 onChange={handleImageChange}
                 className="dashboard-input"
               />
-              <span style={{ fontSize: "0.75rem", color: "#6c757d", display: "block", marginTop: "4px" }}>
+              <span className="product-form-file-hint">
                 Max 5MB - JPEG, PNG, GIF, WebP
               </span>
               {errors.image && (
@@ -802,21 +730,14 @@ export default function ProductForm({ product, onClose }) {
                   <img
                     src={imagePreview}
                     alt="Product preview"
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                      marginTop: "10px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px"
-                    }}
+                    className="product-form-image-preview"
                   />
                 </div>
               )}
             </div>
 
             {/* Description */}
-            <div className="form-field" style={{ gridColumn: "1 / -1" }}>
+            <div className="form-field product-form-full-width">
               <label className="form-label">Description</label>
               <textarea
                 className={`dashboard-input ${errors.Description ? "input-error" : ""}`}
@@ -841,9 +762,8 @@ export default function ProductForm({ product, onClose }) {
             {isEditing && (
               <button 
                 type="button" 
-                className="dashboard-btn dashboard-btn-warning" 
                 onClick={handleDeactivate}
-                style={{ backgroundColor: "#f59e0b", color: "white" }}
+                className="dashboard-btn dashboard-btn-warning product-form-deactivate-btn"
               >
                 Deactivate Product
               </button>

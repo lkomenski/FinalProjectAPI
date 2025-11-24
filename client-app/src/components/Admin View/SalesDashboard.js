@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Api from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
-import InvoiceDetailModal from "./InvoiceDetailModal";
+import Api from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
+import InvoiceDetailModal from "../InvoiceDetailModal";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import "../Styles/Dashboard.css";
 
@@ -259,8 +259,8 @@ export default function SalesDashboard() {
         <span className="breadcrumb-current">Sales Dashboard</span>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2 className="dashboard-title" style={{ marginBottom: 0 }}>Sales Dashboard</h2>
+      <div className="sales-dashboard-header">
+        <h2 className="dashboard-title sales-dashboard-title">Sales Dashboard</h2>
         <button 
           onClick={() => navigate("/invoice-archive")}
           className="dashboard-btn dashboard-btn-secondary"
@@ -270,7 +270,7 @@ export default function SalesDashboard() {
       </div>
 
       {/* Summary Cards - Clickable */}
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: '30px' }}>
+      <div className="dashboard-grid sales-dashboard-grid">
         <div className="dashboard-card dashboard-clickable" onClick={() => handleCardClick("all")}>
           <h3>Total Sales</h3>
           <div className="value">${totalSales.toFixed(2)}</div>
@@ -291,9 +291,9 @@ export default function SalesDashboard() {
 
       {/* Charts Section */}
       <h3 className="dashboard-subtitle">Sales Analytics</h3>
-      <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', marginBottom: '30px' }}>
-        <div className="dashboard-card" style={{ height: '400px' }}>
-          <h3 style={{ marginBottom: '15px' }}>Sales by Item Description</h3>
+      <div className="dashboard-grid sales-charts-grid">
+        <div className="dashboard-card sales-chart-card">
+          <h3 className="sales-chart-title">Sales by Item Description</h3>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={330}>
               <PieChart>
@@ -322,19 +322,18 @@ export default function SalesDashboard() {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '330px', color: '#6b7280' }}>
+            <div className="sales-no-data">
               No category data available
             </div>
           )}
         </div>
-        <div className="dashboard-card" style={{ height: '400px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-            <h3 style={{ margin: 0 }}>Sales Trend</h3>
+        <div className="dashboard-card sales-chart-card">
+          <div className="sales-chart-header">
+            <h3 className="sales-chart-header-title">Sales Trend</h3>
             <select 
               value={dateRange} 
               onChange={(e) => setDateRange(e.target.value)}
-              className="filter-select"
-              style={{ width: 'auto', minWidth: '120px' }}
+              className="filter-select sales-date-range-select"
             >
               <option value="all">All Time</option>
               <option value="6months">Last 6 Months</option>
@@ -343,20 +342,18 @@ export default function SalesDashboard() {
             </select>
           </div>
           {dateRange === "custom" && (
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <div className="sales-custom-date-range">
               <input 
                 type="date" 
                 value={customStartDate}
                 onChange={(e) => setCustomStartDate(e.target.value)}
-                className="dashboard-input"
-                style={{ flex: 1 }}
+                className="dashboard-input sales-custom-date-input"
               />
               <input 
                 type="date" 
                 value={customEndDate}
                 onChange={(e) => setCustomEndDate(e.target.value)}
-                className="dashboard-input"
-                style={{ flex: 1 }}
+                className="dashboard-input sales-custom-date-input"
               />
             </div>
           )}
@@ -372,7 +369,7 @@ export default function SalesDashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '330px', color: '#6b7280' }}>
+            <div className="sales-no-data">
               No sales data available for selected range
             </div>
           )}
@@ -403,16 +400,15 @@ export default function SalesDashboard() {
       </div>
 
       {/* Invoice List - Vendor Dashboard Style */}
-      <div style={{ marginTop: '20px' }}>
+      <div className="sales-invoice-list-section">
         {currentInvoices.length === 0 ? (
-          <p style={{ textAlign: 'center', color: '#6b7280', padding: '40px' }}>No invoices found.</p>
+          <p className="sales-no-invoices">No invoices found.</p>
         ) : (
           currentInvoices.map((inv) => (
             <div 
               key={inv.invoiceID} 
-              className="dashboard-list-item dashboard-clickable"
+              className="dashboard-list-item dashboard-clickable sales-invoice-item"
               onClick={() => handleInvoiceClick(inv.invoiceID)}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
             >
               <div>
                 <strong>Invoice #{inv.invoiceNumber || inv.invoiceID}</strong><br />
@@ -425,18 +421,11 @@ export default function SalesDashboard() {
               <span
                 className={
                   inv.isPaid || inv.amountDue === 0
-                    ? "badge badge-paid"
+                    ? "badge badge-paid sales-status-badge"
                     : inv.amountDue > 0 && inv.amountDue < inv.totalAmount
-                    ? "badge badge-partial"
-                    : "badge badge-unpaid"
+                    ? "badge badge-partial sales-status-badge"
+                    : "badge badge-unpaid sales-status-badge"
                 }
-                style={{ 
-                  fontSize: '1.1rem', 
-                  padding: '8px 16px',
-                  fontWeight: '600',
-                  minWidth: '100px',
-                  textAlign: 'center'
-                }}
               >
                 {inv.isPaid || inv.amountDue === 0
                   ? "Paid"

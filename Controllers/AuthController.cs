@@ -15,12 +15,83 @@ namespace FinalProjectAPI.Controllers
         private readonly IDataRepositoryFactory _factory;
 
         /// <summary>
-        /// Initializes a new instance of the AuthController class.
+        /// Initializes a new instance of the AuthController.
         /// </summary>
-        /// <param name="factory">The data repository factory for creating database connections.</param>
+        /// <param name="factory">The data repository factory for database operations.</param>
         public AuthController(IDataRepositoryFactory factory)
         {
             _factory = factory;
+        }
+
+        /// <summary>
+        /// Maps a database row to a LoginResponse object for customer authentication.
+        /// </summary>
+        /// <param name="row">The database row containing customer data.</param>
+        /// <returns>A LoginResponse object with safe null handling.</returns>
+        private static LoginResponse MapRowToCustomerLoginResponse(IDictionary<string, object?> row)
+        {
+            return new LoginResponse
+            {
+                Id = row.ContainsKey("CustomerID") && row["CustomerID"] != DBNull.Value ? Convert.ToInt32(row["CustomerID"]) : 0,
+                Role = "customer",
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() ?? "" : "",
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() ?? "" : "",
+                EmailAddress = row.ContainsKey("EmailAddress") ? row["EmailAddress"]?.ToString() ?? "" : "",
+                Dashboard = "customer"
+            };
+        }
+
+        /// <summary>
+        /// Maps a database row to a LoginResponse object for vendor authentication.
+        /// </summary>
+        /// <param name="row">The database row containing vendor data.</param>
+        /// <returns>A LoginResponse object with safe null handling.</returns>
+        private static LoginResponse MapRowToVendorLoginResponse(IDictionary<string, object?> row)
+        {
+            return new LoginResponse
+            {
+                Id = row.ContainsKey("VendorID") && row["VendorID"] != DBNull.Value ? Convert.ToInt32(row["VendorID"]) : 0,
+                Role = "vendor",
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() ?? "" : "",
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() ?? "" : "",
+                EmailAddress = row.ContainsKey("VendorEmail") ? row["VendorEmail"]?.ToString() ?? "" : "",
+                Dashboard = "vendor"
+            };
+        }
+
+        /// <summary>
+        /// Maps a database row to a LoginResponse object for admin/employee authentication.
+        /// </summary>
+        /// <param name="row">The database row containing admin/employee data.</param>
+        /// <returns>A LoginResponse object with safe null handling.</returns>
+        private static LoginResponse MapRowToAdminLoginResponse(IDictionary<string, object?> row)
+        {
+            return new LoginResponse
+            {
+                Id = row.ContainsKey("AdminID") && row["AdminID"] != DBNull.Value ? Convert.ToInt32(row["AdminID"]) : 0,
+                Role = "admin",
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() ?? "" : "",
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() ?? "" : "",
+                EmailAddress = row.ContainsKey("EmailAddress") ? row["EmailAddress"]?.ToString() ?? "" : "",
+                Dashboard = "admin"
+            };
+        }
+
+        /// <summary>
+        /// Maps a database row to a vendor registration response object.
+        /// </summary>
+        /// <param name="row">The database row containing vendor registration result data.</param>
+        /// <returns>A structured vendor registration response with safe null handling.</returns>
+        private static object MapRowToVendorRegistrationResponse(IDictionary<string, object?> row)
+        {
+            return new
+            {
+                Message = row.ContainsKey("Message") ? row["Message"]?.ToString() ?? "Registration successful." : "Registration successful.",
+                VendorID = row.ContainsKey("VendorID") && row["VendorID"] != DBNull.Value ? row["VendorID"] : null,
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() : null,
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() : null,
+                Email = row.ContainsKey("VendorEmail") ? row["VendorEmail"]?.ToString() : null
+            };
         }
 
         // --------------------------------------------------------
@@ -72,49 +143,48 @@ namespace FinalProjectAPI.Controllers
         /// <returns>Login response with customer information.</returns>
         private async Task<IActionResult> LoginCustomerAsync(LoginRequest request)
         {
-            var repo = _factory.Create("MyGuitarShop");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", request.EmailAddress }
-            };
+                var repo = _factory.Create("MyGuitarShop");
 
-            // Get customer by email (we'll verify password in C# instead of SQL)
-            var results = await repo.GetDataAsync("CustomerLogin", parameters);
-            var row = results.FirstOrDefault();
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress }
+                };
 
-            if (row == null)
-                return Unauthorized("Invalid customer credentials.");
+                // Get customer by email (we'll verify password in C# instead of SQL)
+                var results = await repo.GetDataAsync("CustomerLogin", parameters);
+                var row = results.FirstOrDefault();
 
-            // Verify password - support both hashed and plain text for backward compatibility
-            string storedPassword = row["Password"]?.ToString() ?? "";
-            bool passwordValid = false;
-            
-            // Check if password is hashed (BCrypt hashes start with $2a$, $2b$, etc.)
-            if (storedPassword.StartsWith("$2"))
-            {
-                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPassword);
+                if (row == null)
+                    return Unauthorized("Invalid customer credentials.");
+
+                // Verify password - support both hashed and plain text for backward compatibility
+                string storedPassword = row["Password"]?.ToString() ?? "";
+                bool passwordValid = false;
+                
+                // Check if password is hashed (BCrypt hashes start with $2a$, $2b$, etc.)
+                if (storedPassword.StartsWith("$2"))
+                {
+                    passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPassword);
+                }
+                else
+                {
+                    // Plain text password (for testing/legacy data)
+                    passwordValid = request.Password == storedPassword;
+                }
+                
+                if (!passwordValid)
+                    return Unauthorized("Invalid customer credentials.");
+
+                var response = MapRowToCustomerLoginResponse(row);
+
+                return Ok(response);
             }
-            else
+            catch (Exception)
             {
-                // Plain text password (for testing/legacy data)
-                passwordValid = request.Password == storedPassword;
+                return StatusCode(500, "Internal server error: Failed to authenticate customer.");
             }
-            
-            if (!passwordValid)
-                return Unauthorized("Invalid customer credentials.");
-
-            var response = new LoginResponse
-            {
-                Id = Convert.ToInt32(row["CustomerID"]),
-                Role = "customer",
-                FirstName = row["FirstName"]?.ToString() ?? "",
-                LastName = row["LastName"]?.ToString() ?? "",
-                EmailAddress = row["EmailAddress"]?.ToString() ?? "",
-                Dashboard = "customer"
-            };
-
-            return Ok(response);
         }
 
         // --------------------------------------------------------
@@ -127,49 +197,48 @@ namespace FinalProjectAPI.Controllers
         /// <returns>Login response with vendor information.</returns>
         private async Task<IActionResult> LoginVendorAsync(LoginRequest request)
         {
-            var repo = _factory.Create("AP");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", request.EmailAddress }
-            };
+                var repo = _factory.Create("AP");
 
-            // Get vendor by email (we'll verify password in C# instead of SQL)
-            var results = await repo.GetDataAsync("VendorLogin", parameters);
-            var row = results.FirstOrDefault();
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress }
+                };
 
-            if (row == null)
-                return Unauthorized("Invalid vendor credentials.");
+                // Get vendor by email (we'll verify password in C# instead of SQL)
+                var results = await repo.GetDataAsync("VendorLogin", parameters);
+                var row = results.FirstOrDefault();
 
-            // Verify password - support both hashed and plain text for backward compatibility
-            string storedPassword = row["VendorPassword"]?.ToString() ?? "";
-            bool passwordValid = false;
-            
-            // Check if password is hashed (BCrypt hashes start with $2a$, $2b$, etc.)
-            if (storedPassword.StartsWith("$2"))
-            {
-                passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPassword);
+                if (row == null)
+                    return Unauthorized("Invalid vendor credentials.");
+
+                // Verify password - support both hashed and plain text for backward compatibility
+                string storedPassword = row["VendorPassword"]?.ToString() ?? "";
+                bool passwordValid = false;
+                
+                // Check if password is hashed (BCrypt hashes start with $2a$, $2b$, etc.)
+                if (storedPassword.StartsWith("$2"))
+                {
+                    passwordValid = BCrypt.Net.BCrypt.Verify(request.Password, storedPassword);
+                }
+                else
+                {
+                    // Plain text password (for testing/legacy data)
+                    passwordValid = request.Password == storedPassword;
+                }
+                
+                if (!passwordValid)
+                    return Unauthorized("Invalid vendor credentials.");
+
+                var response = MapRowToVendorLoginResponse(row);
+
+                return Ok(response);
             }
-            else
+            catch (Exception)
             {
-                // Plain text password (for testing/legacy data)
-                passwordValid = request.Password == storedPassword;
+                return StatusCode(500, "Internal server error: Failed to authenticate vendor.");
             }
-            
-            if (!passwordValid)
-                return Unauthorized("Invalid vendor credentials.");
-
-            var response = new LoginResponse
-            {
-                Id = Convert.ToInt32(row["VendorID"]),  
-                Role = "vendor",
-                FirstName = row["FirstName"]?.ToString() ?? "",
-                LastName = row["LastName"]?.ToString() ?? "",
-                EmailAddress = row["VendorEmail"]?.ToString() ?? "",
-                Dashboard = "vendor"
-            };
-
-            return Ok(response);
         }
 
 
@@ -183,31 +252,30 @@ namespace FinalProjectAPI.Controllers
         /// <returns>Login response with admin/employee information.</returns>
         private async Task<IActionResult> LoginAdminAsync(LoginRequest request)
         {
-            var repo = _factory.Create("MyGuitarShop");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@Password", request.Password }
-            };
+                var repo = _factory.Create("MyGuitarShop");
 
-            var results = await repo.GetDataAsync("EmployeeLogin", parameters);
-            var row = results.FirstOrDefault();
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress },
+                    { "@Password", request.Password }
+                };
 
-            if (row == null)
-                return Unauthorized("Invalid admin/employee credentials.");
+                var results = await repo.GetDataAsync("EmployeeLogin", parameters);
+                var row = results.FirstOrDefault();
 
-            var response = new LoginResponse
+                if (row == null)
+                    return Unauthorized("Invalid admin/employee credentials.");
+
+                var response = MapRowToAdminLoginResponse(row);
+
+                return Ok(response);
+            }
+            catch (Exception)
             {
-                Id = Convert.ToInt32(row["AdminID"]), 
-                Role = "admin",
-                FirstName = row["FirstName"]?.ToString() ?? "",
-                LastName = row["LastName"]?.ToString() ?? "",
-                EmailAddress = row["EmailAddress"]?.ToString() ?? "",
-                Dashboard = "admin"
-            };
-
-            return Ok(response);
+                return StatusCode(500, "Internal server error: Failed to authenticate admin/employee.");
+            }
         }
 
         // --------------------------------------------------------
@@ -224,46 +292,50 @@ namespace FinalProjectAPI.Controllers
         [HttpPost("register-customer")]
         public async Task<IActionResult> RegisterCustomer([FromBody] CustomerRegisterRequest request)
         {
-            if (string.IsNullOrEmpty(request.EmailAddress) ||
-                string.IsNullOrEmpty(request.Password) ||
-                string.IsNullOrEmpty(request.FirstName) ||
-                string.IsNullOrEmpty(request.LastName))
+            try
             {
-                return BadRequest("All fields are required.");
+                if (request == null)
+                    return BadRequest("Registration data is required.");
+
+                if (string.IsNullOrEmpty(request.EmailAddress) ||
+                    string.IsNullOrEmpty(request.Password) ||
+                    string.IsNullOrEmpty(request.FirstName) ||
+                    string.IsNullOrEmpty(request.LastName))
+                {
+                    return BadRequest("All fields are required.");
+                }
+
+                // Hash the password before storing
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                var repo = _factory.Create("MyGuitarShop");
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress },
+                    { "@Password", hashedPassword },
+                    { "@FirstName", request.FirstName },
+                    { "@LastName", request.LastName }
+                };
+
+                var results = await repo.GetDataAsync("CustomerRegister", parameters);
+                var row = results.FirstOrDefault();
+
+                if (row == null)
+                    return StatusCode(500, "Internal server error: Registration failed.");
+
+                int customerId = row.ContainsKey("CustomerID") && row["CustomerID"] != DBNull.Value ? Convert.ToInt32(row["CustomerID"]) : -1;
+                if (customerId == -1)
+                    return BadRequest("An account with this email already exists.");
+
+                var response = MapRowToCustomerLoginResponse(row);
+
+                return Ok(response);
             }
-
-            // Hash the password before storing
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            var repo = _factory.Create("MyGuitarShop");
-
-            var parameters = new Dictionary<string, object?>
+            catch (Exception)
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@Password", hashedPassword },
-                { "@FirstName", request.FirstName },
-                { "@LastName", request.LastName }
-            };
-
-            var results = await repo.GetDataAsync("CustomerRegister", parameters);
-            var row = results.FirstOrDefault();
-
-            if (row == null)
-                return StatusCode(500, "Registration failed.");
-
-            int customerId = Convert.ToInt32(row["CustomerID"]);
-            if (customerId == -1)
-                return BadRequest("An account with this email already exists.");
-
-            return Ok(new
-            {
-                UserID = customerId,
-                EmailAddress = row["EmailAddress"]?.ToString(),
-                FirstName = row["FirstName"]?.ToString(),
-                LastName = row["LastName"]?.ToString(),
-                Role = "customer",
-                Dashboard = "customer"
-            });
+                return StatusCode(500, "Internal server error: Failed to register customer.");
+            }
         }
 
         // --------------------------------------------------------
@@ -279,32 +351,42 @@ namespace FinalProjectAPI.Controllers
         [HttpPost("request-password-reset")]
         public async Task<IActionResult> RequestPasswordReset([FromBody] ResetRequestDto req)
         {
-            var repo = _factory.Create("MyGuitarShop");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", req.EmailAddress }
-            };
+                if (req == null || string.IsNullOrEmpty(req.EmailAddress))
+                    return BadRequest("Email address is required.");
 
-            var results = await repo.GetDataAsync("CheckUserExists", parameters);
+                var repo = _factory.Create("MyGuitarShop");
 
-            if (!results.Any())
-                return BadRequest("This email does not exist in our system.");
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", req.EmailAddress }
+                };
 
-            // Generate secure token
-            string token = Guid.NewGuid().ToString();
+                var results = await repo.GetDataAsync("CheckUserExists", parameters);
 
-            // Save token associated with user (in DB)
-            var saveParams = new Dictionary<string, object?>
+                if (!results.Any())
+                    return BadRequest("This email does not exist in our system.");
+
+                // Generate secure token
+                string token = Guid.NewGuid().ToString();
+
+                // Save token associated with user (in DB)
+                var saveParams = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", req.EmailAddress },
+                    { "@ResetToken", token }
+                };
+                
+                await repo.GetDataAsync("SavePasswordResetToken", saveParams);
+
+                // In real apps, you'd email token — for now return it
+                return Ok(new { token = token, message = "Reset token generated successfully." });
+            }
+            catch (Exception)
             {
-                { "@EmailAddress", req.EmailAddress },
-                { "@ResetToken", token }
-            };
-            
-            await repo.GetDataAsync("SavePasswordResetToken", saveParams);
-
-            // In real apps, you'd email token — for now return it
-            return Ok(token);
+                return StatusCode(500, "Internal server error: Failed to process password reset request.");
+            }
         }
 
         /// <summary>
@@ -313,24 +395,37 @@ namespace FinalProjectAPI.Controllers
         /// <param name="req">The reset request containing email, reset token, and new password.</param>
         /// <returns>Success message if password is updated.</returns>
         /// <response code="200">Returns success message when password is updated.</response>
+        /// <response code="400">If the reset request is invalid.</response>
+        /// <response code="500">If there is a server error while resetting password.</response>
         [HttpPut("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto req)
         {
-            var repo = _factory.Create("MyGuitarShop");
-
-            // Hash the new password before storing
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", req.EmailAddress },
-                { "@ResetToken", req.ResetToken },
-                { "@NewPassword", hashedPassword }
-            };
+                if (req == null || string.IsNullOrEmpty(req.EmailAddress) || 
+                    string.IsNullOrEmpty(req.ResetToken) || string.IsNullOrEmpty(req.NewPassword))
+                    return BadRequest("Email, reset token, and new password are required.");
 
-            var result = await repo.GetDataAsync("CustomerResetPassword", parameters);
+                var repo = _factory.Create("MyGuitarShop");
 
-            return Ok("Password updated.");
+                // Hash the new password before storing
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(req.NewPassword);
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", req.EmailAddress },
+                    { "@ResetToken", req.ResetToken },
+                    { "@NewPassword", hashedPassword }
+                };
+
+                await repo.GetDataAsync("CustomerResetPassword", parameters);
+
+                return Ok(new { message = "Password updated successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to reset password.");
+            }
         }
 
         // --------------------------------------------------------
@@ -346,45 +441,50 @@ namespace FinalProjectAPI.Controllers
         [HttpPost("register-vendor")]
         public async Task<IActionResult> RegisterVendor([FromBody] VendorRegisterRequest request)
         {
-            if (string.IsNullOrEmpty(request.RegistrationToken) ||
-                string.IsNullOrEmpty(request.VendorEmail) ||
-                string.IsNullOrEmpty(request.Password))
+            try
             {
-                return BadRequest("Registration token, email, and password are required.");
+                if (request == null)
+                    return BadRequest("Registration data is required.");
+
+                if (string.IsNullOrEmpty(request.RegistrationToken) ||
+                    string.IsNullOrEmpty(request.VendorEmail) ||
+                    string.IsNullOrEmpty(request.Password))
+                {
+                    return BadRequest("Registration token, email, and password are required.");
+                }
+
+                var repo = _factory.Create("AP");
+
+                // Hash the password before storing
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@RegistrationToken", request.RegistrationToken },
+                    { "@VendorEmail", request.VendorEmail },
+                    { "@Password", hashedPassword }
+                };
+
+                var results = await repo.GetDataAsync("VendorRegister", parameters);
+                var row = results.FirstOrDefault();
+
+                if (row == null)
+                    return StatusCode(500, "Internal server error: Registration failed.");
+
+                string status = row.ContainsKey("Status") ? row["Status"]?.ToString() ?? "" : "";
+                if (status == "Error")
+                {
+                    return BadRequest(row.ContainsKey("Message") ? row["Message"]?.ToString() ?? "Registration failed." : "Registration failed.");
+                }
+
+                var response = MapRowToVendorRegistrationResponse(row);
+
+                return Ok(response);
             }
-
-            var repo = _factory.Create("AP");
-
-            // Hash the password before storing
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-
-            var parameters = new Dictionary<string, object?>
+            catch (Exception)
             {
-                { "@RegistrationToken", request.RegistrationToken },
-                { "@VendorEmail", request.VendorEmail },
-                { "@Password", hashedPassword }
-            };
-
-            var results = await repo.GetDataAsync("VendorRegister", parameters);
-            var row = results.FirstOrDefault();
-
-            if (row == null)
-                return StatusCode(500, "Registration failed.");
-
-            string status = row["Status"]?.ToString() ?? "";
-            if (status == "Error")
-            {
-                return BadRequest(row["Message"]?.ToString() ?? "Registration failed.");
+                return StatusCode(500, "Internal server error: Failed to register vendor.");
             }
-
-            return Ok(new
-            {
-                Message = row["Message"]?.ToString(),
-                VendorID = row["VendorID"],
-                FirstName = row["FirstName"]?.ToString(),
-                LastName = row["LastName"]?.ToString(),
-                Email = row["VendorEmail"]?.ToString()
-            });
         }
 
     }

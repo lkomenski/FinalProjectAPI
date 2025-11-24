@@ -33,53 +33,65 @@ namespace FinalProjectAPI.Controllers
         /// <param name="customerId">The ID of the customer.</param>
         /// <returns>Customer dashboard with order history and account details.</returns>
         /// <response code="200">Returns the customer dashboard data.</response>
+        /// <response code="400">If the customer ID is invalid.</response>
         /// <response code="404">If the customer is not found.</response>
+        /// <response code="500">If there is a server error while retrieving dashboard data.</response>
         [HttpGet("customer/{customerId}")]
         public async Task<IActionResult> GetCustomerDashboard(int customerId)
         {
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@CustomerID", customerId }
-            };
+                if (customerId <= 0)
+                    return BadRequest("Invalid CustomerID.");
 
-            var results = await _repoGuitarShop.GetDataAsync("GetCustomerDashboard", parameters);
-
-            if (!results.Any())
-                return NotFound("Customer not found.");
-
-            var header = results.First();
-
-            var dashboard = new CustomerDashboard
-            {
-                CustomerID = customerId,
-                FirstName = header["FirstName"]?.ToString(),
-                LastName = header["LastName"]?.ToString(),
-                EmailAddress = header["EmailAddress"]?.ToString(),
-                ShippingCity = header["ShippingCity"]?.ToString(),
-                ShippingState = header["ShippingState"]?.ToString(),
-                ShippingZip = header["ShippingZip"]?.ToString(),
-                Orders = new List<CustomerOrderSummary>()
-            };
-
-            foreach (var row in results.Skip(1))
-            {
-                if (row.ContainsKey("OrderID"))
+                var parameters = new Dictionary<string, object?>
                 {
-                    dashboard.Orders.Add(new CustomerOrderSummary
-                    {
-                        OrderID = Convert.ToInt32(row["OrderID"]),
-                        OrderDate = Convert.ToDateTime(row["OrderDate"]),
-                        Subtotal = Convert.ToDecimal(row["Subtotal"]),
-                        TotalDiscount = Convert.ToDecimal(row["TotalDiscount"]),
-                        TaxAmount = Convert.ToDecimal(row["TaxAmount"]),
-                        ShipAmount = Convert.ToDecimal(row["ShipAmount"]),
-                        OrderTotal = Convert.ToDecimal(row["TotalAmount"]),
-                        ItemsCount = Convert.ToInt32(row["ItemsCount"])
-                    });
-                }
-            }
+                    { "@CustomerID", customerId }
+                };
 
-            return Ok(dashboard);
+                var results = await _repoGuitarShop.GetDataAsync("GetCustomerDashboard", parameters);
+
+                if (!results.Any())
+                    return NotFound("Customer not found.");
+
+                var header = results.First();
+
+                var dashboard = new CustomerDashboard
+                {
+                    CustomerID = customerId,
+                    FirstName = header["FirstName"]?.ToString(),
+                    LastName = header["LastName"]?.ToString(),
+                    EmailAddress = header["EmailAddress"]?.ToString(),
+                    ShippingCity = header["ShippingCity"]?.ToString(),
+                    ShippingState = header["ShippingState"]?.ToString(),
+                    ShippingZip = header["ShippingZip"]?.ToString(),
+                    Orders = new List<CustomerOrderSummary>()
+                };
+
+                foreach (var row in results.Skip(1))
+                {
+                    if (row.ContainsKey("OrderID"))
+                    {
+                        dashboard.Orders.Add(new CustomerOrderSummary
+                        {
+                            OrderID = Convert.ToInt32(row["OrderID"]),
+                            OrderDate = Convert.ToDateTime(row["OrderDate"]),
+                            Subtotal = Convert.ToDecimal(row["Subtotal"]),
+                            TotalDiscount = Convert.ToDecimal(row["TotalDiscount"]),
+                            TaxAmount = Convert.ToDecimal(row["TaxAmount"]),
+                            ShipAmount = Convert.ToDecimal(row["ShipAmount"]),
+                            OrderTotal = Convert.ToDecimal(row["TotalAmount"]),
+                            ItemsCount = Convert.ToInt32(row["ItemsCount"])
+                        });
+                    }
+                }
+
+                return Ok(dashboard);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve customer dashboard.");
+            }
         }
 
         // ------------------------------------------------------------
@@ -91,85 +103,97 @@ namespace FinalProjectAPI.Controllers
         /// <param name="vendorId">The ID of the vendor.</param>
         /// <returns>Vendor dashboard with invoice data and vendor information.</returns>
         /// <response code="200">Returns the vendor dashboard data.</response>
+        /// <response code="400">If the vendor ID is invalid.</response>
         /// <response code="404">If the vendor is not found.</response>
+        /// <response code="500">If there is a server error while retrieving dashboard data.</response>
         [HttpGet("vendor/{vendorId}")]
         public async Task<IActionResult> GetVendorDashboard(int vendorId)
         {
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@VendorID", vendorId }
-            };
+                if (vendorId <= 0)
+                    return BadRequest("Invalid VendorID.");
 
-            var results = await _repoAP.GetDataAsync("GetVendorDashboard", parameters);
-
-            if (!results.Any())
-                return NotFound("Vendor not found.");
-
-            var first = results.First();
-
-            // -------------------------------
-            // Vendor Info
-            // -------------------------------
-            var vendorInfo = new
-            {
-                VendorID = vendorId,
-                VendorName = first["VendorName"]?.ToString(),
-                VendorAddress1 = first.ContainsKey("VendorAddress1") ? first["VendorAddress1"]?.ToString() : null,
-                VendorAddress2 = first.ContainsKey("VendorAddress2") ? first["VendorAddress2"]?.ToString() : null,
-                VendorCity = first["VendorCity"]?.ToString(),
-                VendorState = first["VendorState"]?.ToString(),
-                VendorZipCode = first.ContainsKey("VendorZipCode") ? first["VendorZipCode"]?.ToString() : null,
-                VendorContactFName = first["VendorContactFName"]?.ToString(),
-                VendorContactLName = first["VendorContactLName"]?.ToString(),
-                VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A",
-                DefaultTermsID = first.ContainsKey("DefaultTermsID") ? first["DefaultTermsID"] : DBNull.Value,
-                DefaultAccountNo = first.ContainsKey("DefaultAccountNo") ? first["DefaultAccountNo"] : DBNull.Value,
-                TermsDescription = first.ContainsKey("TermsDescription") ? first["TermsDescription"]?.ToString() : "N/A",
-                DateUpdated = first.ContainsKey("DateUpdated") ? first["DateUpdated"] : DBNull.Value
-            };
-
-            // -------------------------------
-            // Invoice Summary
-            // -------------------------------
-            // Filter out rows where InvoiceID is NULL or 0 (no actual invoice)
-            var invoiceRows = results.Where(r => r["InvoiceID"] != DBNull.Value && Convert.ToInt32(r["InvoiceID"]) > 0).ToList();
-            
-            var invoiceSummary = new
-            {
-                TotalInvoices = invoiceRows.Count(),
-                TotalOutstanding = invoiceRows.Sum(r => Convert.ToDecimal(r["InvoiceTotal"]) -
-                                                    Convert.ToDecimal(r["PaymentTotal"]) -
-                                                    Convert.ToDecimal(r["CreditTotal"])),
-                TotalPaid = invoiceRows.Sum(r => Convert.ToDecimal(r["PaymentTotal"]) +
-                                             Convert.ToDecimal(r["CreditTotal"]))
-            };
-
-            // -------------------------------
-            // Recent Invoices (Top 5)
-            // -------------------------------
-            var recentInvoices = invoiceRows
-                .Select(r => new
+                var parameters = new Dictionary<string, object?>
                 {
-                    InvoiceID = Convert.ToInt32(r["InvoiceID"]),
-                    InvoiceNumber = r["InvoiceNumber"]?.ToString(),
-                    InvoiceDate = Convert.ToDateTime(r["InvoiceDate"]),
-                    InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"]),
-                    PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
-                    CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
-                    InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
-                    PaymentDate = r["PaymentDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
-                    InvoiceStatus = r.ContainsKey("InvoiceStatus") ? r["InvoiceStatus"]?.ToString() : "Unknown",
-                    TermsDescription = r["TermsDescription"]?.ToString()
-                })
-                .ToList();
+                    { "@VendorID", vendorId }
+                };
+
+                var results = await _repoAP.GetDataAsync("GetVendorDashboard", parameters);
+
+                if (!results.Any())
+                    return NotFound("Vendor not found.");
+
+                var first = results.First();
+
+                // -------------------------------
+                // Vendor Info
+                // -------------------------------
+                var vendorInfo = new
+                {
+                    VendorID = vendorId,
+                    VendorName = first["VendorName"]?.ToString(),
+                    VendorAddress1 = first.ContainsKey("VendorAddress1") ? first["VendorAddress1"]?.ToString() : null,
+                    VendorAddress2 = first.ContainsKey("VendorAddress2") ? first["VendorAddress2"]?.ToString() : null,
+                    VendorCity = first["VendorCity"]?.ToString(),
+                    VendorState = first["VendorState"]?.ToString(),
+                    VendorZipCode = first.ContainsKey("VendorZipCode") ? first["VendorZipCode"]?.ToString() : null,
+                    VendorContactFName = first["VendorContactFName"]?.ToString(),
+                    VendorContactLName = first["VendorContactLName"]?.ToString(),
+                    VendorPhone = first.ContainsKey("VendorPhone") ? first["VendorPhone"]?.ToString() : "N/A",
+                    DefaultTermsID = first.ContainsKey("DefaultTermsID") ? first["DefaultTermsID"] : DBNull.Value,
+                    DefaultAccountNo = first.ContainsKey("DefaultAccountNo") ? first["DefaultAccountNo"] : DBNull.Value,
+                    TermsDescription = first.ContainsKey("TermsDescription") ? first["TermsDescription"]?.ToString() : "N/A",
+                    DateUpdated = first.ContainsKey("DateUpdated") ? first["DateUpdated"] : DBNull.Value
+                };
+
+                // -------------------------------
+                // Invoice Summary
+                // -------------------------------
+                // Filter out rows where InvoiceID is NULL or 0 (no actual invoice)
+                var invoiceRows = results.Where(r => r["InvoiceID"] != DBNull.Value && Convert.ToInt32(r["InvoiceID"]) > 0).ToList();
+                
+                var invoiceSummary = new
+                {
+                    TotalInvoices = invoiceRows.Count(),
+                    TotalOutstanding = invoiceRows.Sum(r => Convert.ToDecimal(r["InvoiceTotal"]) -
+                                                        Convert.ToDecimal(r["PaymentTotal"]) -
+                                                        Convert.ToDecimal(r["CreditTotal"])),
+                    TotalPaid = invoiceRows.Sum(r => Convert.ToDecimal(r["PaymentTotal"]) +
+                                                 Convert.ToDecimal(r["CreditTotal"]))
+                };
+
+                // -------------------------------
+                // Recent Invoices (Top 5)
+                // -------------------------------
+                var recentInvoices = invoiceRows
+                    .Select(r => new
+                    {
+                        InvoiceID = Convert.ToInt32(r["InvoiceID"]),
+                        InvoiceNumber = r["InvoiceNumber"]?.ToString(),
+                        InvoiceDate = Convert.ToDateTime(r["InvoiceDate"]),
+                        InvoiceTotal = Convert.ToDecimal(r["InvoiceTotal"]),
+                        PaymentTotal = Convert.ToDecimal(r["PaymentTotal"]),
+                        CreditTotal = Convert.ToDecimal(r["CreditTotal"]),
+                        InvoiceDueDate = r["InvoiceDueDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["InvoiceDueDate"]),
+                        PaymentDate = r["PaymentDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(r["PaymentDate"]),
+                        InvoiceStatus = r.ContainsKey("InvoiceStatus") ? r["InvoiceStatus"]?.ToString() : "Unknown",
+                        TermsDescription = r["TermsDescription"]?.ToString()
+                    })
+                    .ToList();
 
 
-            return Ok(new
+                return Ok(new
+                {
+                    vendor = vendorInfo,
+                    invoiceSummary = invoiceSummary,
+                    recentInvoices = recentInvoices
+                });
+            }
+            catch (Exception)
             {
-                vendor = vendorInfo,
-                invoiceSummary = invoiceSummary,
-                recentInvoices = recentInvoices
-            });
+                return StatusCode(500, "Internal server error: Failed to retrieve vendor dashboard.");
+            }
         }
 
         // ------------------------------------------------------------

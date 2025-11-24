@@ -314,25 +314,28 @@ Controllers (consume via DI)
 ## Error Handling Strategy
 
 ### Consistent Error Responses:
-```json
-{
-  "error": "Error type",
-  "message": "User-friendly message",
-  "statusCode": 400
-}
+Controllers return simple string messages with appropriate HTTP status codes:
+
+```csharp
+// Examples from actual controllers:
+return BadRequest("Invalid ProductID.");
+return Unauthorized("Invalid customer credentials.");
+return NotFound("Product with ID 123 not found.");
+return StatusCode(500, "Internal server error: Failed to retrieve products.");
 ```
 
 ### Error Levels:
-- **400:** Client input errors (validation failures)
-- **401:** Authentication failures
-- **404:** Resource not found
-- **500:** Server errors (database, exceptions)
+- **400:** Client input errors (validation failures) - Returns descriptive string message
+- **401:** Authentication failures - Returns security-appropriate string message  
+- **404:** Resource not found - Returns specific string message about missing resource
+- **500:** Server errors (database, exceptions) - Returns generic string message with "Internal server error" prefix
 
 ### Security Considerations:
-- Generic error messages in production
-- Detailed errors only in development
-- Never expose database errors to client
-- Log detailed errors server-side only
+- Simple string messages instead of complex error objects
+- Generic error messages for 500 errors to avoid exposing internal details
+- Specific validation messages for 400 errors to help users
+- Authentication errors don't reveal whether email exists
+- Exception details are hidden from client responses
 
 ---
 

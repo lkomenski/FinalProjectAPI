@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/ProfilePage.css";
-import { fetchData } from "./Api";
-import ConfirmationModal from "./ConfirmationModal";
+import { fetchData } from "../Api";
+import ConfirmationModal from "../ConfirmationModal";
 
 export default function CustomerProfile() {
   const navigate = useNavigate();

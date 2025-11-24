@@ -27,20 +27,20 @@ namespace FinalProjectAPI.Controllers
         /// </summary>
         /// <returns>A list of all categories.</returns>
         /// <response code="200">Returns the list of all categories.</response>
+        /// <response code="500">If there is a server error while retrieving categories.</response>
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var rows = await _repo.GetDataAsync("GetCategories");
-
-            var categories = rows
-                .Select(row => new Category
-                {
-                    CategoryID = Convert.ToInt32(row["CategoryID"]),
-                    CategoryName = row["CategoryName"]?.ToString() ?? ""
-                })
-                .ToList();
-
-            return Ok(categories);
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetCategories");
+                var categories = rows.Select(MapRowToCategory).ToList();
+                return Ok(categories);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve categories.");
+            }
         }
 
         /// <summary>
@@ -49,43 +49,49 @@ namespace FinalProjectAPI.Controllers
         /// <param name="categoryId">The ID of the category.</param>
         /// <returns>A list of products in the specified category.</returns>
         /// <response code="200">Returns the list of products in the category.</response>
+        /// <response code="400">If the category ID is invalid.</response>
+        /// <response code="500">If there is a server error while retrieving products.</response>
         [HttpGet("{categoryId}/products")]
         public async Task<IActionResult> GetProductsByCategory(int categoryId)
         {
-            var rows = await _repo.GetDataAsync(
-                "GetProductsByCategory",
-                new Dictionary<string, object?>
-                {
-                    { "@CategoryID", categoryId }
-                }
-            );
+            try
+            {
+                if (categoryId <= 0)
+                    return BadRequest("Invalid CategoryID.");
 
-            // Handle case where no products exist
-            if (rows == null || !rows.Any())
-                return Ok(new List<Product>());
+                var rows = await _repo.GetDataAsync(
+                    "GetProductsByCategory",
+                    new Dictionary<string, object?>
+                    {
+                        { "@CategoryID", categoryId }
+                    }
+                );
 
-            var products = rows
-                .Where(row => row != null)
-                .Select(row => new Product
-                {
-                    ProductID = Convert.ToInt32(row["ProductID"]),
-                    CategoryID = Convert.ToInt32(row["CategoryID"]),
-                    ProductCode = row["ProductCode"]?.ToString() ?? "",
-                    ProductName = row["ProductName"]?.ToString() ?? "",
-                    Description = row["Description"]?.ToString() ?? "",
-                    ListPrice = Convert.ToDecimal(row["ListPrice"]),
-                    DiscountPercent = Convert.ToDecimal(row["DiscountPercent"]),
-                    ImageURL = row.ContainsKey("ImageURL") ? row["ImageURL"]?.ToString() : null,
-                    IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value
-                        ? Convert.ToBoolean(row["IsActive"])
-                        : true,
-                    DateUpdated = row["DateUpdated"] == DBNull.Value
-                        ? null
-                        : Convert.ToDateTime(row["DateUpdated"])
-                })
-                .ToList();
+                // Handle case where no products exist
+                if (rows == null || !rows.Any())
+                    return Ok(new List<Product>());
 
-            return Ok(products);
+                var products = rows.Where(row => row != null).Select(ProductsController.MapRowToProduct).ToList();
+                return Ok(products);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve products by category.");
+            }
+        }
+
+        /// <summary>
+        /// Maps a database row to a Category object with safe type conversion and null handling.
+        /// </summary>
+        /// <param name="row">The database row containing category data.</param>
+        /// <returns>A Category object populated with the row data, using default values for missing or null fields.</returns>
+        private static Category MapRowToCategory(IDictionary<string, object?> row)
+        {
+            return new Category
+            {
+                CategoryID = row.ContainsKey("CategoryID") && row["CategoryID"] != DBNull.Value ? Convert.ToInt32(row["CategoryID"]) : 0,
+                CategoryName = row.ContainsKey("CategoryName") ? row["CategoryName"]?.ToString() ?? string.Empty : string.Empty
+            };
         }
     }
 }
