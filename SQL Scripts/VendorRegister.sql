@@ -11,7 +11,7 @@ GO
 -- Description:	Vendor completes registration using token from admin
 -- exec VendorRegister @RegistrationToken='abc-123-xyz', @VendorEmail='vendor@example.com', @Password='SecurePass123'
 -- =============================================
-CREATE OR ALTER PROCEDURE [dbo].[VendorRegister]
+CREATE PROCEDURE [dbo].[VendorRegister]
     @RegistrationToken NVARCHAR(50),
     @VendorEmail NVARCHAR(255),
     @Password NVARCHAR(255)

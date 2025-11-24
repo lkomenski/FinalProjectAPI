@@ -11,7 +11,7 @@ GO
 --              Checks if token exists, hasn't expired, and vendor doesn't already have an account
 -- exec ValidateVendorToken @Token='YOUR-TOKEN-GUID-HERE'
 -- =============================================
-CREATE OR ALTER PROCEDURE [dbo].[ValidateVendorToken]
+CREATE PROCEDURE [dbo].[ValidateVendorToken]
     @Token NVARCHAR(50)
 AS
 BEGIN
