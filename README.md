@@ -25,7 +25,9 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Framework:** React.js 19.x with React Router 7.x
 - **State Management:** Context API for cart and user state
 - **UI Components:** Custom responsive design with react-slick carousels
-- **Navigation:** Protected routes based on user roles
+- **Navigation:** Protected routes based on user roles with automatic dashboard redirection
+- **Charts & Visualization:** Recharts library for dashboard analytics
+- **Styling:** Modular CSS architecture with Dashboard.css, ManagementPage.css, and modal.css
 - **Testing:** React Testing Library with Jest
 
 ### Database Design
@@ -51,6 +53,8 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Best Sellers Tracking:** Analytics-driven product recommendations
 - **Image Management:** Product photos and galleries
 - **Stock Management:** Inventory tracking and availability
+- **Product Status Control:** Active/inactive status management - inactive products are hidden from customers
+- **Search & Filter:** Active products are searchable and filterable by category
 
 ### Vendor Management
 - **Vendor Registration:** Onboard new suppliers and manufacturers with dedicated registration form
@@ -59,23 +63,28 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Account Status:** Activate/deactivate vendor accounts
 - **Contact Management:** Vendor communication and contact details
 - **Dashboard Analytics:** Vendor-specific sales and revenue tracking
+- **Restricted Access:** Vendors cannot access shopping cart or make purchases
 
 ### Administrative Dashboard
-- **System Overview:** Key performance indicators and metrics
-- **User Management:** Manage customer and vendor accounts
-- **Sales Analytics:** Revenue tracking and reporting
+- **System Overview:** Key performance indicators and metrics with real-time refresh capabilities
+- **User Management:** Manage customer and vendor accounts with status controls
+- **Sales Analytics:** Revenue tracking and reporting with interactive charts
 - **Inventory Reports:** Stock levels and product performance
 - **Invoice Tracking:** Outstanding invoices and payment status
+- **Customer Details:** View customer information, addresses, and order history
+- **Product Management:** Control product visibility and inventory status
+- **Role-Based Navigation:** Automatic dashboard redirection on login
 
 ## User Roles & Permissions
 
 ### Customer Users
-- Browse and search product catalog
+- Browse and search product catalog (active products only)
 - Add products to shopping cart
 - Complete purchase transactions
 - View order history and status
 - Manage personal profile and addresses
 - Access customer dashboard
+- Redirected to home page on login
 
 ### Vendor Users
 - View and manage vendor profile
@@ -83,6 +92,8 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - Track payment status and terms
 - View vendor-specific dashboard metrics
 - Update contact and business information
+- Cannot add items to cart or make purchases
+- Redirected to vendor dashboard on login
 
 ### Administrator/Employee Users
 - Full system administration access
@@ -90,6 +101,10 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - Access comprehensive analytics and reports
 - Process orders and manage inventory
 - Handle customer service and support issues
+- Control product visibility (active/inactive status)
+- View all products including inactive ones
+- Cannot add items to cart
+- Redirected to admin dashboard on login
 
 ## Technical Implementation
 
@@ -124,6 +139,10 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ### Product Management
 - Products can be activated/deactivated without deletion
+- Inactive products are automatically hidden from customer view
+- Inactive products do not appear in search results or category filters
+- Inactive products cannot be accessed via direct URL (customers only)
+- Administrators can view and manage all products regardless of status
 - Inventory tracking with stock levels
 - Dynamic pricing with discount percentages
 - Category-based organization and filtering
@@ -184,13 +203,35 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ## Future Enhancements
 
-### Potential Improvements
+### Identified Improvements & Next Steps
+
+#### Code Quality & Architecture
+- **CSS Refactoring:** Remove remaining inline styles and consolidate CSS files for better maintainability
+- **Stylesheet Optimization:** Reorganize CSS architecture to reduce file complexity and improve efficiency
+- **Component Styling:** Establish consistent styling patterns across all React components
+- **Style Guide:** Create comprehensive style guide for consistent UI/UX patterns
+
+#### Security & Access Control
+- **Administrator Account Management:** Implement secure workflow for creating and managing admin accounts
+- **Multi-Factor Authentication:** Add optional 2FA for enhanced account security
+- **Role Permission Granularity:** Fine-tune access controls for different administrative levels
+- **Audit Logging:** Track all administrative actions and changes
+
+#### Vendor Features
+- **Vendor Profile Editing:** Allow vendors to request profile updates
+- **Admin Approval Workflow:** Submit vendor information changes for administrator review before applying
+- **Change History Tracking:** Maintain audit trail of vendor profile modifications
+- **Notification System:** Alert administrators of pending vendor update requests
+
+### Potential Additional Features
 - **Payment Processing** - Credit card and PayPal integration
 - **Shipping Integration** - Real-time shipping calculations
 - **Email Notifications** - Order confirmations and updates
 - **Advanced Analytics** - Business intelligence dashboards
 - **Mobile Application** - Native mobile app development
 - **Inventory Automation** - Automatic reorder points and supplier integration
+- **Customer Reviews** - Product rating and review system
+- **Wishlist Functionality** - Save products for future purchase
 
 ### Scalability Considerations
 - **Caching Implementation** - Redis or in-memory caching
