@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { validateEmail, validatePassword, validateAlphaOnly } from "../../scripts";
 import "../../Styles/Auth.css"; 
 
 export default function RegisterForm() {
@@ -14,10 +15,21 @@ export default function RegisterForm() {
   const [success, setSuccess] = useState("");
 
   const updateField = (e) => {
-    setForm({ 
-      ...form, 
-      [e.target.name]: e.target.value 
-    });
+    const { name, value } = e.target;
+    
+    // Filter name fields to only allow letters and spaces
+    if (name === 'firstName' || name === 'lastName') {
+      const nameValue = value.replace(/[^a-zA-Z ]/g, '');
+      setForm({ 
+        ...form, 
+        [name]: nameValue 
+      });
+    } else {
+      setForm({ 
+        ...form, 
+        [name]: value 
+      });
+    }
 
     setError("");
     setSuccess("");
@@ -29,13 +41,23 @@ export default function RegisterForm() {
       return false;
     }
 
-    if (!form.emailAddress.includes("@")) {
-      setError("Enter a valid email address.");
+    if (!validateAlphaOnly(form.firstName)) {
+      setError("First name can only contain letters.");
       return false;
     }
 
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (!validateAlphaOnly(form.lastName)) {
+      setError("Last name can only contain letters.");
+      return false;
+    }
+
+    if (!validateEmail(form.emailAddress)) {
+      setError("Please enter a valid email address.");
+      return false;
+    }
+
+    if (!validatePassword(form.password)) {
+      setError("Password must be at least 8 characters and contain at least one letter and one number.");
       return false;
     }
 
@@ -90,45 +112,58 @@ export default function RegisterForm() {
       <form onSubmit={handleRegister} className="auth-form">
 
         <input
+          id="register-email"
           name="emailAddress"
+          type="email"
           className="auth-input"
           placeholder="Email Address"
           value={form.emailAddress}
           onChange={updateField}
+          autoComplete="email"
         />
 
         <input
+          id="register-firstName"
           name="firstName"
+          type="text"
           className="auth-input"
           placeholder="First Name"
           value={form.firstName}
           onChange={updateField}
+          autoComplete="given-name"
         />
 
         <input
+          id="register-lastName"
           name="lastName"
+          type="text"
           className="auth-input"
           placeholder="Last Name"
           value={form.lastName}
           onChange={updateField}
+          autoComplete="family-name"
         />
 
         <input
+          id="register-password"
           type="password"
           name="password"
           className="auth-input"
           placeholder="Password"
           value={form.password}
           onChange={updateField}
+          autoComplete="new-password"
         />
 
         <input
+          id="register-confirmPassword"
           type="password"
           name="confirmPassword"
           className="auth-input"
           placeholder="Confirm Password"
           value={form.confirmPassword}
           onChange={updateField}
+          autoComplete="new-password"
         />
 
         <button type="submit" className="auth-btn">

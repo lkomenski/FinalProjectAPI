@@ -95,6 +95,56 @@ export default function VendorManagement() {
     setCurrentPage(pageNumber);
   };
 
+  // Generate pagination items with ellipsis for large page counts
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisible = 7; // Maximum page buttons to show
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(i);
+      }
+    } else {
+      // Always show first page
+      items.push(1);
+      
+      // Calculate range around current page
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      // Adjust if at start
+      if (currentPage <= 3) {
+        endPage = 4;
+      }
+      
+      // Adjust if at end
+      if (currentPage >= totalPages - 2) {
+        startPage = totalPages - 3;
+      }
+      
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
+        items.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        items.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (endPage < totalPages - 1) {
+        items.push('...');
+      }
+      
+      // Always show last page
+      items.push(totalPages);
+    }
+    
+    return items;
+  };
+
   async function toggleVendorStatus(id, activate) {
     const endpoint = activate
       ? `http://localhost:5077/api/vendors/activate/${id}`
@@ -291,11 +341,28 @@ export default function VendorManagement() {
               className="dashboard-list-item vendor-list-item"
               onClick={() => openVendorDetail(v.vendorID)}
             >
-              <div>
-                <strong>{v.vendorName}</strong>
-                <p>{v.vendorCity}, {v.vendorState}</p>
-                <p>Contact: {v.vendorContactFName} {v.vendorContactLName}</p>
-                <span className={v.isActive ? "text-green-700" : "text-red-600"}>
+              {/* Vendor Info */}
+              <div className="vendor-info">
+                <div className="vendor-info-name">
+                  {v.vendorName}
+                </div>
+                <div className="vendor-info-location">
+                  {v.vendorCity}, {v.vendorState}
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="vendor-contact-section">
+                <div className="vendor-contact-label">Contact</div>
+                <div className="vendor-contact-value">
+                  {v.vendorContactFName} {v.vendorContactLName}
+                </div>
+              </div>
+
+              {/* Status */}
+              <div className="vendor-status-section">
+                <div className="vendor-status-label">Status</div>
+                <span className={`status-badge ${v.isActive ? 'status-active' : 'status-inactive'}`}>
                   {v.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
@@ -316,14 +383,18 @@ export default function VendorManagement() {
           </button>
           
           <div className="pagination-pages">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                className={`pagination-page ${currentPage === index + 1 ? 'active' : ''}`}
-                onClick={() => goToPage(index + 1)}
-              >
-                {index + 1}
-              </button>
+            {getPaginationItems().map((item, index) => (
+              item === '...' ? (
+                <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={item}
+                  className={`pagination-page ${currentPage === item ? 'active' : ''}`}
+                  onClick={() => goToPage(item)}
+                >
+                  {item}
+                </button>
+              )
             ))}
           </div>
 

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { validateEmail, validatePassword } from "../../scripts";
 import "../../Styles/Auth.css";
 
 export default function VendorRegisterForm() {
@@ -23,18 +24,18 @@ export default function VendorRegisterForm() {
   };
 
   const validate = () => {
-    if (!form.registrationToken || !form.vendorEmail || !form.password) {
+    if (!form.registrationToken || !form.vendorEmail || !form.password || !form.confirmPassword) {
       setError("All fields are required.");
       return false;
     }
 
-    if (!form.vendorEmail.includes("@")) {
-      setError("Enter a valid email address.");
+    if (!validateEmail(form.vendorEmail)) {
+      setError("Please enter a valid email address.");
       return false;
     }
 
-    if (form.password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (!validatePassword(form.password)) {
+      setError("Password must be at least 8 characters and contain at least one letter and one number.");
       return false;
     }
 
@@ -101,37 +102,47 @@ export default function VendorRegisterForm() {
       <form onSubmit={handleRegister} className="auth-form">
 
         <input
+          id="vendor-registrationToken"
           name="registrationToken"
+          type="text"
           className="auth-input"
           placeholder="Registration Token"
           value={form.registrationToken}
           onChange={updateField}
+          autoComplete="off"
         />
 
         <input
+          id="vendor-email"
           name="vendorEmail"
+          type="email"
           className="auth-input"
           placeholder="Business Email Address"
           value={form.vendorEmail}
           onChange={updateField}
+          autoComplete="email"
         />
 
         <input
+          id="vendor-password"
           type="password"
           name="password"
           className="auth-input"
           placeholder="Create Password"
           value={form.password}
           onChange={updateField}
+          autoComplete="new-password"
         />
 
         <input
+          id="vendor-confirmPassword"
           type="password"
           name="confirmPassword"
           className="auth-input"
           placeholder="Confirm Password"
           value={form.confirmPassword}
           onChange={updateField}
+          autoComplete="new-password"
         />
 
         <button type="submit" className="auth-btn">

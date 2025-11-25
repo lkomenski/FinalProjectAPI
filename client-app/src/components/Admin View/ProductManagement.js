@@ -124,6 +124,56 @@ export default function ProductManagement() {
     setCurrentPage(pageNumber);
   };
 
+  // Generate pagination items with ellipsis for large page counts
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisible = 7; // Maximum page buttons to show
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(i);
+      }
+    } else {
+      // Always show first page
+      items.push(1);
+      
+      // Calculate range around current page
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      // Adjust if at start
+      if (currentPage <= 3) {
+        endPage = 4;
+      }
+      
+      // Adjust if at end
+      if (currentPage >= totalPages - 2) {
+        startPage = totalPages - 3;
+      }
+      
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
+        items.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        items.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (endPage < totalPages - 1) {
+        items.push('...');
+      }
+      
+      // Always show last page
+      items.push(totalPages);
+    }
+    
+    return items;
+  };
+
   async function activateProduct(id) {
     try {
       const response = await fetch(`http://localhost:5077/api/products/activate/${id}`, { 
@@ -235,7 +285,7 @@ export default function ProductManagement() {
             ) : (
               <div className="product-list">
                 {featuredProducts.slice(0, 4).map(p => (
-                  <div key={p.productID} className="product-item">
+                  <div key={p.productID} className="product-item" onClick={() => openProductDetail(p.productID)}>
                     <div className="product-item-name">{p.productName}</div>
                     <div className="product-item-price-row">
                       <span className="product-item-price">${p.listPrice?.toFixed(2)}</span>
@@ -261,7 +311,7 @@ export default function ProductManagement() {
             ) : (
               <div className="product-list">
                 {bestSellers.slice(0, 4).map(p => (
-                  <div key={p.productID} className="product-item">
+                  <div key={p.productID} className="product-item" onClick={() => openProductDetail(p.productID)}>
                     <div className="product-item-name">{p.productName}</div>
                     <div className="product-item-price">${p.listPrice?.toFixed(2)}</div>
                   </div>
@@ -280,7 +330,7 @@ export default function ProductManagement() {
             ) : (
               <div className="product-list">
                 {outOfStockProducts.slice(0, 4).map(p => (
-                  <div key={p.productID} className="product-out-of-stock-item">
+                  <div key={p.productID} className="product-out-of-stock-item" onClick={() => openProductDetail(p.productID)}>
                     <div className="product-out-of-stock-name">{p.productName}</div>
                     <div className="product-out-of-stock-note">Needs restock</div>
                   </div>
@@ -446,14 +496,18 @@ export default function ProductManagement() {
           </button>
           
           <div className="pagination-pages">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                className={`pagination-page ${currentPage === index + 1 ? 'active' : ''}`}
-                onClick={() => goToPage(index + 1)}
-              >
-                {index + 1}
-              </button>
+            {getPaginationItems().map((item, index) => (
+              item === '...' ? (
+                <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={item}
+                  className={`pagination-page ${currentPage === item ? 'active' : ''}`}
+                  onClick={() => goToPage(item)}
+                >
+                  {item}
+                </button>
+              )
             ))}
           </div>
 

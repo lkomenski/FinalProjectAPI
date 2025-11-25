@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../context/CartContext";
+import { validateEmail } from "../../scripts";
 import "../../Styles/Auth.css";
 
 export default function LoginForm() {
@@ -20,7 +21,7 @@ export default function LoginForm() {
       return false;
     }
 
-    if (!emailAddress.includes("@")) {
+    if (!validateEmail(emailAddress)) {
       setError("Please enter a valid email address.");
       return false;
     }
@@ -76,9 +77,15 @@ export default function LoginForm() {
       refreshUserCart();
 
       // Use React Router navigation to avoid page reload
-      // Redirect all users to home page after login
+      // Redirect based on user role
       setTimeout(() => {
-        navigate("/");
+        if (data.role === 'vendor') {
+          navigate("/vendor-dashboard");
+        } else if (data.role === 'admin') {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/");
+        }
       }, 100);
 
     } catch (err) {
@@ -114,19 +121,25 @@ export default function LoginForm() {
 
       <form onSubmit={handleLogin} className="auth-form">
         <input
+          id="login-email"
+          name="emailAddress"
           type="email"
           className="auth-input"
           placeholder="Email Address"
           value={emailAddress}
           onChange={(e) => setEmailAddress(e.target.value)}
+          autoComplete="email"
         />
 
         <input
+          id="login-password"
+          name="password"
           type="password"
           className="auth-input"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
         />
 
         <button className="auth-btn" type="submit">

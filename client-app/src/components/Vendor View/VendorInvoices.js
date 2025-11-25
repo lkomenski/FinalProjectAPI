@@ -213,7 +213,6 @@ export default function VendorInvoices() {
   const totalInvoiceAmount = invoices.reduce((sum, inv) => sum + (inv.invoiceTotal || 0), 0);
   const paidInvoices = invoices.filter(inv => getStatus(inv) === "paid");
   const unpaidInvoices = invoices.filter(inv => getStatus(inv) === "unpaid");
-  const totalPaid = paidInvoices.reduce((sum, inv) => sum + (inv.invoiceTotal || 0), 0);
   const totalUnpaid = unpaidInvoices.reduce((sum, inv) => sum + (inv.invoiceTotal || 0), 0);
   
   // Calculate average invoice amount

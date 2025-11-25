@@ -39,9 +39,10 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ### Customer Management
 - **User Registration & Authentication:** Secure customer account creation and login with BCrypt password encryption
 - **Profile Management:** Update personal information, addresses, and preferences
-- **Shopping Cart:** Add products, manage quantities, and checkout
+- **Shopping Cart:** Add products, manage quantities, and checkout (restricted to customers only)
 - **Order History:** View past purchases and order status
 - **Password Security:** Complete password reset flow via email and in-app password change functionality
+- **Role-Based Cart Access:** Vendors and administrators cannot add items to cart
 
 ### Product Catalog Management
 - **Inventory Management:** Complete CRUD operations for products

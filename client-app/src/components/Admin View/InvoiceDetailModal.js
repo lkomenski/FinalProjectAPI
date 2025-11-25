@@ -25,31 +25,31 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
 
         <div className="modal-body">
           {/* Invoice Header */}
-          <div className="invoice-section">
-            <h3>Invoice Information</h3>
-            <div className="invoice-grid">
-              <div className="invoice-field">
-                <label>Invoice Number:</label>
-                <span>#{invoice.invoiceNumber || invoice.invoiceID}</span>
+          <div className="modal-section">
+            <h3 className="modal-section-title">Invoice Information</h3>
+            <div className="modal-grid cols-2">
+              <div className="modal-field">
+                <label className="modal-label">Invoice Number</label>
+                <span className="modal-value">#{invoice.invoiceNumber || invoice.invoiceID}</span>
               </div>
-              <div className="invoice-field">
-                <label>Status:</label>
-                <span className={amountDue <= 0 ? "status-paid" : "status-unpaid"}>
+              <div className="modal-field">
+                <label className="modal-label">Status</label>
+                <span className={amountDue <= 0 ? "status-badge success" : "status-badge danger"}>
                   {amountDue <= 0 ? "Paid" : "Unpaid"}
                 </span>
               </div>
-              <div className="invoice-field">
-                <label>Invoice Date:</label>
-                <span>{new Date(invoice.invoiceDate).toLocaleDateString()}</span>
+              <div className="modal-field">
+                <label className="modal-label">Invoice Date</label>
+                <span className="modal-value">{new Date(invoice.invoiceDate).toLocaleDateString()}</span>
               </div>
-              <div className="invoice-field">
-                <label>Due Date:</label>
-                <span>{invoice.invoiceDueDate ? new Date(invoice.invoiceDueDate).toLocaleDateString() : 'N/A'}</span>
+              <div className="modal-field">
+                <label className="modal-label">Due Date</label>
+                <span className="modal-value">{invoice.invoiceDueDate ? new Date(invoice.invoiceDueDate).toLocaleDateString() : 'N/A'}</span>
               </div>
               {invoice.termsDescription && (
-                <div className="invoice-field">
-                  <label>Payment Terms:</label>
-                  <span>{invoice.termsDescription}</span>
+                <div className="modal-field full">
+                  <label className="modal-label">Payment Terms</label>
+                  <span className="modal-value">{invoice.termsDescription}</span>
                 </div>
               )}
             </div>
@@ -88,37 +88,37 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
           </div>
 
           {/* Vendor Info */}
-          <div className="invoice-section">
-            <h3>Vendor Information</h3>
-            <div className="invoice-grid">
-              <div className="invoice-field">
-                <label>Vendor Name:</label>
-                <span>{invoice.vendorName || 'N/A'}</span>
+          <div className="modal-section">
+            <h3 className="modal-section-title">Vendor Information</h3>
+            <div className="modal-grid cols-2">
+              <div className="modal-field">
+                <label className="modal-label">Vendor Name</label>
+                <span className="modal-value">{invoice.vendorName || 'N/A'}</span>
               </div>
-              <div className="invoice-field">
-                <label>Contact Person:</label>
-                <span>
+              <div className="modal-field">
+                <label className="modal-label">Contact Person</label>
+                <span className="modal-value">
                   {invoice.vendorContactFName && invoice.vendorContactLName
                     ? `${invoice.vendorContactFName} ${invoice.vendorContactLName}`
                     : 'N/A'}
                 </span>
               </div>
               {invoice.vendorPhone && (
-                <div className="invoice-field">
-                  <label>Phone:</label>
-                  <span>{invoice.vendorPhone}</span>
+                <div className="modal-field">
+                  <label className="modal-label">Phone</label>
+                  <span className="modal-value">{invoice.vendorPhone}</span>
                 </div>
               )}
               {invoice.vendorEmail && (
-                <div className="invoice-field">
-                  <label>Email:</label>
-                  <span>{invoice.vendorEmail}</span>
+                <div className="modal-field">
+                  <label className="modal-label">Email</label>
+                  <span className="modal-value">{invoice.vendorEmail}</span>
                 </div>
               )}
               {(invoice.vendorAddress1 || invoice.vendorCity) && (
-                <div className="invoice-field" style={{ gridColumn: 'span 2' }}>
-                  <label>Address:</label>
-                  <span>
+                <div className="modal-field full">
+                  <label className="modal-label">Address</label>
+                  <span className="modal-value">
                     {invoice.vendorAddress1 && <>{invoice.vendorAddress1}<br /></>}
                     {invoice.vendorAddress2 && <>{invoice.vendorAddress2}<br /></>}
                     {invoice.vendorCity && invoice.vendorState && invoice.vendorZipCode && (
@@ -131,32 +131,32 @@ export default function InvoiceDetailModal({ invoice, onClose }) {
           </div>
 
           {/* Financial Summary */}
-          <div className="invoice-section">
-            <h3>Financial Summary</h3>
-            <div className="invoice-totals">
-              <div className="invoice-total-row">
-                <label>Subtotal:</label>
+          <div className="modal-section">
+            <h3 className="modal-section-title">Financial Summary</h3>
+            <div className="modal-totals">
+              <div className="modal-total-row">
+                <label>Subtotal</label>
                 <span>${subtotal.toFixed(2)}</span>
               </div>
               {invoice.paymentTotal > 0 && (
-                <div className="invoice-total-row">
-                  <label>Payments Applied:</label>
+                <div className="modal-total-row">
+                  <label>Payments Applied</label>
                   <span>-${invoice.paymentTotal.toFixed(2)}</span>
                 </div>
               )}
               {invoice.creditTotal > 0 && (
-                <div className="invoice-total-row">
-                  <label>Credits Applied:</label>
+                <div className="modal-total-row">
+                  <label>Credits Applied</label>
                   <span>-${invoice.creditTotal.toFixed(2)}</span>
                 </div>
               )}
-              <div className="invoice-total-row total">
-                <label>Total Amount:</label>
+              <div className="modal-total-row total">
+                <label>Total Amount</label>
                 <span>${invoice.invoiceTotal?.toFixed(2)}</span>
               </div>
               {amountDue > 0 && (
-                <div className="invoice-total-row outstanding">
-                  <label>Amount Due:</label>
+                <div className="modal-total-row outstanding">
+                  <label>Amount Due</label>
                   <span>${amountDue.toFixed(2)}</span>
                 </div>
               )}

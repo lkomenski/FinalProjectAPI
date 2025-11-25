@@ -136,6 +136,78 @@
   transform: translateY(-1px);
 }
 
+.checkout-edit-btn,
+.checkout-cancel-btn,
+.checkout-save-address-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.checkout-edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.checkout-edit-btn:hover {
+  background: #2563eb;
+}
+
+.checkout-cancel-btn {
+  background: #6b7280;
+  color: white;
+}
+
+.checkout-cancel-btn:hover {
+  background: #4b5563;
+}
+
+.checkout-save-address-btn {
+  width: 100%;
+  background: #10b981;
+  color: white;
+  padding: 12px;
+}
+
+.checkout-save-address-btn:hover {
+  background: #059669;
+}
+
+/* -------------------------------
+   Address Display Mode
+-------------------------------- */
+.checkout-address-display {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.address-content p {
+  margin: 8px 0;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.address-content p strong {
+  color: #111827;
+  font-weight: 600;
+  display: inline-block;
+  width: 80px;
+}
+
 /* -------------------------------
    Messages
 -------------------------------- */

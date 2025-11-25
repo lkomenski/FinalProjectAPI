@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { validatePassword } from "../../scripts";
 import "../../Styles/Dashboard.css";
 import "../../Styles/modal.css";
 
@@ -35,26 +36,20 @@ export default function ChangePasswordModal({ user, onClose }) {
       return;
     }
 
-    if (!form.newPassword.trim()) {
-      setError("New password is required.");
+    if (!form.newPassword.trim() || !form.confirmPassword.trim()) {
+      setError("New password and confirmation are required.");
+      setLoading(false);
+      return;
+    }
+
+    if (!validatePassword(form.newPassword)) {
+      setError("Password must be at least 8 characters and contain at least one letter and one number.");
       setLoading(false);
       return;
     }
 
     if (form.newPassword !== form.confirmPassword) {
       setError("New passwords do not match.");
-      setLoading(false);
-      return;
-    }
-
-    if (form.newPassword.length < 8) {
-      setError("Password must be at least 8 characters long.");
-      setLoading(false);
-      return;
-    }
-
-    if (!/\d/.test(form.newPassword)) {
-      setError("Password must contain at least one number.");
       setLoading(false);
       return;
     }
@@ -108,6 +103,7 @@ export default function ChangePasswordModal({ user, onClose }) {
           <div className="modal-grid" style={{ gridTemplateColumns: '1fr', gap: '16px' }}>
             
             <input
+              id="change-oldPassword"
               className="dashboard-input"
               name="oldPassword"
               type="password"
@@ -116,9 +112,11 @@ export default function ChangePasswordModal({ user, onClose }) {
               onChange={handleChange}
               required
               disabled={loading}
+              autoComplete="current-password"
             />
 
             <input
+              id="change-newPassword"
               className="dashboard-input"
               name="newPassword"
               type="password"
@@ -127,9 +125,11 @@ export default function ChangePasswordModal({ user, onClose }) {
               onChange={handleChange}
               required
               disabled={loading}
+              autoComplete="new-password"
             />
 
             <input
+              id="change-confirmPassword"
               className="dashboard-input"
               name="confirmPassword"
               type="password"
@@ -138,6 +138,7 @@ export default function ChangePasswordModal({ user, onClose }) {
               onChange={handleChange}
               required
               disabled={loading}
+              autoComplete="new-password"
             />
 
             <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '8px' }}>

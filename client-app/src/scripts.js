@@ -13,6 +13,11 @@ function validateAlphaNumeric(value) {
     return regEx.test(value);
 }
 
+function validateAlphaOnly(value) {
+    const regEx = /^[a-zA-Z ]+$/;
+    return regEx.test(value);
+}
+
 function validatePassword(password) {
     // check this to make sure it validates the way the c# files say
     const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
@@ -20,9 +25,9 @@ function validatePassword(password) {
 }
 
 function validatePhoneNumber(phone) {
-    // Check if phone is exactly 10 digits
+    // Check if phone is exactly 10 digits using validateNumberField
     const digits = phone.replace(/\D/g, '');
-    return digits.length === 10;
+    return digits.length === 10 && validateNumberField(digits);
 }
 
 function formatPhoneNumber(phone) {
@@ -35,9 +40,9 @@ function formatPhoneNumber(phone) {
 }
 
 function validateZipCode(zipCode) {
-    // Check if zip code is exactly 5 digits
+    // Check if zip code is exactly 5 digits using validateNumberField
     const digits = zipCode.replace(/\D/g, '');
-    return digits.length === 5;
+    return digits.length === 5 && validateNumberField(digits);
 }
 
 function validateState(state) {
@@ -45,13 +50,20 @@ function validateState(state) {
     return /^[A-Z]{2}$/.test(state);
 }
 
+function validateAddress(address) {
+    // Validate address using alphanumeric pattern (allows letters, numbers, spaces)
+    return validateAlphaNumeric(address);
+}
+
 export { 
     validateEmail, 
     validateNumberField, 
-    validateAlphaNumeric, 
+    validateAlphaNumeric,
+    validateAlphaOnly,
     validatePassword,
     validatePhoneNumber,
     formatPhoneNumber,
     validateZipCode,
-    validateState
+    validateState,
+    validateAddress
 };

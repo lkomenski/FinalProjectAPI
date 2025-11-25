@@ -11,12 +11,18 @@ export default function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const { addToCart } = useContext(CartContext);
+  const { addToCart, currentUser } = useContext(CartContext);
 
   useEffect(() => {
     async function loadProduct() {
       try {
         const data = await fetchData(`products/${productId}`);
+        // Check if product is active (unless user is admin)
+        if (!data.isActive && !data.IsActive && (!currentUser || currentUser.role !== 'admin')) {
+          setError("This product is no longer available.");
+          setLoading(false);
+          return;
+        }
         setProduct(data);
       } catch (err) {
         setError(err.message);
@@ -26,7 +32,7 @@ export default function ProductDetails() {
     }
 
     loadProduct();
-  }, [productId]);
+  }, [productId, currentUser]);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;
@@ -68,12 +74,14 @@ export default function ProductDetails() {
             .replace(/\\n/g, '\n')}
         </p>
 
-        <button
-          className="product-add-btn"
-          onClick={() => addToCart(product)}
-        >
-          Add to Cart
-        </button>
+        {(!currentUser || currentUser.role === 'customer') && (
+          <button
+            className="product-add-btn"
+            onClick={() => addToCart(product)}
+          >
+            Add to Cart
+          </button>
+        )}
       </div>
     </div>
   );

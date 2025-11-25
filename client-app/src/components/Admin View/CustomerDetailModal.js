@@ -46,14 +46,6 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
             <div className="customer-info-grid">
               <div className="customer-info-item">
                 <div className="customer-info-label">
-                  Customer ID:
-                </div>
-                <div className="customer-info-value">
-                  #{customer.customerID}
-                </div>
-              </div>
-              <div className="customer-info-item">
-                <div className="customer-info-label">
                   Status:
                 </div>
                 <span className={customer.isActive ? "status-active" : "status-inactive"}>
@@ -75,6 +67,35 @@ export default function CustomerDetailModal({ customer, onClose, onEdit, onToggl
                 <div className="customer-info-email">
                   {customer.emailAddress}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Addresses Section */}
+          <div className="customer-section">
+            <h3 className="customer-section-title">
+              Addresses
+            </h3>
+            <div className="customer-addresses-container">
+              <div className="customer-address-box">
+                <div className="customer-address-type">Billing Address</div>
+                {customer.billingAddressID ? (
+                  <div className="customer-address-content">
+                    {customer.billingAddress || 'Address details not available'}
+                  </div>
+                ) : (
+                  <div className="customer-no-address">No billing address on file</div>
+                )}
+              </div>
+              <div className="customer-address-box">
+                <div className="customer-address-type">Shipping Address</div>
+                {customer.shippingAddressID ? (
+                  <div className="customer-address-content">
+                    {customer.shippingAddress || 'Address details not available'}
+                  </div>
+                ) : (
+                  <div className="customer-no-address">No shipping address on file</div>
+                )}
               </div>
             </div>
           </div>

@@ -103,9 +103,9 @@
    ============================================================================= */
 
 .management-card {
-  padding: var(--space-5);
+  padding: 20px;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 3px 10px rgba(0,0,0,0.12);
 }
 
@@ -116,22 +116,22 @@
 .management-quick-tip {
   margin-bottom: 25px;
   padding: 15px;
-  background-color: var(--color-primary-50);
+  background-color: #eff6ff;
   border-radius: 8px;
-  border: 1px solid var(--color-primary-200);
+  border: 1px solid #bfdbfe;
 }
 
 .management-quick-tip-title {
   margin: 0 0 8px 0;
-  font-size: var(--text-xl);
+  font-size: 0.9rem;
   font-weight: 600;
-  color: var(--color-primary-800);
+  color: #1e40af;
 }
 
 .management-quick-tip-text {
   margin: 0;
-  font-size: var(--text-base);
-  color: var(--color-primary);
+  font-size: 0.8rem;
+  color: #3b82f6;
   line-height: 1.4;
 }
 
@@ -141,10 +141,10 @@
 
 .management-section-title {
   margin: 0 0 12px 0;
-  font-size: var(--text-2xl);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: var(--color-gray-800);
-  border-bottom: 2px solid var(--color-gray-200);
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
   padding-bottom: 8px;
 }
 
@@ -159,11 +159,88 @@
 
 .management-metrics-title {
   margin: 0 0 20px 0;
-  font-size: var(--text-3xl);
+  font-size: 1.1rem;
   font-weight: 600;
-  color: var(--color-gray-800);
-  border-bottom: 2px solid var(--color-gray-200);
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
   padding-bottom: 10px;
+}
+
+/* =============================================================================
+   STATISTICS/METRICS SECTION
+   ============================================================================= */
+
+.management-stats-section {
+  margin-bottom: 25px;
+}
+
+.management-stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Active stat card - green */
+.management-stat-card-active {
+  padding: 12px;
+  background-color: #f0fdf4;
+  border-radius: 6px;
+  border: 1px solid #bbf7d0;
+}
+
+.management-stat-label-active {
+  font-size: 0.75rem;
+  color: #059669;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.management-stat-value-active {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+/* Total stat card - gray */
+.management-stat-card-total {
+  padding: 12px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.management-stat-label-total {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.management-stat-value-total {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* Inactive stat card - red */
+.management-stat-card-inactive {
+  padding: 12px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+}
+
+.management-stat-label-inactive {
+  font-size: 0.75rem;
+  color: #dc2626;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.management-stat-value-inactive {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #dc2626;
 }
 
 /* =============================================================================
@@ -173,138 +250,117 @@
 .management-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .management-list-item {
-  font-size: var(--text-base);
+  font-size: 0.8rem;
   padding: 10px;
-  background-color: var(--color-gray-50);
+  background-color: #f9fafb;
   border-radius: 6px;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid #e5e7eb;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .management-list-item:hover {
-  background-color: var(--color-gray-100);
-  border-color: var(--color-gray-300);
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
 }
 
 .management-list-item-name {
   font-weight: 600;
-  color: var(--color-gray-900);
+  color: #111827;
   margin-bottom: 4px;
-  font-size: var(--text-lg);
+  font-size: 0.85rem;
 }
 
 .management-list-item-detail {
-  font-size: var(--text-sm);
-  color: var(--color-gray-500);
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 6px;
 }
 
 .management-list-item-status {
-  margin-top: 6px;
-  font-size: var(--text-xs);
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
 .management-list-item-status.active {
-  color: var(--color-success);
+  color: #059669;
 }
 
 .management-list-item-status.inactive {
-  color: var(--color-gray-500);
+  color: #6b7280;
 }
 
 /* =============================================================================
-   METRIC SYSTEM
+   RIGHT PANEL METRICS
    ============================================================================= */
 
 .management-metrics-container {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-}
-
-.management-metric-card {
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid;
-}
-
-.management-metric-card.success {
-  background-color: var(--color-success-50);
-  border-color: var(--color-success-200);
-}
-
-.management-metric-card.warning {
-  background-color: var(--color-warning-50);
-  border-color: var(--color-warning-100);
-}
-
-.management-metric-card.danger {
-  background-color: var(--color-danger-50);
-  border-color: var(--color-danger-100);
-}
-
-.management-metric-card.neutral {
-  background-color: var(--color-gray-50);
-  border-color: var(--color-gray-200);
+  gap: 20px;
 }
 
 .management-metric-label {
-  font-size: var(--text-sm);
+  font-size: 0.8rem;
   font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.management-metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.management-metric-value.large {
+  font-size: 1.75rem;
+}
+
+.management-metric-value.success {
+  font-size: 1.5rem;
+  color: #059669;
+}
+
+.management-metric-value.danger {
+  font-size: 1.5rem;
+  color: #dc2626;
+}
+
+/* Health indicator card */
+.management-health-card {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.management-health-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
   margin-bottom: 8px;
 }
 
-.management-metric-label.success { color: var(--color-success); }
-.management-metric-label.warning { color: var(--color-warning); }
-.management-metric-label.danger { color: var(--color-danger); }
-.management-metric-label.neutral { color: var(--color-gray-500); }
-
-.management-metric-value {
+.management-health-value {
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
-.management-metric-value.xl {
-  font-size: var(--text-7xl);
-  color: var(--color-gray-900);
-}
+.management-health-value.excellent { color: #059669; }
+.management-health-value.good { color: #d97706; }
+.management-health-value.fair { color: #d97706; }
+.management-health-value.needs-review { color: #dc2626; }
 
-.management-metric-value.lg {
-  font-size: var(--text-6xl);
-}
-
-.management-metric-value.md {
-  font-size: var(--text-5xl);
-}
-
-.management-metric-value.success { color: var(--color-success); }
-.management-metric-value.warning { color: var(--color-warning); }
-.management-metric-value.danger { color: var(--color-danger); }
-.management-metric-value.neutral { color: var(--color-gray-900); }
-
-.management-metric-detail {
-  font-size: var(--text-xs);
+.management-health-detail {
+  font-size: 0.7rem;
+  color: #9ca3af;
   margin-top: 4px;
-}
-
-.management-metric-detail.success { color: var(--color-success); }
-.management-metric-detail.warning { color: var(--color-warning-800); }
-.management-metric-detail.danger { color: var(--color-danger-800); }
-.management-metric-detail.neutral { color: var(--color-gray-400); }
-
-.management-metric-numbers {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-}
-
-.management-metric-secondary {
-  font-size: var(--text-xl);
-  color: var(--color-gray-500);
 }
 
 /* =============================================================================
@@ -523,19 +579,19 @@
 .product-info-name {
   font-weight: 600;
   font-size: 1rem;
-  color: var(--color-gray-900);
+  color: #111827;
   margin-bottom: 5px;
 }
 
 .product-info-category {
-  font-size: var(--text-base);
-  color: var(--color-gray-400);
+  font-size: 0.8rem;
+  color: #9ca3af;
   margin-bottom: 3px;
 }
 
 .product-info-description {
-  font-size: var(--text-sm);
-  color: var(--color-gray-500);
+  font-size: 0.75rem;
+  color: #6b7280;
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -543,21 +599,30 @@
 }
 
 .product-field-label {
-  font-size: var(--text-xs);
+  font-size: 0.7rem;
   font-weight: 500;
-  color: var(--color-gray-500);
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+
+.product-price-label,
+.product-stock-label,
+.product-status-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6b7280;
   margin-bottom: 3px;
 }
 
 .product-price-value {
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--color-success);
+  color: #059669;
 }
 
 .product-price-discount {
-  font-size: var(--text-xs);
-  color: var(--color-danger);
+  font-size: 0.7rem;
+  color: #dc2626;
   font-weight: 600;
   margin-top: 2px;
 }
@@ -577,7 +642,7 @@
 }
 
 .product-status-badge {
-  font-size: var(--text-sm);
+  font-size: 0.8rem;
   padding: 4px 10px;
 }
 
@@ -673,31 +738,1243 @@
    ============================================================================= */
 
 /* Vendor legacy */
-.vendor-management-layout { @extend .management-layout; }
-.vendor-left-panel { @extend .management-left-panel; }
-.vendor-main-content { @extend .management-main-content; }
-.vendor-right-panel { @extend .management-right-panel; }
-.vendor-left-card { @extend .management-card; }
-.vendor-quick-tip { @extend .management-quick-tip; }
-.vendor-quick-tip-title { @extend .management-quick-tip-title; }
-.vendor-quick-tip-text { @extend .management-quick-tip-text; }
+.vendor-management-layout { display: flex; gap: 25px; padding: 30px; max-width: 100%; }
+.vendor-left-panel { width: 280px; flex-shrink: 0; }
+.vendor-main-content { flex: 1; min-width: 0; }
+.vendor-right-panel { width: 280px; flex-shrink: 0; }
+.vendor-left-card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.vendor-quick-tip { margin-bottom: 25px; padding: 15px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+.vendor-quick-tip-title { margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #1e40af; }
+.vendor-quick-tip-text { margin: 0; font-size: 0.8rem; color: #3b82f6; line-height: 1.4; }
+.vendor-list-section { margin-top: 20px; }
+.vendor-list-item { cursor: pointer; }
+.vendor-no-results { text-align: center; color: #6b7280; padding: 40px; }
 
 /* Product legacy */
-.product-management-layout { @extend .management-layout; }
-.product-left-panel { @extend .management-left-panel; }
-.product-main-content { @extend .management-main-content; }
-.product-right-panel { @extend .management-right-panel; }
-.product-left-card { @extend .management-card; }
-.product-quick-tip { @extend .management-quick-tip; }
-.product-quick-tip-title { @extend .management-quick-tip-title; }
-.product-quick-tip-text { @extend .management-quick-tip-text; }
+.product-management-layout { display: flex; gap: 25px; padding: 30px; max-width: 100%; }
+.product-left-panel { width: 280px; flex-shrink: 0; }
+.product-main-content { flex: 1; min-width: 0; }
+.product-right-panel { width: 280px; flex-shrink: 0; }
+.product-left-card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.product-quick-tip { margin-bottom: 25px; padding: 15px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+.product-quick-tip-title { margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #1e40af; }
+.product-quick-tip-text { margin: 0; font-size: 0.8rem; color: #3b82f6; line-height: 1.4; }
+.product-list-section { margin-top: 20px; }
+.product-no-results { text-align: center; color: #6b7280; padding: 40px; }
 
 /* Customer legacy */
-.customer-management-container { @extend .management-layout; }
-.customer-management-left-panel { @extend .management-left-panel; }
-.customer-management-main-content { @extend .management-main-content; }
-.customer-management-right-panel { @extend .management-right-panel; }
-.customer-management-left-card { @extend .management-card; }
-.customer-management-quick-tip { @extend .management-quick-tip; }
-.customer-management-quick-tip-title { @extend .management-quick-tip-title; }
-.customer-management-quick-tip-text { @extend .management-quick-tip-text; }
+.customer-management-container { display: flex; gap: 25px; padding: 30px; max-width: 100%; }
+.customer-management-left-panel { width: 280px; flex-shrink: 0; }
+.customer-management-main-content { flex: 1; min-width: 0; }
+.customer-management-right-panel { width: 280px; flex-shrink: 0; }
+.customer-management-left-card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.customer-management-quick-tip { margin-bottom: 25px; padding: 15px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+.customer-management-quick-tip-title { margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #1e40af; }
+.customer-management-quick-tip-text { margin: 0; font-size: 0.8rem; color: #3b82f6; line-height: 1.4; }
+.customer-management-stats-section { margin-bottom: 25px; }
+.customer-management-section-title { margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 600; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+.customer-management-stats-grid { display: flex; flex-direction: column; gap: 12px; }
+.customer-management-stat-card-active { padding: 12px; background-color: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
+.customer-management-stat-label-active { font-size: 0.75rem; color: #059669; margin-bottom: 4px; font-weight: 500; }
+.customer-management-stat-value-active { font-size: 1.5rem; font-weight: 700; color: #059669; }
+.customer-management-stat-card-total { padding: 12px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+.customer-management-stat-label-total { font-size: 0.75rem; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+.customer-management-stat-value-total { font-size: 1.5rem; font-weight: 700; color: #1f2937; }
+.customer-management-stat-card-inactive { padding: 12px; background-color: #fef2f2; border-radius: 6px; border: 1px solid #fecaca; }
+.customer-management-stat-label-inactive { font-size: 0.75rem; color: #dc2626; margin-bottom: 4px; font-weight: 500; }
+.customer-management-stat-value-inactive { font-size: 1.5rem; font-weight: 700; color: #dc2626; }
+.customer-management-recent-grid { display: flex; flex-direction: column; gap: 8px; }
+.customer-management-recent-customer { font-size: 0.8rem; padding: 10px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+.customer-management-recent-customer:hover { background-color: #f3f4f6; border-color: #d1d5db; }
+.customer-management-recent-customer-name { font-weight: 600; color: #111827; margin-bottom: 4px; font-size: 0.85rem; }
+.customer-management-recent-customer-email { font-size: 0.75rem; color: #6b7280; margin-bottom: 6px; }
+.customer-management-recent-customer-status { font-size: 0.7rem; font-weight: 500; }
+.customer-management-recent-customer-status.active { color: #059669; }
+.customer-management-recent-customer-status.inactive { color: #6b7280; }
+.customer-management-main-container { padding: 0; }
+.customer-management-list-section { margin-top: 20px; }
+.customer-management-no-customers { text-align: center; color: #6b7280; padding: 40px; }
+.customer-management-list-item { cursor: pointer; }
+
+/* Customer List Item Grid Layout */
+.customer-list-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.customer-info {
+  min-width: 0;
+}
+
+.customer-info-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+.customer-info-email {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.customer-id-section,
+.customer-status-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-id-label,
+.customer-status-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+
+.customer-id-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* Customer Right Panel - Metrics */
+.customer-management-metrics-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.customer-management-metrics-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.customer-management-metric-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.customer-management-metric-value-large {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.customer-management-metric-value-medium {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.customer-management-metric-value-medium.active {
+  color: #059669;
+}
+
+.customer-management-metric-value-medium.inactive {
+  color: #dc2626;
+}
+
+.customer-management-account-health {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.customer-management-account-health-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.customer-management-account-health-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.customer-management-account-health-value.excellent {
+  color: #059669;
+}
+
+.customer-management-account-health-value.good {
+  color: #d97706;
+}
+
+.customer-management-account-health-value.needs-review {
+  color: #dc2626;
+}
+
+.customer-management-account-health-percentage {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* Alternative class names used in component */
+.customer-management-health-card {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.customer-management-health-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.customer-management-health-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.customer-management-health-value.excellent {
+  color: #059669;
+}
+
+.customer-management-health-value.good {
+  color: #d97706;
+}
+
+.customer-management-health-value.needs-review {
+  color: #dc2626;
+}
+
+.customer-management-health-percentage {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* Sales Dashboard legacy */
+.sales-dashboard-layout { display: flex; gap: 25px; padding: 30px; max-width: 100%; }
+.sales-left-panel { width: 280px; flex-shrink: 0; }
+.sales-main-content { flex: 1; min-width: 0; }
+.sales-right-panel { width: 280px; flex-shrink: 0; }
+.sales-left-card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.12); }
+.sales-quick-tip { margin-bottom: 25px; padding: 15px; background-color: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+.sales-quick-tip-title { margin: 0 0 8px 0; font-size: 0.9rem; font-weight: 600; color: #1e40af; }
+.sales-quick-tip-text { margin: 0; font-size: 0.8rem; color: #3b82f6; line-height: 1.4; }
+
+/* =============================================================================
+   UNIVERSAL SECTION HEADINGS FOR ALL MANAGEMENT PAGES
+   ============================================================================= */
+
+.customer-management-section-title,
+.vendor-recently-added-title,
+.vendor-metrics-title,
+.product-section-title,
+.product-metrics-title,
+.sales-period-title,
+.sales-top-customers-title,
+.sales-metrics-title,
+.vendor-top-vendors-title {
+  margin: 0 0 15px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+/* Smaller section titles within panels */
+.product-section-title {
+  font-size: 1rem;
+  margin: 0 0 12px 0;
+}
+
+.vendor-top-vendors-title {
+  font-size: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+/* Vendor Left Panel - Recently Added */
+.vendor-recently-added-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.vendor-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vendor-recent-item {
+  font-size: 0.8rem;
+  padding: 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.vendor-recent-name {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.vendor-recent-location {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.vendor-recent-status {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.vendor-recent-status.active {
+  color: #059669;
+}
+
+.vendor-recent-status.inactive {
+  color: #6b7280;
+}
+
+/* Vendor Main Content */
+.vendor-list-section {
+  margin-top: 20px;
+}
+
+.vendor-list-item {
+  cursor: pointer;
+}
+
+/* Vendor List Item Grid Layout */
+.vendor-list-item {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.vendor-info {
+  min-width: 0;
+}
+
+.vendor-info-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+  margin-bottom: 5px;
+}
+
+.vendor-info-location {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.vendor-contact-section,
+.vendor-status-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.vendor-contact-label,
+.vendor-status-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 3px;
+}
+
+.vendor-contact-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.vendor-no-results {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+}
+
+/* Vendor Right Panel - Metrics */
+.vendor-metrics-card {
+  padding: 20px;
+}
+
+.vendor-metrics-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.vendor-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Active Vendors Metric */
+.vendor-metric-active {
+  padding: 15px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.vendor-metric-active-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #059669;
+  margin-bottom: 8px;
+}
+
+.vendor-metric-active-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.vendor-metric-active-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.vendor-metric-active-total {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.vendor-metric-active-percentage {
+  font-size: 0.7rem;
+  color: #059669;
+  margin-top: 4px;
+}
+
+/* Outstanding Balances Metric */
+.vendor-metric-outstanding {
+  padding: 15px;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+
+.vendor-metric-outstanding-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #d97706;
+  margin-bottom: 8px;
+}
+
+.vendor-metric-outstanding-amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.vendor-metric-outstanding-details {
+  font-size: 0.7rem;
+  color: #92400e;
+  margin-top: 4px;
+}
+
+/* Average Invoice Metric */
+.vendor-metric-average {
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.vendor-metric-average-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.vendor-metric-average-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.vendor-metric-average-details {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* Top Vendors Section */
+.vendor-top-vendors-section {
+  margin-top: 8px;
+}
+
+.vendor-top-vendors-title {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+}
+
+.vendor-top-vendors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vendor-top-vendor-item {
+  padding: 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.vendor-top-vendor-item:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.vendor-top-vendor-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.vendor-top-vendor-rank {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+}
+
+.vendor-top-vendor-rank.rank-1 {
+  background-color: #fbbf24;
+}
+
+.vendor-top-vendor-rank.rank-2 {
+  background-color: #9ca3af;
+}
+
+.vendor-top-vendor-rank.rank-3 {
+  background-color: #cd7f32;
+}
+
+.vendor-top-vendor-rank.rank-4,
+.vendor-top-vendor-rank.rank-5 {
+  background-color: #6b7280;
+}
+
+.vendor-top-vendor-name {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.vendor-top-vendor-amount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #059669;
+  margin-left: 28px;
+}
+
+.vendor-top-vendor-details {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-left: 28px;
+}
+
+.vendor-top-vendor-outstanding {
+  color: #d97706;
+  font-weight: 500;
+}
+
+/* Inactive Alert */
+.vendor-inactive-alert {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.vendor-inactive-alert-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.vendor-inactive-alert-count {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.vendor-inactive-alert-note {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* Vendor Stats */
+.vendor-management-stats-section { margin-bottom: 25px; }
+.vendor-management-section-title { margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 600; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+.vendor-management-stats-grid { display: flex; flex-direction: column; gap: 12px; }
+.vendor-management-stat-card-active { padding: 12px; background-color: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
+.vendor-management-stat-label-active { font-size: 0.75rem; color: #059669; margin-bottom: 4px; font-weight: 500; }
+.vendor-management-stat-value-active { font-size: 1.5rem; font-weight: 700; color: #059669; }
+.vendor-management-stat-card-total { padding: 12px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+.vendor-management-stat-label-total { font-size: 0.75rem; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+.vendor-management-stat-value-total { font-size: 1.5rem; font-weight: 700; color: #1f2937; }
+.vendor-management-stat-card-inactive { padding: 12px; background-color: #fef2f2; border-radius: 6px; border: 1px solid #fecaca; }
+.vendor-management-stat-label-inactive { font-size: 0.75rem; color: #dc2626; margin-bottom: 4px; font-weight: 500; }
+.vendor-management-stat-value-inactive { font-size: 1.5rem; font-weight: 700; color: #dc2626; }
+
+/* Vendor Recent */
+.vendor-management-recent-grid { display: flex; flex-direction: column; gap: 8px; }
+.vendor-management-recent-vendor { font-size: 0.8rem; padding: 10px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+.vendor-management-recent-vendor:hover { background-color: #f3f4f6; border-color: #d1d5db; }
+.vendor-management-recent-vendor-name { font-weight: 600; color: #111827; margin-bottom: 4px; font-size: 0.85rem; }
+.vendor-management-recent-vendor-category { font-size: 0.75rem; color: #6b7280; margin-bottom: 6px; }
+.vendor-management-recent-vendor-status { font-size: 0.7rem; font-weight: 500; }
+.vendor-management-recent-vendor-status.active { color: #059669; }
+.vendor-management-recent-vendor-status.inactive { color: #6b7280; }
+
+/* Product Stats */
+.product-management-stats-section { margin-bottom: 25px; }
+.product-management-section-title { margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 600; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+.product-management-stats-grid { display: flex; flex-direction: column; gap: 12px; }
+.product-management-stat-card-active { padding: 12px; background-color: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
+.product-management-stat-label-active { font-size: 0.75rem; color: #059669; margin-bottom: 4px; font-weight: 500; }
+.product-management-stat-value-active { font-size: 1.5rem; font-weight: 700; color: #059669; }
+.product-management-stat-card-total { padding: 12px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+.product-management-stat-label-total { font-size: 0.75rem; color: #6b7280; margin-bottom: 4px; font-weight: 500; }
+.product-management-stat-value-total { font-size: 1.5rem; font-weight: 700; color: #1f2937; }
+.product-management-stat-card-lowstock { padding: 12px; background-color: #fef2f2; border-radius: 6px; border: 1px solid #fecaca; }
+.product-management-stat-label-lowstock { font-size: 0.75rem; color: #dc2626; margin-bottom: 4px; font-weight: 500; }
+.product-management-stat-value-lowstock { font-size: 1.5rem; font-weight: 700; color: #dc2626; }
+
+/* Product Left Panel */
+.product-featured-section {
+  margin-bottom: 25px;
+}
+
+.product-best-sellers-section {
+  margin-bottom: 25px;
+}
+
+.product-section-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.product-no-data, .product-all-in-stock {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.product-item {
+  padding: 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.product-item:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.product-item-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.product-item-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.product-item-price {
+  color: #059669;
+  font-weight: 600;
+}
+
+.product-item-discount {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.product-out-of-stock-item {
+  padding: 10px;
+  background-color: #fef2f2;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+}
+
+.product-out-of-stock-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-bottom: 4px;
+}
+
+.product-out-of-stock-note {
+  font-size: 0.7rem;
+  color: #991b1b;
+}
+
+.product-out-of-stock-more {
+  padding: 8px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.product-best-sellers-section {
+  margin-bottom: 20px;
+}
+
+/* Product Main Content */
+.product-list-section {
+  margin-top: 20px;
+}
+
+.product-no-results {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+}
+
+.product-image-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.product-image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.product-image-placeholder.hidden {
+  display: none;
+}
+
+.product-info {
+  min-width: 0;
+}
+
+.product-info-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.product-info-category {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.product-info-description {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-price-label,
+.product-stock-label,
+.product-status-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 3px;
+  display: block;
+  line-height: 1;
+}
+
+.product-price-value,
+.product-stock-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: block;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+.product-price-value {
+  color: #059669;
+}
+
+.product-price-discount {
+  font-size: 0.7rem;
+  color: #dc2626;
+  font-weight: 600;
+  margin-top: 2px;
+  display: block;
+}
+
+.product-stock-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.product-status-badge {
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0;
+  line-height: 1.3;
+}
+.product-metrics-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.product-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.product-metric-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.product-metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.product-metric-value.active {
+  font-size: 1.5rem;
+  color: #059669;
+}
+
+.product-metric-value.average {
+  font-size: 1.5rem;
+  color: #2563eb;
+}
+
+.product-metric-value.lowstock {
+  font-size: 1.5rem;
+  color: #dc2626;
+}
+
+.product-metric-value.good {
+  font-size: 1.5rem;
+  color: #059669;
+}
+
+.product-metric-note {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.product-inventory-health {
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.product-inventory-health-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.product-inventory-health-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.product-inventory-health-value.excellent {
+  color: #059669;
+}
+
+.product-inventory-health-value.fair {
+  color: #d97706;
+}
+
+.product-inventory-health-value.attention {
+  color: #dc2626;
+}
+
+/* =============================================================================
+   SALES DASHBOARD - NEW SYSTEM
+   ============================================================================= */
+
+/* Sales Left Panel */
+.sales-period-filters {
+  margin-bottom: 20px;
+}
+
+.sales-period-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.sales-period-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sales-period-btn {
+  padding: 10px 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.sales-period-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.sales-period-btn.active {
+  background-color: #eff6ff;
+  border-color: #3b82f6;
+  color: #1e40af;
+  font-weight: 600;
+}
+
+.sales-top-customers-section {
+  margin-top: 20px;
+}
+
+.sales-top-customers-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.sales-top-customers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sales-top-customer-item {
+  padding: 10px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sales-top-customer-item:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.sales-top-customer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.sales-top-customer-rank {
+  width: 20px;
+  height: 20px;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.sales-top-customer-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111827;
+  margin-left: 8px;
+}
+
+.sales-top-customer-amount {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.sales-top-customer-count {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-left: 28px;
+}
+
+/* Sales Main Content */
+.sales-list-section {
+  margin-top: 20px;
+}
+
+.sales-no-results {
+  text-align: center;
+  color: #6b7280;
+  padding: 40px;
+}
+
+/* Sales Right Panel - Metrics */
+.sales-metrics-title {
+  margin: 0 0 20px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.sales-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sales-metric-revenue {
+  padding: 15px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+  border: 1px solid #bbf7d0;
+}
+
+.sales-metric-revenue-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #059669;
+  margin-bottom: 8px;
+}
+
+.sales-metric-revenue-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.sales-metric-count {
+  padding: 15px;
+  background-color: #eff6ff;
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+}
+
+.sales-metric-count-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1e40af;
+  margin-bottom: 8px;
+}
+
+.sales-metric-count-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.sales-metric-avg {
+  padding: 15px;
+  background-color: #fef3c7;
+  border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+
+.sales-metric-avg-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #d97706;
+  margin-bottom: 8px;
+}
+
+.sales-metric-avg-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.sales-metric-paid {
+  padding: 15px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.sales-metric-paid-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.sales-metric-paid-percentage {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.sales-metric-paid-details {
+  font-size: 0.7rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* Product Recent */
+.product-management-recent-grid { display: flex; flex-direction: column; gap: 8px; }
+.product-management-recent-product { font-size: 0.8rem; padding: 10px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+.product-management-recent-product:hover { background-color: #f3f4f6; border-color: #d1d5db; }
+.product-management-recent-product-name { font-weight: 600; color: #111827; margin-bottom: 4px; font-size: 0.85rem; }
+.product-management-recent-product-category { font-size: 0.75rem; color: #6b7280; margin-bottom: 6px; }
+.product-management-recent-product-price { font-size: 0.75rem; color: #059669; font-weight: 600; }
+
+/* Sales Stats */
+.sales-dashboard-stats-section { margin-bottom: 25px; }
+.sales-dashboard-section-title { margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 600; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; }
+.sales-dashboard-stats-grid { display: flex; flex-direction: column; gap: 12px; }
+.sales-dashboard-stat-card-revenue { padding: 12px; background-color: #f0fdf4; border-radius: 6px; border: 1px solid #bbf7d0; }
+.sales-dashboard-stat-label-revenue { font-size: 0.75rem; color: #059669; margin-bottom: 4px; font-weight: 500; }
+.sales-dashboard-stat-value-revenue { font-size: 1.5rem; font-weight: 700; color: #059669; }
+.sales-dashboard-stat-card-count { padding: 12px; background-color: #eff6ff; border-radius: 6px; border: 1px solid #bfdbfe; }
+.sales-dashboard-stat-label-count { font-size: 0.75rem; color: #1e40af; margin-bottom: 4px; font-weight: 500; }
+.sales-dashboard-stat-value-count { font-size: 1.5rem; font-weight: 700; color: #1e40af; }
+.sales-dashboard-stat-card-avg { padding: 12px; background-color: #fef3c7; border-radius: 6px; border: 1px solid #fde68a; }
+.sales-dashboard-stat-label-avg { font-size: 0.75rem; color: #d97706; margin-bottom: 4px; font-weight: 500; }
+.sales-dashboard-stat-value-avg { font-size: 1.5rem; font-weight: 700; color: #d97706; }
+
+/* Sales Recent */
+.sales-dashboard-recent-grid { display: flex; flex-direction: column; gap: 8px; }
+.sales-dashboard-recent-invoice { font-size: 0.8rem; padding: 10px; background-color: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; cursor: pointer; transition: all 0.2s; }
+.sales-dashboard-recent-invoice:hover { background-color: #f3f4f6; border-color: #d1d5db; }
+.sales-dashboard-recent-invoice-number { font-weight: 600; color: #111827; margin-bottom: 4px; font-size: 0.85rem; }
+.sales-dashboard-recent-invoice-customer { font-size: 0.75rem; color: #6b7280; margin-bottom: 6px; }
+.sales-dashboard-recent-invoice-amount { font-size: 0.75rem; color: #059669; font-weight: 600; }
+
+/* Responsive for legacy layouts */
+@media (max-width: 1024px) {
+  .vendor-management-layout,
+  .product-management-layout,
+  .customer-management-container,
+  .sales-dashboard-layout {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .vendor-left-panel,
+  .vendor-right-panel,
+  .product-left-panel,
+  .product-right-panel,
+  .customer-management-left-panel,
+  .customer-management-right-panel,
+  .sales-left-panel,
+  .sales-right-panel {
+    width: 100%;
+  }
+}

@@ -135,40 +135,31 @@ export default function VendorAccount() {
                 <div style={{ fontSize: '1rem', color: '#1f2937', fontWeight: '500' }}>{vendorInfo.vendorName}</div>
               </div>
               <div>
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Vendor ID</div>
-                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorID}</div>
+                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Street Address</div>
+                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorAddress1 || 'N/A'}</div>
               </div>
               <div>
                 <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Phone Number</div>
                 <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorPhone || 'N/A'}</div>
               </div>
-              <div>
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Default Account Number</div>
-                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.defaultAccountNo || 'N/A'}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Address Section */}
-          <div className="dashboard-card" style={{ padding: '25px', marginBottom: '20px' }}>
-            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.2rem', fontWeight: '600', color: '#1f2937', borderBottom: '2px solid #e5e7eb', paddingBottom: '10px' }}>
-              Business Address
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-              <div style={{ gridColumn: 'span 2' }}>
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Street Address</div>
-                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorAddress1 || 'N/A'}</div>
-              </div>
               {vendorInfo.vendorAddress2 && (
-                <div style={{ gridColumn: 'span 2' }}>
+                <div>
                   <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Address Line 2</div>
                   <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorAddress2}</div>
                 </div>
               )}
-              <div>
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>City</div>
-                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorCity}</div>
-              </div>
+              {!vendorInfo.vendorAddress2 && (
+                <div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>City</div>
+                  <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorCity}</div>
+                </div>
+              )}
+              {vendorInfo.vendorAddress2 && (
+                <div>
+                  <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>City</div>
+                  <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorCity}</div>
+                </div>
+              )}
               <div>
                 <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>State</div>
                 <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.vendorState}</div>
@@ -203,10 +194,6 @@ export default function VendorAccount() {
               Payment Terms
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-              <div>
-                <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Default Terms ID</div>
-                <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.defaultTermsID || 'N/A'}</div>
-              </div>
               <div>
                 <div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '5px', fontWeight: '500' }}>Terms Description</div>
                 <div style={{ fontSize: '1rem', color: '#1f2937' }}>{vendorInfo.termsDescription || 'Not Assigned'}</div>

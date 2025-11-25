@@ -39,5 +39,10 @@ namespace FinalProjectAPI.Models
         /// Gets or sets the identifier for the customer's billing address.
         /// </summary>
         public int? BillingAddressID { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the customer account is active.
+        /// </summary>
+        public bool IsActive { get; set; } = true;
     }
 }

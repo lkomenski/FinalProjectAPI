@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "../shared/Api";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorMessage from "../shared/ErrorMessage";
-import CustomerDetailModal from "../Customer View/CustomerDetailModal";
+import CustomerDetailModal from "./CustomerDetailModal";
 import "../../Styles/Dashboard.css";
 import "../../Styles/ManagementPage.css";
 
@@ -36,7 +36,7 @@ export default function CustomerManagement() {
         firstName: c.FirstName || c.firstName,
         lastName: c.LastName || c.lastName,
         emailAddress: c.EmailAddress || c.emailAddress,
-        isActive: c.IsActive !== undefined ? c.IsActive : c.isActive
+        isActive: c.IsActive !== undefined ? c.IsActive : (c.isActive !== undefined ? c.isActive : true)
       }));
       
       setCustomers(normalizedCustomers);
@@ -88,6 +88,56 @@ export default function CustomerManagement() {
 
   const goToPage = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  // Generate pagination items with ellipsis for large page counts
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisible = 7; // Maximum page buttons to show
+    
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(i);
+      }
+    } else {
+      // Always show first page
+      items.push(1);
+      
+      // Calculate range around current page
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      // Adjust if at start
+      if (currentPage <= 3) {
+        endPage = 4;
+      }
+      
+      // Adjust if at end
+      if (currentPage >= totalPages - 2) {
+        startPage = totalPages - 3;
+      }
+      
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
+        items.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        items.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (endPage < totalPages - 1) {
+        items.push('...');
+      }
+      
+      // Always show last page
+      items.push(totalPages);
+    }
+    
+    return items;
   };
 
   function openCustomerDetail(customer) {
@@ -270,13 +320,29 @@ export default function CustomerManagement() {
           currentCustomers.map((c) => (
             <div 
               key={c.customerID} 
-              className="dashboard-list-item customer-management-list-item"
+              className="dashboard-list-item customer-list-item"
               onClick={() => openCustomerDetail(c)}
             >
-              <div>
-                <strong>{c.firstName} {c.lastName}</strong>
-                <p>{c.emailAddress}</p>
-                <span className={c.isActive ? "text-green-700" : "text-red-600"}>
+              {/* Customer Name */}
+              <div className="customer-info">
+                <div className="customer-info-name">
+                  {c.firstName} {c.lastName}
+                </div>
+                <div className="customer-info-email">
+                  {c.emailAddress}
+                </div>
+              </div>
+
+              {/* Customer ID */}
+              <div className="customer-id-section">
+                <div className="customer-id-label">ID</div>
+                <div className="customer-id-value">#{c.customerID}</div>
+              </div>
+
+              {/* Status */}
+              <div className="customer-status-section">
+                <div className="customer-status-label">Status</div>
+                <span className={`status-badge ${c.isActive ? 'status-active' : 'status-inactive'}`}>
                   {c.isActive ? "Active" : "Inactive"}
                 </span>
               </div>
@@ -297,14 +363,18 @@ export default function CustomerManagement() {
           </button>
           
           <div className="pagination-pages">
-            {[...Array(totalPages)].map((_, index) => (
-              <button
-                key={index + 1}
-                className={`pagination-page ${currentPage === index + 1 ? 'active' : ''}`}
-                onClick={() => goToPage(index + 1)}
-              >
-                {index + 1}
-              </button>
+            {getPaginationItems().map((item, index) => (
+              item === '...' ? (
+                <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={item}
+                  className={`pagination-page ${currentPage === item ? 'active' : ''}`}
+                  onClick={() => goToPage(item)}
+                >
+                  {item}
+                </button>
+              )
             ))}
           </div>
 

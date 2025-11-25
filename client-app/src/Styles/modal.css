@@ -38,6 +38,14 @@
   align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; }
 .modal-close:hover { background-color: var(--gray-100); color: var(--gray-800); }
 
+/* Customer Modal Header Variant */
+.customer-modal-header { position: relative; padding: 0; border-bottom: none; margin-bottom: 0; }
+.customer-modal-header .modal-close { position: absolute; top: 0; right: 0; }
+.customer-modal-title { font-size: 1.5rem !important; margin-bottom: 12px !important; padding-right: 40px; }
+
+/* Customer Modal Body */
+.customer-modal-body { padding: var(--gap-md) 0 var(--gap-lg) 0; }
+
 /* Layout System */
 .modal-body { padding: var(--gap-lg) 0; }
 .modal-grid { display: grid; gap: var(--gap-md); margin-bottom: var(--gap-md); }
@@ -171,6 +179,14 @@
 /* Section Legacy */
 .vendor-section, .product-section, .invoice-section, .customer-section { margin-bottom: var(--gap-lg); }
 .vendor-section h3, .product-section h3, .invoice-section h3, .product-section-title, .customer-section-title, .vendor-section-title { font-size: var(--text-lg); font-weight: 600; color: var(--gray-700); margin-bottom: var(--gap-md); padding-bottom: 8px; border-bottom: 1px solid var(--gray-200); }
+.customer-section-last { margin-bottom: 0; }
+
+/* Address Section */
+.customer-addresses-container { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-md); }
+.customer-address-box { padding: var(--gap-md); background-color: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-200); }
+.customer-address-type { font-size: var(--text-sm); font-weight: 600; color: var(--gray-700); margin-bottom: 8px; }
+.customer-address-content { font-size: 0.9rem; color: var(--gray-800); line-height: 1.5; }
+.customer-no-address { font-size: 0.9rem; color: var(--gray-400); font-style: italic; }
 
 /* Field Legacy */
 .product-detail-label, .product-price-label, .customer-info-label, .vendor-info-label { font-size: var(--text-xs); font-weight: 600; color: var(--gray-500); margin-bottom: 3px; }

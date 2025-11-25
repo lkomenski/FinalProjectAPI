@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../Styles/ProfilePage.css";
 import { fetchData } from "../shared/Api";
 import ConfirmationModal from "../shared/ConfirmationModal";
-import { validatePhoneNumber, formatPhoneNumber, validateZipCode, validateState } from "../../scripts";
+import { validatePhoneNumber, formatPhoneNumber, validateZipCode, validateState, validateAlphaOnly } from "../../scripts";
 
 export default function CustomerProfile() {
   const navigate = useNavigate();
@@ -78,6 +78,15 @@ export default function CustomerProfile() {
   const updateField = (e) => {
     const { name, value } = e.target;
     
+    // First and last name: only letters and spaces
+    if (name === 'firstName' || name === 'lastName') {
+      const nameValue = value.replace(/[^a-zA-Z ]/g, '');
+      setProfile({ ...profile, [name]: nameValue });
+      setError("");
+      setMessage("");
+      return;
+    }
+    
     // Phone number validation and auto-formatting
     if (name === 'phone') {
       const digits = value.replace(/\D/g, '');
@@ -129,6 +138,17 @@ export default function CustomerProfile() {
   const saveProfile = async () => {
     setError("");
     setMessage("");
+
+    // Validate names
+    if (profile?.firstName && !validateAlphaOnly(profile.firstName)) {
+      setError("First name can only contain letters.");
+      return;
+    }
+
+    if (profile?.lastName && !validateAlphaOnly(profile.lastName)) {
+      setError("Last name can only contain letters.");
+      return;
+    }
 
     // Validation
     if (addresses?.ShippingZipCode && !validateZipCode(addresses.ShippingZipCode)) {
@@ -459,44 +479,54 @@ export default function CustomerProfile() {
             <h3 className="section-header">Personal Information</h3>
 
             <div className="profile-row">
-              <label>First Name</label>
+              <label htmlFor="profile-firstName">First Name</label>
               <input
+                id="profile-firstName"
                 name="firstName"
+                type="text"
                 value={profile.firstName}
                 className="profile-input"
                 onChange={updateField}
+                autoComplete="given-name"
               />
             </div>
 
             <div className="profile-row">
-              <label>Last Name</label>
+              <label htmlFor="profile-lastName">Last Name</label>
               <input
+                id="profile-lastName"
                 name="lastName"
+                type="text"
                 value={profile.lastName}
                 className="profile-input"
                 onChange={updateField}
+                autoComplete="family-name"
               />
             </div>
 
             <div className="profile-row">
-              <label>Email</label>
+              <label htmlFor="profile-email">Email</label>
               <input
+                id="profile-email"
                 name="emailAddress"
                 type="email"
                 value={profile.emailAddress}
                 className="profile-input"
                 onChange={updateField}
+                autoComplete="email"
               />
             </div>
 
             <div className="profile-row">
-              <label>Phone</label>
+              <label htmlFor="profile-phone">Phone</label>
               <input
+                id="profile-phone"
                 name="phone"
                 type="tel"
                 value={profile.phone || ""}
                 className="profile-input"
                 onChange={updateField}
+                autoComplete="tel"
               />
             </div>
           </div>
@@ -506,49 +536,69 @@ export default function CustomerProfile() {
             <h3 className="section-header">Shipping Address</h3>
 
             <div className="profile-row">
-              <label>Address Line 1</label>
+              <label htmlFor="shipping-line1">Address Line 1</label>
               <input
+                id="shipping-line1"
+                name="shippingLine1"
+                type="text"
                 value={addresses?.ShippingLine1 || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'Line1', e.target.value)}
+                autoComplete="address-line1"
               />
             </div>
 
             <div className="profile-row">
-              <label>Address Line 2 (Optional)</label>
+              <label htmlFor="shipping-line2">Address Line 2 (Optional)</label>
               <input
+                id="shipping-line2"
+                name="shippingLine2"
+                type="text"
                 value={addresses?.ShippingLine2 || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'Line2', e.target.value)}
+                autoComplete="address-line2"
               />
             </div>
 
             <div className="profile-row">
-              <label>City</label>
+              <label htmlFor="shipping-city">City</label>
               <input
+                id="shipping-city"
+                name="shippingCity"
+                type="text"
                 value={addresses?.ShippingCity || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'City', e.target.value)}
+                autoComplete="address-level2"
               />
             </div>
 
             <div className="profile-row">
-              <label>State (e.g., CA)</label>
+              <label htmlFor="shipping-state">State (e.g., CA)</label>
               <input
+                id="shipping-state"
+                name="shippingState"
+                type="text"
                 value={addresses?.ShippingState || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'State', e.target.value)}
                 maxLength="2"
+                autoComplete="address-level1"
               />
             </div>
 
             <div className="profile-row">
-              <label>ZIP Code</label>
+              <label htmlFor="shipping-zip">ZIP Code</label>
               <input
+                id="shipping-zip"
+                name="shippingZipCode"
+                type="text"
                 value={addresses?.ShippingZipCode || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'ZipCode', e.target.value)}
                 maxLength="5"
+                autoComplete="postal-code"
               />
             </div>
           </div>
@@ -558,12 +608,15 @@ export default function CustomerProfile() {
             <h3 className="section-header">Billing Address</h3>
 
             <div className="profile-row" style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <label htmlFor="billing-sameAsShipping" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                 <input
+                  id="billing-sameAsShipping"
+                  name="sameAsShipping"
                   type="checkbox"
                   checked={sameAsShipping}
                   onChange={(e) => setSameAsShipping(e.target.checked)}
                   style={{ width: 'auto', cursor: 'pointer' }}
+                  autoComplete="off"
                 />
                 <span>Same as shipping address</span>
               </label>
@@ -572,59 +625,82 @@ export default function CustomerProfile() {
             {!sameAsShipping && (
               <>
                 <div className="profile-row">
-                  <label>Address Line 1</label>
+                  <label htmlFor="billing-line1">Address Line 1</label>
                   <input
+                    id="billing-line1"
+                    name="billingLine1"
+                    type="text"
                     value={addresses?.BillingLine1 || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'Line1', e.target.value)}
+                    autoComplete="billing address-line1"
                   />
                 </div>
 
                 <div className="profile-row">
-                  <label>Address Line 2 (Optional)</label>
+                  <label htmlFor="billing-line2">Address Line 2 (Optional)</label>
                   <input
+                    id="billing-line2"
+                    name="billingLine2"
+                    type="text"
                     value={addresses?.BillingLine2 || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'Line2', e.target.value)}
+                    autoComplete="billing address-line2"
                   />
                 </div>
 
                 <div className="profile-row">
-                  <label>Billing City</label>
+                  <label htmlFor="billing-city">Billing City</label>
                   <input
+                    id="billing-city"
+                    name="billingCity"
+                    type="text"
                     value={addresses?.BillingCity || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'City', e.target.value)}
+                    autoComplete="billing address-level2"
                   />
                 </div>
 
                 <div className="profile-row">
-                  <label>State (e.g., CA)</label>
+                  <label htmlFor="billing-state">State (e.g., CA)</label>
                   <input
+                    id="billing-state"
+                    name="billingState"
+                    type="text"
                     value={addresses?.BillingState || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'State', e.target.value)}
                     maxLength="2"
+                    autoComplete="billing address-level1"
                   />
                 </div>
 
                 <div className="profile-row">
-                  <label>ZIP Code</label>
+                  <label htmlFor="billing-zip">ZIP Code</label>
                   <input
+                    id="billing-zip"
+                    name="billingZipCode"
+                    type="text"
                     value={addresses?.BillingZipCode || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'ZipCode', e.target.value)}
                     maxLength="5"
+                    autoComplete="billing postal-code"
                   />
                 </div>
 
                 <div className="profile-row">
-                  <label>Phone (Optional)</label>
+                  <label htmlFor="billing-phone">Phone (Optional)</label>
                   <input
+                    id="billing-phone"
+                    name="billingPhone"
                     type="tel"
                     value={addresses?.BillingPhone || ""}
                     className="profile-input"
                     onChange={(e) => updateAddressField('Billing', 'Phone', e.target.value)}
+                    autoComplete="billing tel"
                   />
                 </div>
               </>
@@ -658,8 +734,10 @@ export default function CustomerProfile() {
           <h4 className="account-section-title">Change Password</h4>
           
           <div className="profile-row">
-            <label>Current Password</label>
+            <label htmlFor="password-current">Current Password</label>
             <input
+              id="password-current"
+              name="oldPassword"
               type="password"
               className="profile-input"
               value={passwordForm.oldPassword}
@@ -667,12 +745,15 @@ export default function CustomerProfile() {
                 setPasswordForm({ ...passwordForm, oldPassword: e.target.value })
               }
               placeholder="Enter current password"
+              autoComplete="current-password"
             />
           </div>
 
           <div className="profile-row">
-            <label>New Password</label>
+            <label htmlFor="password-new">New Password</label>
             <input
+              id="password-new"
+              name="newPassword"
               type="password"
               className="profile-input"
               value={passwordForm.newPassword}
@@ -680,12 +761,15 @@ export default function CustomerProfile() {
                 setPasswordForm({ ...passwordForm, newPassword: e.target.value })
               }
               placeholder="Enter new password"
+              autoComplete="new-password"
             />
           </div>
 
           <div className="profile-row">
-            <label>Confirm New Password</label>
+            <label htmlFor="password-confirm">Confirm New Password</label>
             <input
+              id="password-confirm"
+              name="confirmPassword"
               type="password"
               className="profile-input"
               value={passwordForm.confirmPassword}
@@ -696,6 +780,7 @@ export default function CustomerProfile() {
                 })
               }
               placeholder="Confirm new password"
+              autoComplete="new-password"
             />
           </div>
 

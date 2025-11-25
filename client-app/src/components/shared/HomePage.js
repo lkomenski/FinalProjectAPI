@@ -63,11 +63,16 @@ function HomePage() {
         const featuredData = await featuredRes.json();
         const bestSellerData = await bestRes.json();
 
-        setProducts(productData);
-        setFilteredProducts(productData);
+        // Filter to only show active products
+        const activeProducts = productData.filter(p => p.isActive || p.IsActive);
+        const activeFeatured = featuredData.filter(p => p.isActive || p.IsActive);
+        const activeBestSellers = bestSellerData.filter(p => p.isActive || p.IsActive);
+
+        setProducts(activeProducts);
+        setFilteredProducts(activeProducts);
         setCategories(categoryData);
-        setFeatured(featuredData);
-        setBestSellers(bestSellerData);
+        setFeatured(activeFeatured);
+        setBestSellers(activeBestSellers);
       } catch (err) {
         console.error(err);
         setError("Error loading data. Please try again later.");
@@ -144,12 +149,15 @@ function HomePage() {
           <h1>Find Your Sound</h1>
           <p>Premium guitars, accessories & more.</p>
           <input
+            id="hero-search"
+            name="search"
             className="hero-search"
             type="text"
             placeholder="Search guitars, drums, basses…"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyPress={handleSearchKeyPress}
+            autoComplete="off"
           />
         </div>
       </div>

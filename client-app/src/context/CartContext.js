@@ -120,6 +120,11 @@ export function CartProvider({ children }) {
 
   // Add item to cart (works for both logged-in users and guests)
   const addToCart = (product) => {
+    // Prevent vendors and employees from adding to cart
+    if (currentUser && (currentUser.role === 'vendor' || currentUser.role === 'admin')) {
+      console.warn('Vendors and employees cannot add items to cart');
+      return;
+    }
     
     setCart((prev) => {
       const productId = product.productID || product.ProductID;
