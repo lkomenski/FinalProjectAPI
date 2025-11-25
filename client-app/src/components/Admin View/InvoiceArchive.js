@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Api from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
+import Api from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
 import InvoiceDetailModal from "./InvoiceDetailModal";
-import "../Styles/Dashboard.css";
+import "../../Styles/Dashboard.css";
 
 export default function InvoiceArchive() {
   const navigate = useNavigate();

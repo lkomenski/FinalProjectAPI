@@ -1,5 +1,5 @@
 import React from "react";
-import "../Styles/modal.css";
+import "../../Styles/modal.css";
 
 export default function InvoiceDetailModal({ invoice, onClose }) {
   if (!invoice) return null;

@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Api from "../shared/Api";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorMessage from "../shared/ErrorMessage";
-import InvoiceDetailModal from "../InvoiceDetailModal";
+import InvoiceDetailModal from "./InvoiceDetailModal";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import "../Styles/Dashboard.css";
+import "../../Styles/Dashboard.css";
 
 export default function SalesDashboard() {
   const navigate = useNavigate();

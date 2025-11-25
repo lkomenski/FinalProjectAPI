@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../Styles/Dashboard.css";
-import "../Styles/modal.css";
+import "../../Styles/Dashboard.css";
+import "../../Styles/modal.css";
 
 export default function ChangePasswordModal({ user, onClose }) {
   const [form, setForm] = useState({

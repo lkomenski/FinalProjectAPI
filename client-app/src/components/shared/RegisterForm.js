@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../Styles/Auth.css"; 
+import "../../Styles/Auth.css"; 
 
 export default function RegisterForm() {
   const [form, setForm] = useState({

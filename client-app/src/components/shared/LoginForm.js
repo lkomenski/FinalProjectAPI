@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { CartContext } from "../context/CartContext";
-import "../Styles/Auth.css";
+import { CartContext } from "../../context/CartContext";
+import "../../Styles/Auth.css";
 
 export default function LoginForm() {
   const [emailAddress, setEmailAddress] = useState("");

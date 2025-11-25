@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { CartContext } from "../context/CartContext";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import "../Styles/CheckoutPage.css";
+import { CartContext } from "../../context/CartContext";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import "../../Styles/CheckoutPage.css";
 
 export default function CheckoutPage() {
   const storedUser = localStorage.getItem("user");

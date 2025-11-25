@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../Styles/ProfilePage.css";
-import { fetchData } from "../Api";
-import ConfirmationModal from "../ConfirmationModal";
+import "../../Styles/ProfilePage.css";
+import { fetchData } from "../shared/Api";
+import ConfirmationModal from "../shared/ConfirmationModal";
+import { validatePhoneNumber, formatPhoneNumber, validateZipCode, validateState } from "../../scripts";
 
 export default function CustomerProfile() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function CustomerProfile() {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalConfig, setModalConfig] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [sameAsShipping, setSameAsShipping] = useState(false);
 
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
@@ -29,36 +32,92 @@ export default function CustomerProfile() {
       return;
     }
 
+    if (isLoading) return; // Prevent multiple calls
+
     async function loadProfileAndAddresses() {
+      setIsLoading(true);
       try {
+        console.log("Loading profile for user ID:", user.id);
+        
         // Load basic profile
         const profileData = await fetchData(`customer/${user.id}`);
-        setProfile(profileData);
+        console.log("Profile data received:", profileData);
         
         // Load addresses
         const addressData = await fetchData(`customer/${user.id}/addresses`);
+        console.log("Address data received:", addressData);
+        
+        // Set both states together
+        setProfile(profileData);
         setAddresses(addressData);
+        
+        // Check if billing and shipping addresses are the same
+        if (addressData?.ShippingLine1 && addressData?.BillingLine1) {
+          const isSame = 
+            addressData.ShippingLine1 === addressData.BillingLine1 &&
+            addressData.ShippingCity === addressData.BillingCity &&
+            addressData.ShippingState === addressData.BillingState &&
+            addressData.ShippingZipCode === addressData.BillingZipCode;
+          setSameAsShipping(isSame);
+        }
       } catch (err) {
-        setError("Failed to load profile and addresses.");
+        console.error("Error loading profile:", err);
+        setError(`Failed to load profile and addresses: ${err.message}`);
+      } finally {
+        setIsLoading(false);
       }
     }
 
     loadProfileAndAddresses();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // -------------------------------
   // Update profile and address fields
   // -------------------------------
   const updateField = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Phone number validation and auto-formatting
+    if (name === 'phone') {
+      const digits = value.replace(/\D/g, '');
+      if (digits.length <= 10) {
+        setProfile({ ...profile, [name]: formatPhoneNumber(digits) });
+      }
+    } else {
+      setProfile({ ...profile, [name]: value });
+    }
+    
     setError("");
     setMessage("");
   };
 
   const updateAddressField = (addressType, fieldName, value) => {
+    let processedValue = value;
+    
+    // State: only 2 letters, uppercase
+    if (fieldName === 'State') {
+      processedValue = value.replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase();
+    }
+    
+    // Zip code: only 5 digits
+    else if (fieldName === 'ZipCode') {
+      processedValue = value.replace(/\D/g, '').slice(0, 5);
+    }
+    
+    // Phone: auto-format while typing
+    else if (fieldName === 'Phone') {
+      const digits = value.replace(/\D/g, '');
+      if (digits.length <= 10) {
+        processedValue = formatPhoneNumber(digits);
+      } else {
+        return; // Prevent input beyond 10 digits
+      }
+    }
+    
     setAddresses({
       ...addresses,
-      [`${addressType}${fieldName}`]: value
+      [`${addressType}${fieldName}`]: processedValue
     });
     setError("");
     setMessage("");
@@ -71,39 +130,102 @@ export default function CustomerProfile() {
     setError("");
     setMessage("");
 
-    try {
-      // Save basic profile info (if there's an endpoint for it)
-      // For now, we'll focus on address updates
-      
-      // Save shipping address if it exists
-      if (addresses?.ShippingLine1) {
-        await saveAddress('shipping');
+    // Validation
+    if (addresses?.ShippingZipCode && !validateZipCode(addresses.ShippingZipCode)) {
+      setError("Please enter a valid 5-digit ZIP code for shipping address.");
+      return;
+    }
+    
+    if (addresses?.ShippingState && !validateState(addresses.ShippingState)) {
+      setError("Please enter a valid 2-letter state code for shipping address.");
+      return;
+    }
+    
+    if (!sameAsShipping) {
+      if (addresses?.BillingZipCode && !validateZipCode(addresses.BillingZipCode)) {
+        setError("Please enter a valid 5-digit ZIP code for billing address.");
+        return;
       }
       
-      // Save billing address if it exists
-      if (addresses?.BillingLine1) {
+      if (addresses?.BillingState && !validateState(addresses.BillingState)) {
+        setError("Please enter a valid 2-letter state code for billing address.");
+        return;
+      }
+
+      if (addresses?.BillingPhone && !validatePhoneNumber(addresses.BillingPhone)) {
+        setError("Please enter a valid 10-digit phone number for billing address.");
+        return;
+      }
+    }
+    
+    // Validate phone number from personal info
+    const phoneDigits = profile?.phone ? profile.phone.replace(/\D/g, '') : '';
+    if (phoneDigits.length > 0 && !validatePhoneNumber(profile.phone)) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    try {
+      // Save shipping address if it exists - include phone from personal info
+      if (addresses?.ShippingLine1) {
+        await saveAddress('shipping', null, phoneDigits);
+      }
+      
+      // Save billing address
+      if (sameAsShipping) {
+        // Always copy shipping to billing when checkbox is checked
+        if (addresses?.ShippingLine1) {
+          await saveAddress('billing', {
+            line1: addresses.ShippingLine1,
+            line2: addresses.ShippingLine2 || null,
+            city: addresses.ShippingCity,
+            state: addresses.ShippingState,
+            zipCode: addresses.ShippingZipCode,
+            phone: phoneDigits || null
+          });
+        }
+      } else if (addresses?.BillingLine1) {
+        // Only save separate billing if fields are filled
         await saveAddress('billing');
       }
 
       setMessage("Profile updated successfully!");
       setEditMode(false);
+      
+      // Reload addresses to reflect the changes
+      const updatedAddresses = await fetchData(`customer/${user.id}/addresses`);
+      setAddresses(updatedAddresses);
 
     } catch (err) {
+      console.error("Save error:", err);
       setError("Server error updating profile.");
     }
   };
 
-  const saveAddress = async (addressType) => {
-    const addressData = {
-      customerID: user.id,
-      addressType: addressType,
-      line1: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Line1`],
-      line2: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Line2`] || null,
-      city: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}City`],
-      state: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}State`],
-      zipCode: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}ZipCode`],
-      phone: addresses[`${addressType === 'shipping' ? 'Shipping' : 'Billing'}Phone`] || null
-    };
+  const saveAddress = async (addressType, overrideData = null, phoneFromProfile = null) => {
+    const prefix = addressType === 'shipping' ? 'Shipping' : 'Billing';
+    
+    let addressData;
+    if (overrideData) {
+      addressData = {
+        customerID: user.id,
+        addressType: addressType,
+        ...overrideData
+      };
+    } else {
+      addressData = {
+        customerID: user.id,
+        addressType: addressType,
+        line1: addresses[`${prefix}Line1`],
+        line2: addresses[`${prefix}Line2`] || null,
+        city: addresses[`${prefix}City`],
+        state: addresses[`${prefix}State`],
+        zipCode: addresses[`${prefix}ZipCode`],
+        phone: addressType === 'shipping' && phoneFromProfile 
+          ? phoneFromProfile 
+          : (addresses[`${prefix}Phone`] ? addresses[`${prefix}Phone`].replace(/\D/g, '') : null)
+      };
+    }
 
     const response = await fetch("http://localhost:5077/api/customer/address", {
       method: "PUT",
@@ -248,7 +370,7 @@ export default function CustomerProfile() {
     }
   };
 
-  if (!profile || !addresses) return <p>Loading...</p>;
+  if (!profile || !addresses) return <p>Loading profile...</p>;
 
   return (
     <div className="profile-container">
@@ -275,9 +397,9 @@ export default function CustomerProfile() {
 
           <div className="profile-section">
             <h3>Personal Info</h3>
-            <p><strong>Name:</strong> {profile.FirstName} {profile.LastName}</p>
-            <p><strong>Email:</strong> {profile.EmailAddress}</p>
-            <p><strong>Phone:</strong> {profile.Phone || "—"}</p>
+            <p><strong>Name:</strong> {profile.firstName} {profile.lastName}</p>
+            <p><strong>Email:</strong> {profile.emailAddress}</p>
+            <p><strong>Phone:</strong> {profile.phone || "—"}</p>
           </div>
 
           <div className="profile-section">
@@ -289,7 +411,6 @@ export default function CustomerProfile() {
                 <p><strong>City:</strong> {addresses.ShippingCity}</p>
                 <p><strong>State:</strong> {addresses.ShippingState}</p>
                 <p><strong>ZIP Code:</strong> {addresses.ShippingZipCode}</p>
-                {addresses.ShippingPhone && <p><strong>Phone:</strong> {addresses.ShippingPhone}</p>}
               </>
             ) : (
               <p>No shipping address on file</p>
@@ -305,7 +426,15 @@ export default function CustomerProfile() {
                 <p><strong>City:</strong> {addresses.BillingCity}</p>
                 <p><strong>State:</strong> {addresses.BillingState}</p>
                 <p><strong>ZIP Code:</strong> {addresses.BillingZipCode}</p>
-                {addresses.BillingPhone && <p><strong>Phone:</strong> {addresses.BillingPhone}</p>}
+              </>
+            ) : sameAsShipping && addresses?.ShippingLine1 ? (
+              <>
+                <p><strong>Address:</strong> {addresses.ShippingLine1}</p>
+                {addresses.ShippingLine2 && <p><strong>Address 2:</strong> {addresses.ShippingLine2}</p>}
+                <p><strong>City:</strong> {addresses.ShippingCity}</p>
+                <p><strong>State:</strong> {addresses.ShippingState}</p>
+                <p><strong>ZIP Code:</strong> {addresses.ShippingZipCode}</p>
+                <p style={{ fontStyle: 'italic', color: '#6b7280', marginTop: '8px' }}>Same as shipping address</p>
               </>
             ) : (
               <p>No billing address on file</p>
@@ -332,8 +461,8 @@ export default function CustomerProfile() {
             <div className="profile-row">
               <label>First Name</label>
               <input
-                name="FirstName"
-                value={profile.FirstName}
+                name="firstName"
+                value={profile.firstName}
                 className="profile-input"
                 onChange={updateField}
               />
@@ -342,8 +471,8 @@ export default function CustomerProfile() {
             <div className="profile-row">
               <label>Last Name</label>
               <input
-                name="LastName"
-                value={profile.LastName}
+                name="lastName"
+                value={profile.lastName}
                 className="profile-input"
                 onChange={updateField}
               />
@@ -352,9 +481,9 @@ export default function CustomerProfile() {
             <div className="profile-row">
               <label>Email</label>
               <input
-                name="EmailAddress"
+                name="emailAddress"
                 type="email"
-                value={profile.EmailAddress}
+                value={profile.emailAddress}
                 className="profile-input"
                 onChange={updateField}
               />
@@ -363,9 +492,9 @@ export default function CustomerProfile() {
             <div className="profile-row">
               <label>Phone</label>
               <input
-                name="Phone"
+                name="phone"
                 type="tel"
-                value={profile.Phone || ""}
+                value={profile.phone || ""}
                 className="profile-input"
                 onChange={updateField}
               />
@@ -404,11 +533,12 @@ export default function CustomerProfile() {
             </div>
 
             <div className="profile-row">
-              <label>State</label>
+              <label>State (e.g., CA)</label>
               <input
                 value={addresses?.ShippingState || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'State', e.target.value)}
+                maxLength="2"
               />
             </div>
 
@@ -418,16 +548,7 @@ export default function CustomerProfile() {
                 value={addresses?.ShippingZipCode || ""}
                 className="profile-input"
                 onChange={(e) => updateAddressField('Shipping', 'ZipCode', e.target.value)}
-              />
-            </div>
-
-            <div className="profile-row">
-              <label>Phone (Optional)</label>
-              <input
-                type="tel"
-                value={addresses?.ShippingPhone || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Shipping', 'Phone', e.target.value)}
+                maxLength="5"
               />
             </div>
           </div>
@@ -436,60 +557,78 @@ export default function CustomerProfile() {
           <div className="profile-section-edit">
             <h3 className="section-header">Billing Address</h3>
 
-            <div className="profile-row">
-              <label>Address Line 1</label>
-              <input
-                value={addresses?.BillingLine1 || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'Line1', e.target.value)}
-              />
+            <div className="profile-row" style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={sameAsShipping}
+                  onChange={(e) => setSameAsShipping(e.target.checked)}
+                  style={{ width: 'auto', cursor: 'pointer' }}
+                />
+                <span>Same as shipping address</span>
+              </label>
             </div>
 
-            <div className="profile-row">
-              <label>Address Line 2 (Optional)</label>
-              <input
-                value={addresses?.BillingLine2 || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'Line2', e.target.value)}
-              />
-            </div>
+            {!sameAsShipping && (
+              <>
+                <div className="profile-row">
+                  <label>Address Line 1</label>
+                  <input
+                    value={addresses?.BillingLine1 || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'Line1', e.target.value)}
+                  />
+                </div>
 
-            <div className="profile-row">
-              <label>Billing City</label>
-              <input
-                value={addresses?.BillingCity || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'City', e.target.value)}
-              />
-            </div>
+                <div className="profile-row">
+                  <label>Address Line 2 (Optional)</label>
+                  <input
+                    value={addresses?.BillingLine2 || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'Line2', e.target.value)}
+                  />
+                </div>
 
-            <div className="profile-row">
-              <label>Billing State</label>
-              <input
-                value={addresses?.BillingState || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'State', e.target.value)}
-              />
-            </div>
+                <div className="profile-row">
+                  <label>Billing City</label>
+                  <input
+                    value={addresses?.BillingCity || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'City', e.target.value)}
+                  />
+                </div>
 
-            <div className="profile-row">
-              <label>Billing ZIP Code</label>
-              <input
-                value={addresses?.BillingZipCode || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'ZipCode', e.target.value)}
-              />
-            </div>
+                <div className="profile-row">
+                  <label>State (e.g., CA)</label>
+                  <input
+                    value={addresses?.BillingState || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'State', e.target.value)}
+                    maxLength="2"
+                  />
+                </div>
 
-            <div className="profile-row">
-              <label>Billing Phone (Optional)</label>
-              <input
-                type="tel"
-                value={addresses?.BillingPhone || ""}
-                className="profile-input"
-                onChange={(e) => updateAddressField('Billing', 'Phone', e.target.value)}
-              />
-            </div>
+                <div className="profile-row">
+                  <label>ZIP Code</label>
+                  <input
+                    value={addresses?.BillingZipCode || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'ZipCode', e.target.value)}
+                    maxLength="5"
+                  />
+                </div>
+
+                <div className="profile-row">
+                  <label>Phone (Optional)</label>
+                  <input
+                    type="tel"
+                    value={addresses?.BillingPhone || ""}
+                    className="profile-input"
+                    onChange={(e) => updateAddressField('Billing', 'Phone', e.target.value)}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           <div className="profile-buttons">

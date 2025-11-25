@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchData } from "./shared/Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
 import ProductForm from "./ProductForm";
 import ProductDetailModal from "./ProductDetailModal";
-import "../Styles/Dashboard.css";
-import "../Styles/ManagementPage.css";
+import "../../Styles/Dashboard.css";
+import "../../Styles/ManagementPage.css";
 
 export default function ProductManagement() {
   const navigate = useNavigate();

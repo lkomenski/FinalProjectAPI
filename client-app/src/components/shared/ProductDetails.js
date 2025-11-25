@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
+import { useParams, useNavigate } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
+import ErrorMessage from "./ErrorMessage";
 import { fetchData } from "./Api";
-import { CartContext } from "../context/CartContext";
-import "../Styles/ProductDetails.css";  
+import { CartContext } from "../../context/CartContext";
+import "../../Styles/ProductDetails.css";  
 
 export default function ProductDetails() {
   const { productId } = useParams();

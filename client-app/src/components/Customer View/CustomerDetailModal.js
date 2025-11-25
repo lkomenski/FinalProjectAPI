@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Api from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import "../Styles/modal.css";
+import Api from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import "../../Styles/modal.css";
 
 export default function CustomerDetailModal({ customer, onClose, onEdit, onToggleStatus, onDelete }) {
-  const navigate = useNavigate();
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 

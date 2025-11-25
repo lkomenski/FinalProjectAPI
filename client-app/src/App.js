@@ -1,28 +1,28 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import NavigationBar from "./components/NavBar";
-import HomePage from "./components/HomePage";
-import LoginForm from "./components/LoginForm";
-import ProtectedRoute from "./components/ProtectedRoute";
+import NavigationBar from "./components/shared/NavBar";
+import HomePage from "./components/shared/HomePage";
+import LoginForm from "./components/shared/LoginForm";
+import ProtectedRoute from "./components/shared/ProtectedRoute";
 import CustomerDashboard from "./components/Customer View/CustomerDashboard";
-import VendorDashboard from "./components/VendorDashboard";
+import VendorDashboard from "./components/Vendor View/VendorDashboard";
 import AdminDashboard from "./components/Admin View/EmployeeDashboard";
 import CustomerManagement from "./components/Admin View/CustomerManagement";
-import VendorManagement from "./components/VendorManagement";
-import ProductManagement from "./components/ProductManagement";
+import VendorManagement from "./components/Admin View/VendorManagement";
+import ProductManagement from "./components/Admin View/ProductManagement";
 import SalesDashboard from "./components/Admin View/SalesDashboard";
-import InvoiceArchive from "./components/InvoiceArchive";
-import ProductDetails from "./components/ProductDetails";
-import CartPage from "./components/CartPage";
+import InvoiceArchive from "./components/Admin View/InvoiceArchive";
+import ProductDetails from "./components/shared/ProductDetails";
+import CartPage from "./components/Customer View/CartPage";
 import { CartProvider } from "./context/CartContext";
-import RegisterForm from "./components/RegisterForm";
-import VendorRegisterForm from "./components/VendorRegisterForm";
+import RegisterForm from "./components/shared/RegisterForm";
+import VendorRegisterForm from "./components/Vendor View/VendorRegisterForm";
 import CustomerProfile from "./components/Customer View/CustomerProfile";
-import CheckoutPage from "./components/CheckoutPage";
-import VendorInvoices from "./components/VendorInvoices";
-import VendorInvoiceDetail from "./components/VendorInvoiceDetail";
-import VendorAccount from "./components/VendorAccount";
-import ResetPassword from "./components/ResetPassword";
+import CheckoutPage from "./components/Customer View/CheckoutPage";
+import VendorInvoices from "./components/Vendor View/VendorInvoices";
+import VendorInvoiceDetail from "./components/Vendor View/VendorInvoiceDetail";
+import VendorAccount from "./components/Vendor View/VendorAccount";
+import ResetPassword from "./components/shared/ResetPassword";
 
 function App() {
   return (

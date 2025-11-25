@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../Styles/modal.css";
+import "../../Styles/modal.css";
 
 export default function TokenModal({ tokenData, onClose }) {
   const [copied, setCopied] = useState(false);
@@ -90,7 +90,7 @@ export default function TokenModal({ tokenData, onClose }) {
               onClick={copyToClipboard}
               style={{ width: '100%' }}
             >
-              {copied ? 'âœ“ Copied to Clipboard!' : 'í³‹ Copy Token to Clipboard'}
+              {copied ? 'âœ“ Copied to Clipboard!' : 'ï¿½ï¿½ï¿½ Copy Token to Clipboard'}
             </button>
           </div>
 

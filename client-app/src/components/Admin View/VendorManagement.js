@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchData } from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
-import VendorForm from "./VendorForm";
-import VendorDetailModal from "./VendorDetailModal";
-import TokenModal from "./TokenModal";
-import "../Styles/Dashboard.css";
-import "../Styles/ManagementPage.css";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
+import VendorForm from "../Vendor View/VendorForm";
+import VendorDetailModal from "../Vendor View/VendorDetailModal";
+import TokenModal from "../Vendor View/TokenModal";
+import "../../Styles/Dashboard.css";
+import "../../Styles/ManagementPage.css";
 
 export default function VendorManagement() {
   const navigate = useNavigate();

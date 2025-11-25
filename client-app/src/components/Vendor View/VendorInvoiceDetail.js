@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { fetchData } from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
-import "../Styles/Dashboard.css";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
+import "../../Styles/Dashboard.css";
 
 export default function InvoiceDetail() {
   const { id } = useParams();

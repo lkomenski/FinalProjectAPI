@@ -4,8 +4,8 @@ import { fetchData } from "../shared/Api";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorMessage from "../shared/ErrorMessage";
 import CustomerDetailModal from "../Customer View/CustomerDetailModal";
-import "../Styles/Dashboard.css";
-import "../Styles/ManagementPage.css";
+import "../../Styles/Dashboard.css";
+import "../../Styles/ManagementPage.css";
 
 export default function CustomerManagement() {
   const navigate = useNavigate();

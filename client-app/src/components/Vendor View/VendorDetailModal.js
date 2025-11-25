@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Api from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import "../Styles/modal.css";
+import Api from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import "../../Styles/modal.css";
 
 export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleStatus, onGenerateToken }) {
   const navigate = useNavigate();

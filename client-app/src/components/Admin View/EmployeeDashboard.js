@@ -4,7 +4,7 @@ import { fetchData } from "../shared/Api";
 import LoadingSpinner from "../shared/LoadingSpinner";
 import ErrorMessage from "../shared/ErrorMessage";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import "../Styles/Dashboard.css";
+import "../../Styles/Dashboard.css";
 
 // Cache configuration outside component to avoid recreating on every render
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes

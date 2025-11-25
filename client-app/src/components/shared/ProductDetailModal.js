@@ -1,5 +1,5 @@
 import React from "react";
-import "../Styles/modal.css";
+import "../../Styles/modal.css";
 
 export default function ProductDetailModal({ product, onClose, onEdit, onToggleStatus }) {
   const money = (num) => (typeof num === "number" ? num.toFixed(2) : "0.00");

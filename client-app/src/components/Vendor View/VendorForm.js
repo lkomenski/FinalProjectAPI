@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../Styles/Dashboard.css";
-import "../Styles/modal.css";
+import "../../Styles/Dashboard.css";
+import "../../Styles/modal.css";
 
 export default function VendorForm({ vendor, onClose }) {
   const [form, setForm] = useState({

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
 import { useNavigate } from "react-router-dom";
-import "../Styles/Dashboard.css";
+import "../../Styles/Dashboard.css";
 
 export default function VendorAccount() {
   const [vendorInfo, setVendorInfo] = useState(null);
@@ -34,7 +34,8 @@ export default function VendorAccount() {
     }
 
     loadAccountInfo();
-  }, [vendorId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;

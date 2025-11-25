@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { fetchData } from "./Api";
-import LoadingSpinner from "./shared/LoadingSpinner";
-import ErrorMessage from "./shared/ErrorMessage";
-import InvoiceDetailModal from "./InvoiceDetailModal";
-import "../Styles/Dashboard.css";
+import { fetchData } from "../shared/Api";
+import LoadingSpinner from "../shared/LoadingSpinner";
+import ErrorMessage from "../shared/ErrorMessage";
+import InvoiceDetailModal from "../Admin View/InvoiceDetailModal";
+import "../../Styles/Dashboard.css";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function VendorInvoices() {
@@ -54,7 +54,8 @@ export default function VendorInvoices() {
     }
 
     loadInvoices();
-  }, [vendorId, location.state]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (loading) return <LoadingSpinner />;
   if (error) return <ErrorMessage message={error} />;

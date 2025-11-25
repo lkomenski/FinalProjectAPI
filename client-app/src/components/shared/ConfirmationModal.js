@@ -1,5 +1,5 @@
 import React from "react";
-import "../Styles/modal.css";
+import "../../Styles/modal.css";
 
 export default function ConfirmationModal({
   title,
