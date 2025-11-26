@@ -557,7 +557,7 @@ Check if a customer account exists with the given email.
 ---
 
 ### Deactivate Customer
-Deactivate a customer account.
+Deactivate a customer account without permanently deleting it. Also disables all associated addresses.
 
 **Endpoint:** `PUT /api/customer/deactivate/{id}`
 
@@ -566,11 +566,41 @@ Deactivate a customer account.
 
 **Response (200 OK):**
 ```json
-{
-  "message": "Customer deactivated successfully",
-  "customerID": "integer"
-}
+"Customer {id} deactivated successfully."
 ```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid CustomerID
+- `500 Internal Server Error` - Failed to deactivate customer
+
+**Stored Procedure:** `DeactivateCustomer`
+- Sets `IsActive = 0` on customer record
+- Sets `Disabled = 1` on all customer addresses
+- Updates `DateUpdated` timestamp
+
+---
+
+### Activate Customer
+Activate a previously deactivated customer account. Also enables all associated addresses.
+
+**Endpoint:** `PUT /api/customer/activate/{id}`
+
+**Path Parameters:**
+- `id` (integer, required) - The ID of the customer to activate
+
+**Response (200 OK):**
+```json
+"Customer {id} activated successfully."
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid CustomerID
+- `500 Internal Server Error` - Failed to activate customer
+
+**Stored Procedure:** `ActivateCustomer`
+- Sets `IsActive = 1` on customer record
+- Sets `Disabled = 0` on all customer addresses
+- Updates `DateUpdated` timestamp
 
 ---
 

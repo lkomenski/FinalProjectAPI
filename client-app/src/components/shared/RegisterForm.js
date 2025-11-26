@@ -14,15 +14,24 @@ export default function RegisterForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Helper function to capitalize first letter of each word
+  const capitalizeFirstLetter = (str) => {
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const updateField = (e) => {
     const { name, value } = e.target;
     
-    // Filter name fields to only allow letters and spaces
+    // Filter name fields to only allow letters and spaces, and capitalize first letter
     if (name === 'firstName' || name === 'lastName') {
       const nameValue = value.replace(/[^a-zA-Z ]/g, '');
+      const capitalizedValue = capitalizeFirstLetter(nameValue);
       setForm({ 
         ...form, 
-        [name]: nameValue 
+        [name]: capitalizedValue 
       });
     } else {
       setForm({ 
@@ -87,7 +96,7 @@ export default function RegisterForm() {
         return;
       }
 
-      setSuccess("Account created successfully! You may now log in.");
+      setSuccess("Account created successfully! Redirecting to login...");
       setForm({
         emailAddress: "",
         firstName: "",
@@ -95,6 +104,11 @@ export default function RegisterForm() {
         password: "",
         confirmPassword: ""
       });
+
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000);
 
     } catch (err) {
       setError("Server error. Please try again later.");

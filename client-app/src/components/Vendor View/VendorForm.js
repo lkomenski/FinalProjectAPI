@@ -77,6 +77,14 @@ export default function VendorForm({ vendor, onClose }) {
     }
   };
 
+  // Helper function to capitalize first letter of each word
+  const capitalizeFirstLetter = (str) => {
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -89,6 +97,11 @@ export default function VendorForm({ vendor, onClose }) {
     // Convert state to uppercase
     if (name === "VendorState") {
       formattedValue = value.toUpperCase();
+    }
+    
+    // Capitalize first letter of contact names
+    if (name === "VendorContactFName" || name === "VendorContactLName") {
+      formattedValue = capitalizeFirstLetter(value);
     }
     
     setForm({

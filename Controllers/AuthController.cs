@@ -24,6 +24,27 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
+        /// Capitalizes the first letter of each word in a string.
+        /// </summary>
+        /// <param name="input">The input string to capitalize.</param>
+        /// <returns>The string with each word's first letter capitalized.</returns>
+        private static string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
+
+            var words = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < words.Length; i++)
+            {
+                if (words[i].Length > 0)
+                {
+                    words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
+                }
+            }
+            return string.Join(" ", words);
+        }
+
+        /// <summary>
         /// Maps a database row to a LoginResponse object for customer authentication.
         /// </summary>
         /// <param name="row">The database row containing customer data.</param>
@@ -305,6 +326,10 @@ namespace FinalProjectAPI.Controllers
                     return BadRequest("All fields are required.");
                 }
 
+                // Capitalize first and last names
+                string capitalizedFirstName = CapitalizeFirstLetter(request.FirstName);
+                string capitalizedLastName = CapitalizeFirstLetter(request.LastName);
+
                 // Hash the password before storing
                 string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -314,8 +339,8 @@ namespace FinalProjectAPI.Controllers
                 {
                     { "@EmailAddress", request.EmailAddress },
                     { "@Password", hashedPassword },
-                    { "@FirstName", request.FirstName },
-                    { "@LastName", request.LastName }
+                    { "@FirstName", capitalizedFirstName },
+                    { "@LastName", capitalizedLastName }
                 };
 
                 var results = await repo.GetDataAsync("CustomerRegister", parameters);

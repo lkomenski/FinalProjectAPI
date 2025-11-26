@@ -2,7 +2,13 @@ const API_BASE = "http://localhost:5077";
 
 export async function fetchData(endpoint) {
   try {
-    const response = await fetch(`${API_BASE}/api/${endpoint}`);
+    const response = await fetch(`${API_BASE}/api/${endpoint}`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
 
     if (!response.ok) {
       throw new Error(`API responded with status ${response.status}`);

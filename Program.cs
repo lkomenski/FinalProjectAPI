@@ -42,7 +42,8 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+// Disable HTTPS redirection in development to avoid port warnings
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

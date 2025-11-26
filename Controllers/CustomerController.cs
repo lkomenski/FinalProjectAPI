@@ -131,12 +131,47 @@ namespace FinalProjectAPI.Controllers
                     { "@CustomerID", id }
                 };
 
-                await _repo.GetDataAsync("DeactivateCustomer", parameters);
+                var result = await _repo.GetDataAsync("DeactivateCustomer", parameters);
+                
+                // Log the result for debugging
+                Console.WriteLine($"DeactivateCustomer called for ID: {id}");
+                Console.WriteLine($"Result rows: {result.Count()}");
+                
                 return Ok($"Customer {id} deactivated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deactivating customer {id}: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Activates a previously deactivated customer account.
+        /// </summary>
+        /// <param name="id">The ID of the customer to activate.</param>
+        /// <returns>Confirmation message.</returns>
+        /// <response code="200">Returns confirmation that the customer was activated.</response>
+        [HttpPut("activate/{id}")]
+        public async Task<IActionResult> ActivateCustomer(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    return BadRequest("Invalid CustomerID.");
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@CustomerID", id }
+                };
+
+                await _repo.GetDataAsync("ActivateCustomer", parameters);
+                return Ok($"Customer {id} activated successfully.");
             }
             catch (Exception)
             {
-                return StatusCode(500, "Internal server error: Failed to deactivate customer.");
+                return StatusCode(500, "Internal server error: Failed to activate customer.");
             }
         }
 

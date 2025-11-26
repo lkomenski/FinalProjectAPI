@@ -92,6 +92,10 @@ Content-Type: {{contentType}}
 PUT {{FinalProjectAPI_HostAddress}}/api/customer/deactivate/1
 Accept: {{contentType}}
 
+### Activate Customer
+PUT {{FinalProjectAPI_HostAddress}}/api/customer/activate/1
+Accept: {{contentType}}
+
 ### Delete Customer
 DELETE {{FinalProjectAPI_HostAddress}}/api/customer/1
 Accept: {{contentType}}

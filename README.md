@@ -45,6 +45,8 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Order History:** View past purchases and order status
 - **Password Security:** Complete password reset flow via email and in-app password change functionality
 - **Role-Based Cart Access:** Vendors and administrators cannot add items to cart
+- **Account Status Control:** Activate/deactivate customer accounts with address management
+- **Name Capitalization:** Automatic first letter capitalization for customer names on registration
 
 ### Product Catalog Management
 - **Inventory Management:** Complete CRUD operations for products
@@ -68,12 +70,14 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ### Administrative Dashboard
 - **System Overview:** Key performance indicators and metrics with real-time refresh capabilities
 - **User Management:** Manage customer and vendor accounts with status controls
+- **Customer Management:** View, search, filter, and manage customer accounts with activate/deactivate functionality
 - **Sales Analytics:** Revenue tracking and reporting with interactive charts
 - **Inventory Reports:** Stock levels and product performance
-- **Invoice Tracking:** Outstanding invoices and payment status
+- **Invoice Tracking:** Outstanding invoices and payment status with archive access
 - **Customer Details:** View customer information, addresses, and order history
 - **Product Management:** Control product visibility and inventory status
 - **Role-Based Navigation:** Automatic dashboard redirection on login
+- **Breadcrumb Navigation:** Intuitive navigation with breadcrumbs across management pages
 
 ## User Roles & Permissions
 
@@ -109,11 +113,11 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Technical Implementation
 
 ### Controllers & API Endpoints
-1. **AuthController** - Universal authentication with BCrypt password verification
-2. **CustomerController** - Customer account management with password change functionality
+1. **AuthController** - Universal authentication with BCrypt password verification and name capitalization on registration
+2. **CustomerController** - Customer account management with password change, activate/deactivate functionality
 3. **ProductsController** - Product catalog operations with image management
 4. **CategoriesController** - Product category management
-5. **VendorsController** - Vendor management with registration support
+5. **VendorsController** - Vendor management with registration support and payment terms/GL accounts endpoints
 6. **InvoicesController** - Invoice and payment tracking
 7. **DashboardController** - Analytics and reporting for all user roles
 8. **PasswordResetController** - Secure password recovery system
