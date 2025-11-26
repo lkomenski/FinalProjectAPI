@@ -300,14 +300,14 @@ namespace FinalProjectAPI.Controllers
 
             return Ok(new
             {
-                RegistrationToken = row["RegistrationToken"]?.ToString(),
-                TokenExpiry = row["TokenExpiry"],
-                HoursUntilExpiry = row["HoursUntilExpiry"],
-                VendorID = row["VendorID"],
-                VendorName = row["VendorName"]?.ToString(),
-                FirstName = row["FirstName"]?.ToString(),
-                LastName = row["LastName"]?.ToString(),
-                VendorEmail = row["VendorEmail"]?.ToString(),
+                RegistrationToken = row.ContainsKey("RegistrationToken") ? row["RegistrationToken"]?.ToString() : null,
+                TokenExpiry = row.ContainsKey("TokenExpiry") ? row["TokenExpiry"] : null,
+                HoursUntilExpiry = row.ContainsKey("HoursUntilExpiry") ? row["HoursUntilExpiry"] : null,
+                VendorID = row.ContainsKey("VendorID") ? row["VendorID"] : vendorId,
+                VendorName = row.ContainsKey("VendorName") ? row["VendorName"]?.ToString() : null,
+                FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() : null,
+                LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() : null,
+                VendorEmail = row.ContainsKey("VendorEmail") ? row["VendorEmail"]?.ToString() : null,
                 Status = status,
                 Message = status == "Warning" ? row["Message"]?.ToString() : "Token generated successfully"
             });

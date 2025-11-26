@@ -423,4 +423,4 @@ secrets.json
 *.pfx
 *.p12
 connection-strings.json
-*.usersecret
+*.usersecretDocumentation/ComprehensiveTestingChecklist.md

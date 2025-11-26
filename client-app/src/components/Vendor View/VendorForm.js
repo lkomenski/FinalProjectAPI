@@ -5,7 +5,8 @@ import {
   validatePhoneNumber, 
   formatPhoneNumber, 
   validateZipCode, 
-  validateState 
+  validateState,
+  validateEmail
 } from "../../scripts";
 import "../../Styles/Dashboard.css";
 import "../../Styles/modal.css";
@@ -20,6 +21,7 @@ export default function VendorForm({ vendor, onClose }) {
     VendorState: vendor?.VendorState || vendor?.vendorState || "",
     VendorZipCode: vendor?.VendorZipCode || vendor?.vendorZipCode || "",
     VendorPhone: vendor?.VendorPhone || vendor?.vendorPhone || "",
+    VendorEmail: vendor?.VendorEmail || vendor?.vendorEmail || "",
     VendorContactFName: vendor?.VendorContactFName || vendor?.vendorContactFName || "",
     VendorContactLName: vendor?.VendorContactLName || vendor?.vendorContactLName || "",
     DefaultTermsID: vendor?.DefaultTermsID || vendor?.defaultTermsID || "",
@@ -29,6 +31,7 @@ export default function VendorForm({ vendor, onClose }) {
   const [errors, setErrors] = useState({});
   const [terms, setTerms] = useState([]);
   const [accounts, setAccounts] = useState([]);
+  const [hasChanges, setHasChanges] = useState(false);
   const isEditing = !!vendor;
 
   // Update form when vendor prop changes
@@ -43,6 +46,7 @@ export default function VendorForm({ vendor, onClose }) {
         VendorState: vendor.VendorState || vendor.vendorState || "",
         VendorZipCode: vendor.VendorZipCode || vendor.vendorZipCode || "",
         VendorPhone: vendor.VendorPhone || vendor.vendorPhone || "",
+        VendorEmail: vendor.VendorEmail || vendor.vendorEmail || "",
         VendorContactFName: vendor.VendorContactFName || vendor.vendorContactFName || "",
         VendorContactLName: vendor.VendorContactLName || vendor.vendorContactLName || "",
         DefaultTermsID: vendor.DefaultTermsID || vendor.defaultTermsID || "",
@@ -108,6 +112,9 @@ export default function VendorForm({ vendor, onClose }) {
       ...form,
       [name]: formattedValue
     });
+
+    // Mark that changes have been made
+    setHasChanges(true);
 
     // Clear error for this field when user starts typing
     if (errors[name]) {
@@ -175,6 +182,15 @@ export default function VendorForm({ vendor, onClose }) {
       }
     }
 
+    // Email - required on frontend, must be valid format
+    if (!form.VendorEmail || form.VendorEmail.trim() === "") {
+      newErrors.VendorEmail = "Email is required";
+    } else if (!validateEmail(form.VendorEmail)) {
+      newErrors.VendorEmail = "Please enter a valid email address";
+    } else if (form.VendorEmail.length > 100) {
+      newErrors.VendorEmail = "Email must be 100 characters or less";
+    }
+
     // Contact First Name - required, alpha only
     if (!form.VendorContactFName || form.VendorContactFName.trim() === "") {
       newErrors.VendorContactFName = "Contact First Name is required";
@@ -201,6 +217,16 @@ export default function VendorForm({ vendor, onClose }) {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleClose = () => {
+    if (hasChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -246,14 +272,14 @@ export default function VendorForm({ vendor, onClose }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
         <div className="modal-header">
           <h2 className="modal-title lg">
             {isEditing ? "Edit Vendor" : "Add Vendor"}
           </h2>
-          <button className="modal-close" onClick={onClose} type="button">×</button>
+          <button className="modal-close" onClick={handleClose} type="button">×</button>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
@@ -378,6 +404,24 @@ export default function VendorForm({ vendor, onClose }) {
             </div>
 
             <div className="form-field">
+              <label className="form-label">Email *</label>
+              <input 
+                className={`dashboard-input ${errors.VendorEmail ? "input-error" : ""}`}
+                name="VendorEmail" 
+                type="email"
+                placeholder="vendor@example.com"
+                value={form.VendorEmail} 
+                onChange={handleChange}
+                maxLength="100"
+                required
+              />
+              {errors.VendorEmail && (
+                <span className="error-message">{errors.VendorEmail}</span>
+              )}
+              <span className="character-count">{form.VendorEmail.length}/100</span>
+            </div>
+
+            <div className="form-field">
               <label className="form-label">Contact First Name *</label>
               <input 
                 className={`dashboard-input ${errors.VendorContactFName ? "input-error" : ""}`}
@@ -459,7 +503,7 @@ export default function VendorForm({ vendor, onClose }) {
               {isEditing ? "Update Vendor" : "Add Vendor"}
             </button>
 
-            <button type="button" className="dashboard-btn dashboard-btn-danger" onClick={onClose}>
+            <button type="button" className="dashboard-btn dashboard-btn-danger" onClick={handleClose}>
               Cancel
             </button>
           </div>

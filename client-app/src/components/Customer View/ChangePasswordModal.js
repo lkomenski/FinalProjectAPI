@@ -12,8 +12,10 @@ export default function ChangePasswordModal({ user, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [hasChanges, setHasChanges] = useState(false);
 
   const handleChange = (e) => {
+    setHasChanges(true);
     setForm({
       ...form,
       [e.target.name]: e.target.value
@@ -21,6 +23,16 @@ export default function ChangePasswordModal({ user, onClose }) {
     // Clear error/message when user starts typing
     if (error) setError("");
     if (message) setMessage("");
+  };
+
+  const handleClose = () => {
+    if (hasChanges && !message) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to close?')) {
+        onClose();
+      }
+    } else {
+      onClose();
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -92,9 +104,13 @@ export default function ChangePasswordModal({ user, onClose }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2 className="modal-title">Change Password</h2>
+    <div className="modal-overlay" onClick={handleClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-header">
+          <h2 className="modal-title">Change Password</h2>
+          <button className="modal-close" onClick={handleClose}>×</button>
+        </div>
+        <div className="modal-body">
         
         {error && <div className="error-message">{error}</div>}
         {message && <div className="success-message">{message}</div>}
@@ -163,7 +179,7 @@ export default function ChangePasswordModal({ user, onClose }) {
             <button 
               type="button" 
               className="dashboard-btn dashboard-btn-danger" 
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
             >
               Cancel
@@ -171,6 +187,7 @@ export default function ChangePasswordModal({ user, onClose }) {
           </div>
 
         </form>
+        </div>
       </div>
     </div>
   );

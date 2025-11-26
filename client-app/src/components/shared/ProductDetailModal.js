@@ -4,9 +4,6 @@ import "../../Styles/modal.css";
 export default function ProductDetailModal({ product, onClose, onEdit, onToggleStatus }) {
   const money = (num) => (typeof num === "number" ? num.toFixed(2) : "0.00");
 
-  // Debug: Log the product to see what we're receiving
-  console.log("Product data:", product);
-
   // Clean up description by removing HTML entities and extra characters
   const cleanDescription = (desc) => {
     if (!desc) return "";
@@ -39,13 +36,10 @@ export default function ProductDetailModal({ product, onClose, onEdit, onToggleS
     const imageUrl = product.imageURL || product.ImageURL;
     if (!imageUrl) return null;
     
-    console.log("Original ImageURL:", imageUrl);
-    
     // Images are in the React public folder, so they're served from root
     // The imageURL from API is already in the correct format: /images/guitars/strat.jpg
     // Just use it directly since it's relative to the React app's public folder
     const fullUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
-    console.log("Image path:", fullUrl);
     return fullUrl;
   };
 

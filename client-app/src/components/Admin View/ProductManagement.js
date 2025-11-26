@@ -34,8 +34,6 @@ export default function ProductManagement() {
   async function loadProducts() {
     try {
       const data = await fetchData("products");
-      console.log("Products loaded:", data);
-      console.log("First product:", data[0]);
       setProducts(data || []);
       setFilteredProducts(data || []);
     } catch (err) {
@@ -49,8 +47,6 @@ export default function ProductManagement() {
     try {
       const featured = await fetchData("products/featured");
       const bestSellers = await fetchData("products/best-sellers");
-      console.log("Featured products response:", featured);
-      console.log("Best sellers response:", bestSellers);
       
       // Normalize the data to camelCase since the API returns PascalCase for these endpoints
       const normalizeFeatured = featured.map(p => ({

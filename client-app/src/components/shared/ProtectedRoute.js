@@ -7,32 +7,19 @@ import { Navigate } from "react-router-dom";
  * Wraps around routes that require authentication.
  * - Checks for `user` in localStorage.
  * - Verifies that user's role matches `requiredRole`.
+ * - If user is not authenticated or has wrong role, redirects to login page.
  */
 function ProtectedRoute({ children, requiredRole }) {
   // Get user data from localStorage
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  // 1. If user not logged in → redirect to login
-  if (!user) {
+  // If user not logged in or role doesn't match → redirect to login
+  if (!user || (requiredRole && user.role !== requiredRole)) {
     return <Navigate to="/login" replace />;
   }
 
-  // 2. If user role doesn't match → redirect to their correct dashboard
-  if (requiredRole && user.role !== requiredRole) {
-    switch (user.role) {
-      case "customer":
-        return <Navigate to="/customer-dashboard" replace />;
-      case "vendor":
-        return <Navigate to="/vendor-dashboard" replace />;
-      case "admin":
-        return <Navigate to="/admin-dashboard" replace />;
-      default:
-        return <Navigate to="/login" replace />;
-    }
-  }
-
-  // 3. Otherwise → allow access
+  // Otherwise → allow access
   return children;
 }
 

@@ -193,7 +193,8 @@ export default function VendorManagement() {
           vendorName: data.vendorName,
           firstName: data.firstName,
           lastName: data.lastName,
-          vendorEmail: data.vendorEmail
+          vendorEmail: data.vendorEmail,
+          status: data.status // Pass the status (Success or ExistingToken)
         });
         setShowTokenModal(true);
         setShowDetailModal(false); // Close detail modal when showing token

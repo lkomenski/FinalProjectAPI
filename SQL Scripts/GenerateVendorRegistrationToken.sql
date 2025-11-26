@@ -41,13 +41,22 @@ BEGIN
     FROM Vendors
     WHERE VendorID = @VendorID;
     
+    -- If there's a valid token, return error - don't expose the token again for security
     IF @ExistingToken IS NOT NULL AND @ExistingExpiry IS NOT NULL AND @ExistingExpiry > GETDATE()
     BEGIN
         SELECT 
-            'Warning' AS Status,
-            'A valid token already exists and will be replaced' AS Message,
-            @ExistingToken AS OldToken,
-            @ExistingExpiry AS OldExpiry;
+            'ExistingToken' AS Status,
+            'An active registration token already exists for this vendor. For security purposes, the token cannot be retrieved again. It will expire in ' + CAST(DATEDIFF(HOUR, GETDATE(), @ExistingExpiry) AS NVARCHAR) + ' hours.' AS Message,
+            @ExistingExpiry AS TokenExpiry,
+            DATEDIFF(HOUR, GETDATE(), @ExistingExpiry) AS HoursUntilExpiry,
+            VendorID,
+            VendorName,
+            VendorContactFName AS FirstName,
+            VendorContactLName AS LastName,
+            VendorEmail
+        FROM Vendors
+        WHERE VendorID = @VendorID;
+        RETURN;
     END
     
     -- Generate unique registration token

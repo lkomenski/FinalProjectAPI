@@ -13,10 +13,7 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
     async function loadVendorDetails() {
       try {
         const response = await Api.get(`/api/dashboard/vendor/${vendor.vendorID}`);
-        console.log("Vendor dashboard response:", response);
-        console.log("Recent invoices array:", response.recentInvoices);
         const invoices = response.recentInvoices?.slice(0, 5) || [];
-        console.log("Setting recentInvoices to:", invoices);
         setRecentInvoices(invoices);
       } catch (err) {
         console.error("Failed to load vendor details:", err);
@@ -37,7 +34,7 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content vendor-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header vendor-modal-header">
-          <h2 className="vendor-modal-title">
+          <h2 className="customer-modal-title">
             {vendor.vendorName}
           </h2>
           <button className="modal-close" onClick={onClose}>×</button>
@@ -52,14 +49,6 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
             <div className="vendor-info-grid">
               <div className="vendor-info-item">
                 <div className="vendor-info-label">
-                  Vendor ID:
-                </div>
-                <div className="vendor-info-value">
-                  #{vendor.vendorID}
-                </div>
-              </div>
-              <div className="vendor-info-item">
-                <div className="vendor-info-label">
                   Status:
                 </div>
                 <span className={vendor.isActive ? "status-active" : "status-inactive"}>
@@ -68,7 +57,15 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
               </div>
               <div className="vendor-info-item">
                 <div className="vendor-info-label">
-                  Contact Name:
+                  Business Name:
+                </div>
+                <div className="vendor-info-value">
+                  {vendor.vendorName}
+                </div>
+              </div>
+              <div className="vendor-info-item">
+                <div className="vendor-info-label">
+                  Contact Person:
                 </div>
                 <div className="vendor-info-value">
                   {vendor.vendorContactFName} {vendor.vendorContactLName}
@@ -82,6 +79,16 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
                   {vendor.vendorPhone || "Not provided"}
                 </div>
               </div>
+              {vendor.vendorEmail && (
+                <div className="vendor-info-item">
+                  <div className="vendor-info-label">
+                    Email:
+                  </div>
+                  <div className="vendor-info-value">
+                    {vendor.vendorEmail}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -114,7 +121,6 @@ export default function VendorDetailModal({ vendor, onClose, onEdit, onToggleSta
               <>
                 <div className="vendor-invoices-container">
                   {recentInvoices.map((inv) => {
-                    console.log("Invoice item:", inv);
                     const amountDue = (inv.invoiceTotal || 0) - (inv.paymentTotal || 0) - (inv.creditTotal || 0);
                     const isPaid = amountDue <= 0;
                     

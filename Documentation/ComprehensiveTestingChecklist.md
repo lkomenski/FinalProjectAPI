@@ -96,34 +96,9 @@
 
 ---
 
-## 🔒 6. AUTHORIZATION & ROUTE PROTECTION
-
-### Protected Routes
-
-- [ ] Redirects to appropriate dashboard if wrong role tries to access
-- [ ] Redirects to login if not authenticated
-- [ ] Cannot access protected routes by typing URL directly
-
-### Role-Based Access Control
-- [ ] Customer cannot access admin routes
-- [ ] Customer cannot access vendor routes
-- [ ] Vendor cannot access admin routes
-- [ ] Vendor cannot access customer shopping features
-- [ ] Admin cannot use shopping cart
-- [ ] API endpoints respect role restrictions (test in browser DevTools)
 
 ---
 
-## 💾 7. DATA PERSISTENCE & VALIDATION
-
-### Database Operations
-- [ ] New records save correctly
-- [ ] Updates save correctly
-- [ ] Soft deletes work (IsActive = 0)
-- [ ] Activations work (IsActive = 1)
-- [ ] DateUpdated field updates on changes
-- [ ] Foreign key relationships maintained
-- [ ] No orphaned records created
 
 ### Form Validation
 - [ ] Required fields cannot be empty
@@ -140,15 +115,6 @@
 
 ---
 
-## 🐛 9. ERROR HANDLING & EDGE CASES
-
-### API Error Handling
-- [ ] Network errors show user-friendly message
-- [ ] 404 errors handled gracefully
-- [ ] 500 errors show appropriate message
-- [ ] Validation errors from API displayed clearly
-- [ ] Timeout errors handled
-- [ ] Loading states prevent multiple submissions
 
 ### Edge Cases
 - [ ] Empty cart checkout handled (if applicable)
