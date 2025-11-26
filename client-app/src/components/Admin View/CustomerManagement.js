@@ -27,57 +27,20 @@ export default function CustomerManagement() {
 
   async function loadCustomers() {
     try {
-      console.log('=== LOADING CUSTOMERS ===');
-      console.log('Timestamp:', new Date().toISOString());
-      
-      // Add cache-busting to force fresh data
-      const response = await fetch('http://localhost:5077/api/customer', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      
-      const data = await response.json();
-      console.log("Raw API Response:", data);
-      console.log("Total customers from API:", data.length);
-      
-      // Count active/inactive in raw data
-      const rawActive = data.filter(c => c.IsActive === true || c.isActive === true).length;
-      const rawInactive = data.filter(c => c.IsActive === false || c.isActive === false).length;
-      console.log("Raw data - Active:", rawActive, "Inactive:", rawInactive);
+      const data = await fetchData("customer");
       
       // Normalize the data to handle both PascalCase and camelCase
-      const normalizedCustomers = (data || []).map(c => {
-        const normalized = {
-          customerID: c.CustomerID || c.customerID,
-          firstName: c.FirstName || c.firstName,
-          lastName: c.LastName || c.lastName,
-          emailAddress: c.EmailAddress || c.emailAddress,
-          isActive: c.IsActive !== undefined ? c.IsActive : (c.isActive !== undefined ? c.isActive : true)
-        };
-        
-        // Log your test customer specifically
-        if (normalized.emailAddress === 'leena@example.com' || normalized.customerID === 487) {
-          console.log('TEST CUSTOMER FOUND:', normalized);
-        }
-        
-        return normalized;
-      });
-      
-      console.log("Normalized customers:", normalizedCustomers.length);
-      const normalizedActive = normalizedCustomers.filter(c => c.isActive).length;
-      const normalizedInactive = normalizedCustomers.filter(c => !c.isActive).length;
-      console.log("Normalized - Active:", normalizedActive, "Inactive:", normalizedInactive);
-      console.log('=== END LOADING CUSTOMERS ===');
+      const normalizedCustomers = (data || []).map(c => ({
+        customerID: c.CustomerID || c.customerID,
+        firstName: c.FirstName || c.firstName,
+        lastName: c.LastName || c.lastName,
+        emailAddress: c.EmailAddress || c.emailAddress,
+        isActive: c.IsActive !== undefined ? c.IsActive : (c.isActive !== undefined ? c.isActive : true)
+      }));
       
       setCustomers(normalizedCustomers);
       setFilteredCustomers(normalizedCustomers);
     } catch (err) {
-      console.error('Error loading customers:', err);
       setError(err.message || "Failed to load customers.");
     } finally {
       setLoading(false);
@@ -190,29 +153,18 @@ export default function CustomerManagement() {
 
   async function toggleCustomerStatus(id, activate) {
     try {
-      console.log(`Toggling customer ${id} status to ${activate ? 'active' : 'inactive'}`);
-      
       const endpoint = activate
         ? `http://localhost:5077/api/customer/activate/${id}`
         : `http://localhost:5077/api/customer/deactivate/${id}`;
-
-      console.log('Calling endpoint:', endpoint);
       
       const response = await fetch(endpoint, { method: "PUT" });
       
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      
       if (response.ok) {
-        const responseText = await response.text();
-        console.log('Response text:', responseText);
-        
         // Update customers state - this will trigger the useEffect to update filteredCustomers
         setCustomers(prevCustomers => {
           const updated = prevCustomers.map(c => 
             c.customerID === id ? { ...c, isActive: activate } : c
           );
-          console.log('Updated customers:', updated);
           
           // Also update the selectedCustomer for the modal
           const updatedSelected = updated.find(c => c.customerID === id);
@@ -226,11 +178,9 @@ export default function CustomerManagement() {
         alert(`Customer ${activate ? 'activated' : 'deactivated'} successfully!`);
       } else {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
         alert(`Error updating customer status: ${errorText}`);
       }
     } catch (error) {
-      console.error('Error toggling customer status:', error);
       alert('Failed to update customer status. Please try again.');
     }
   }
@@ -262,7 +212,6 @@ export default function CustomerManagement() {
         alert(`Error deleting customer: ${errorData.message || errorData.error}`);
       }
     } catch (error) {
-      console.error('Error deleting customer:', error);
       alert('Failed to delete customer. Please try again.');
     }
   }

@@ -146,12 +146,36 @@ export default function VendorManagement() {
   };
 
   async function toggleVendorStatus(id, activate) {
-    const endpoint = activate
-      ? `http://localhost:5077/api/vendors/activate/${id}`
-      : `http://localhost:5077/api/vendors/deactivate/${id}`;
+    try {
+      const endpoint = activate
+        ? `http://localhost:5077/api/vendors/activate/${id}`
+        : `http://localhost:5077/api/vendors/deactivate/${id}`;
 
-    await fetch(endpoint, { method: "PUT" });
-    loadVendors();
+      const response = await fetch(endpoint, { method: "PUT" });
+      
+      if (response.ok) {
+        // Update vendors state immediately - this will trigger the useEffect to update filteredVendors
+        setVendors(prevVendors => {
+          const updated = prevVendors.map(v => 
+            v.vendorID === id ? { ...v, isActive: activate } : v
+          );
+          
+          // Also update the selectedVendor for the modal if it's the same vendor
+          if (selectedVendor && selectedVendor.vendorID === id) {
+            setSelectedVendor({ ...selectedVendor, isActive: activate });
+          }
+          
+          return updated;
+        });
+        
+        alert(`Vendor ${activate ? 'activated' : 'deactivated'} successfully!`);
+      } else {
+        const errorText = await response.text();
+        alert(`Error updating vendor status: ${errorText}`);
+      }
+    } catch (error) {
+      alert('Failed to update vendor status. Please try again.');
+    }
   }
 
   async function generateToken(vendorId) {

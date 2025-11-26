@@ -131,19 +131,12 @@ namespace FinalProjectAPI.Controllers
                     { "@CustomerID", id }
                 };
 
-                var result = await _repo.GetDataAsync("DeactivateCustomer", parameters);
-                
-                // Log the result for debugging
-                Console.WriteLine($"DeactivateCustomer called for ID: {id}");
-                Console.WriteLine($"Result rows: {result.Count()}");
-                
+                await _repo.GetDataAsync("DeactivateCustomer", parameters);
                 return Ok($"Customer {id} deactivated successfully.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error deactivating customer {id}: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, "Internal server error: Failed to deactivate customer.");
             }
         }
 
@@ -367,7 +360,8 @@ namespace FinalProjectAPI.Controllers
                 FirstName = row.ContainsKey("FirstName") ? row["FirstName"]?.ToString() ?? string.Empty : string.Empty,
                 LastName = row.ContainsKey("LastName") ? row["LastName"]?.ToString() ?? string.Empty : string.Empty,
                 ShippingAddressID = row.ContainsKey("ShippingAddressID") && row["ShippingAddressID"] != DBNull.Value ? Convert.ToInt32(row["ShippingAddressID"]) : null,
-                BillingAddressID = row.ContainsKey("BillingAddressID") && row["BillingAddressID"] != DBNull.Value ? Convert.ToInt32(row["BillingAddressID"]) : null
+                BillingAddressID = row.ContainsKey("BillingAddressID") && row["BillingAddressID"] != DBNull.Value ? Convert.ToInt32(row["BillingAddressID"]) : null,
+                IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value ? Convert.ToBoolean(row["IsActive"]) : true
             };
         }
 
