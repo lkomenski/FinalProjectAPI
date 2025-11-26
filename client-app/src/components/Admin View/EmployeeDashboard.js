@@ -43,7 +43,6 @@ export default function EmployeeDashboard() {
           const age = Date.now() - timestamp;
           
           if (age < CACHE_DURATION) {
-            console.log("Loading from cache (age:", Math.round(age / 1000), "seconds)");
             setStats(data);
             setLoading(false);
             setRefreshingSection(null);
@@ -52,7 +51,6 @@ export default function EmployeeDashboard() {
         }
       }
 
-      console.log("Fetching fresh data from API...");
       const data = await fetchData("dashboard/admin");
 
       const statsData = {

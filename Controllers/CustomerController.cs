@@ -194,10 +194,18 @@ namespace FinalProjectAPI.Controllers
                 
                 if (result != null)
                 {
+                    var status = result["Status"]?.ToString();
+                    var message = result["Message"]?.ToString();
+                    
+                    if (status == "Error")
+                    {
+                        return StatusCode(500, message ?? "Failed to delete customer.");
+                    }
+                    
                     return Ok(new
                     {
-                        Status = result["Status"]?.ToString(),
-                        Message = result["Message"]?.ToString(),
+                        Status = status,
+                        Message = message,
                         CustomerID = id
                     });
                 }

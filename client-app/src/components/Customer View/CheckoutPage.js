@@ -82,7 +82,6 @@ export default function CheckoutPage() {
           billingZip: addressData?.BillingZipCode || "",
         }));
       } catch {
-        console.log("Could not load customer profile and addresses");
         setEditMode(true); // Default to edit mode on error
       }
     }
@@ -248,7 +247,7 @@ export default function CheckoutPage() {
         body: JSON.stringify(billingData),
       });
     } catch (err) {
-      console.log("Could not update addresses:", err);
+      // Could not update addresses
     }
   }
 

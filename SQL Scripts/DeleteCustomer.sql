@@ -23,7 +23,7 @@ BEGIN
         UPDATE Customers
         SET 
             EmailAddress = 'deleted_user_' + CAST(@CustomerID AS VARCHAR) + '@anonymized.com',
-            Password = NULL,
+            Password = '[DELETED]',
             FirstName = 'Deleted',
             LastName = 'User',
             IsActive = 0,

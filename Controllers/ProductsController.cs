@@ -187,7 +187,19 @@ namespace FinalProjectAPI.Controllers
                     { "@Delete", 0 }
                 };
 
-                await _repo.GetDataAsync("DeleteProduct", parameters);
+                var rows = await _repo.GetDataAsync("DeleteProduct", parameters);
+                var result = rows.FirstOrDefault();
+                
+                if (result != null)
+                {
+                    var status = result["Status"]?.ToString();
+                    var message = result["Message"]?.ToString();
+                    
+                    if (status == "Error")
+                    {
+                        return StatusCode(500, message ?? "Failed to delete product.");
+                    }
+                }
 
                 return NoContent();
             }

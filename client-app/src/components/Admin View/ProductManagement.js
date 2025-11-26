@@ -179,7 +179,7 @@ export default function ProductManagement() {
       if (response.ok) {
         const responseData = await response.json().catch(() => null);
         if (responseData && responseData.message) {
-          console.log(responseData.message);
+          // Success
         }
         loadProducts(); // Refresh the list
       } else {
@@ -201,7 +201,7 @@ export default function ProductManagement() {
       if (response.ok) {
         const responseData = await response.json().catch(() => null);
         if (responseData && responseData.message) {
-          console.log(responseData.message);
+          // Success
         }
         loadProducts(); // Refresh the list
       } else {

@@ -37,15 +37,11 @@ export default function CustomerProfile() {
     async function loadProfileAndAddresses() {
       setIsLoading(true);
       try {
-        console.log("Loading profile for user ID:", user.id);
-        
         // Load basic profile
         const profileData = await fetchData(`customer/${user.id}`);
-        console.log("Profile data received:", profileData);
         
         // Load addresses
         const addressData = await fetchData(`customer/${user.id}/addresses`);
-        console.log("Address data received:", addressData);
         
         // Set both states together
         setProfile(profileData);
@@ -371,12 +367,25 @@ export default function CustomerProfile() {
 
     try {
       const res = await fetch(`http://localhost:5077/api/customer/delete/${user.id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json"
+        }
       });
 
       if (!res.ok) {
         const msg = await res.text();
+        console.error("Delete failed:", msg);
         setError(msg || "Failed to delete account.");
+        return;
+      }
+
+      // Parse the response to check status
+      const result = await res.json().catch(() => null);
+      console.error("Delete response:", result);
+      
+      if (result && result.Status === "Error") {
+        setError(result.Message || "Failed to delete account.");
         return;
       }
 
@@ -386,7 +395,8 @@ export default function CustomerProfile() {
         window.location.href = "/login";
       }, 1500);
     } catch (err) {
-      setError("Server error. Could not delete account.");
+      console.error("Delete error:", err);
+      setError(`Server error. Could not delete account. ${err.message}`);
     }
   };
 
