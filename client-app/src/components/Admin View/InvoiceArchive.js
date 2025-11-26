@@ -145,15 +145,21 @@ export default function InvoiceArchive() {
 
   return (
     <div className="dashboard-container">
+      {/* Breadcrumbs */}
+      <div className="breadcrumbs">
+        <span className="breadcrumb-link" onClick={() => navigate("/admin-dashboard")}>
+          Dashboard
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-link" onClick={() => navigate("/admin-dashboard")}>
+          Invoices
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-current">Invoice Archive</span>
+      </div>
+
       <div className="dashboard-header">
         <div>
-          <button 
-            onClick={() => navigate("/dashboard")} 
-            className="dashboard-btn dashboard-btn-secondary"
-            style={{ marginBottom: '10px' }}
-          >
-            ← Back to Dashboard
-          </button>
           <h2 className="dashboard-title">Invoice Archive</h2>
           <p style={{ color: '#6b7280', marginTop: '5px' }}>View historical invoices</p>
         </div>

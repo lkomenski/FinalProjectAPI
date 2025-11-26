@@ -84,10 +84,12 @@ function NavigationBar() {
           </>
         )}
 
-        {/* Cart Always Visible */}
-        <Link to="/cart" className="nav-link cart-link">
-          🛒 Cart ({cart.length})
-        </Link>
+        {/* Cart Visible for Customers and Guests Only */}
+        {(!user || user.role === "customer") && (
+          <Link to="/cart" className="nav-link cart-link">
+            🛒 Cart ({cart.length})
+          </Link>
+        )}
       </div>
     </nav>
   );
