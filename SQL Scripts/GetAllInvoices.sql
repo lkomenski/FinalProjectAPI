@@ -1,13 +1,16 @@
-USE AP;
+USE [AP]
 GO
-
--- Drop the procedure if it already exists
-IF OBJECT_ID('GetAllInvoices', 'P') IS NOT NULL
-    DROP PROCEDURE GetAllInvoices;
+SET ANSI_NULLS ON
 GO
-
--- Create the GetAllInvoices stored procedure
-CREATE PROCEDURE GetAllInvoices
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Leena Komenski
+-- Create date: 11/25/2025
+-- Description:	Retrieves all invoices with vendor and terms information
+-- exec GetAllInvoices
+-- =============================================
+CREATE PROCEDURE [dbo].[GetAllInvoices]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -30,5 +33,5 @@ BEGIN
     LEFT JOIN Vendors v ON i.VendorID = v.VendorID
     LEFT JOIN Terms t ON i.TermsID = t.TermsID
     ORDER BY i.InvoiceDate DESC;
-END;
+END
 GO

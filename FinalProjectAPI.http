@@ -10,63 +10,82 @@
 # AUTHENTICATION & LOGIN
 # =============================================================================
 
-### Customer Login
-POST {{FinalProjectAPI_HostAddress}}/api/login/customer
+### Universal Login - Customer
+POST {{FinalProjectAPI_HostAddress}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "testcustomer@example.com",
-  "password": "password"
+  "emailAddress": "testcustomer@example.com",
+  "password": "password",
+  "role": "customer"
 }
 
-### Employee Login  
-POST {{FinalProjectAPI_HostAddress}}/api/login/employee
+### Universal Login - Admin/Employee
+POST {{FinalProjectAPI_HostAddress}}/api/auth/login
 Content-Type: {{contentType}}
 
 {
-  "email": "employee@example.com",
-  "password": "password"
+  "emailAddress": "admin@guitarshop.com",
+  "password": "password",
+  "role": "admin"
 }
 
-### Vendor Login
-POST {{FinalProjectAPI_HostAddress}}/api/login/vendor
+### Universal Login - Vendor
+POST {{FinalProjectAPI_HostAddress}}/api/auth/login
 Content-Type: {{contentType}}
 
-/// DIFFERENTIATE BETWEEN THE TWO VENDOR ACCOUNTS I HAVE
+{
+  "emailAddress": "testvendor@example.com", 
+  "password": "password123",
+  "role": "vendor"
+}
+
+### Register New Customer
+POST {{FinalProjectAPI_HostAddress}}/api/auth/register-customer
+Content-Type: {{contentType}}
 
 {
-  "email": "testvendor@example.com", 
-  "password": "password123"
+  "firstName": "John",
+  "lastName": "Doe",
+  "emailAddress": "john.doe@example.com",
+  "password": "securePassword123"
 }
 
 # =============================================================================
 # CUSTOMER MANAGEMENT
 # =============================================================================
 
-### Register New Customer
-POST {{FinalProjectAPI_HostAddress}}/api/customer/register
-Content-Type: {{contentType}}
+### Get All Customers (Admin)
+GET {{FinalProjectAPI_HostAddress}}/api/customer
+Accept: {{contentType}}
 
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "securePassword123"
-}
+### Get Customer by ID
+GET {{FinalProjectAPI_HostAddress}}/api/customer/1
+Accept: {{contentType}}
 
-### Get Customer Profile
-GET {{FinalProjectAPI_HostAddress}}/api/customer/profile/1
+### Get Customer by Email
+GET {{FinalProjectAPI_HostAddress}}/api/customer/email/test@example.com
 Accept: {{contentType}}
 
 ### Update Customer Profile
-PUT {{FinalProjectAPI_HostAddress}}/api/customer/profile/1
+PUT {{FinalProjectAPI_HostAddress}}/api/customer/1
 Content-Type: {{contentType}}
 
 {
-  "customerId": 1,
+  "customerID": 1,
   "firstName": "John",
   "lastName": "Smith",
-  "email": "john.smith@example.com"
+  "emailAddress": "john.smith@example.com"
+}
+
+### Change Customer Password
+POST {{FinalProjectAPI_HostAddress}}/api/customer/change-password
+Content-Type: {{contentType}}
+
+{
+  "customerID": 1,
+  "oldPassword": "currentPassword",
+  "newPassword": "newSecurePassword123"
 }
 
 ### Deactivate Customer
@@ -162,19 +181,42 @@ Accept: {{contentType}}
 GET {{FinalProjectAPI_HostAddress}}/api/vendors/1
 Accept: {{contentType}}
 
-### Add New Vendor
-POST {{FinalProjectAPI_HostAddress}}/api/vendors
+### Get All Payment Terms
+GET {{FinalProjectAPI_HostAddress}}/api/vendors/terms
+Accept: {{contentType}}
+
+### Get All GL Accounts
+GET {{FinalProjectAPI_HostAddress}}/api/vendors/accounts
+Accept: {{contentType}}
+
+### Add New Vendor (Admin)
+POST {{FinalProjectAPI_HostAddress}}/api/vendors/add
 Content-Type: {{contentType}}
 
 {
   "vendorName": "Gibson Guitars",
-  "vendorAddress": "123 Music Row",
+  "vendorAddress1": "123 Music Row",
   "vendorCity": "Nashville",
   "vendorState": "TN",
   "vendorZipCode": "37203",
   "vendorContactLName": "Johnson",
   "vendorContactFName": "Sarah",
-  "vendorPhone": "(615) 555-0123"
+  "vendorPhone": "(615) 555-0123",
+  "vendorEmail": "sarah@gibson.com"
+}
+
+### Generate Vendor Registration Token (Admin)
+POST {{FinalProjectAPI_HostAddress}}/api/vendors/generate-token/1
+Accept: {{contentType}}
+
+### Vendor Self-Registration with Token
+POST {{FinalProjectAPI_HostAddress}}/api/vendors/register
+Content-Type: {{contentType}}
+
+{
+  "registrationToken": "your-token-here",
+  "vendorEmail": "vendor@example.com",
+  "password": "securePassword123"
 }
 
 ### Update Vendor
@@ -184,7 +226,7 @@ Content-Type: {{contentType}}
 {
   "vendorID": 1,
   "vendorName": "Gibson Guitars LLC",
-  "vendorAddress": "456 Music Avenue",
+  "vendorAddress1": "456 Music Avenue",
   "vendorCity": "Nashville",
   "vendorState": "TN",
   "vendorZipCode": "37203",
@@ -242,15 +284,16 @@ POST {{FinalProjectAPI_HostAddress}}/api/password-reset/request
 Content-Type: {{contentType}}
 
 {
-  "email": "customer@example.com"
+  "emailAddress": "customer@example.com"
 }
 
-### Reset Password
+### Reset Password with Token
 POST {{FinalProjectAPI_HostAddress}}/api/password-reset/reset
 Content-Type: {{contentType}}
 
 {
-  "token": "reset-token-here",
+  "emailAddress": "customer@example.com",
+  "resetToken": "reset-token-here",
   "newPassword": "newSecurePassword123"
 }
 

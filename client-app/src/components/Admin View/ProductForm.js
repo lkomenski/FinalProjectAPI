@@ -565,12 +565,15 @@ export default function ProductForm({ product, onClose }) {
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content product-form-modal">
 
-        <h2 className="modal-title">
-          {isEditing ? "Edit Product" : "Add Product"}
-        </h2>
+        <div className="modal-header">
+          <h2 className="modal-title lg">
+            {isEditing ? "Edit Product" : "Add Product"}
+          </h2>
+          <button className="modal-close" onClick={handleClose} type="button">×</button>
+        </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
-          <div className="modal-grid product-form-grid">
+          <div className="modal-grid">
 
             {/* Product Code */}
             <div className="form-field">
@@ -627,8 +630,11 @@ export default function ProductForm({ product, onClose }) {
               >
                 <option value="">Select Category</option>
                 {categories.map((category) => (
-                  <option key={category.CategoryID} value={category.CategoryID}>
-                    {category.CategoryName}
+                  <option 
+                    key={category.CategoryID || category.categoryID} 
+                    value={category.CategoryID || category.categoryID}
+                  >
+                    {category.CategoryName || category.categoryName}
                   </option>
                 ))}
               </select>

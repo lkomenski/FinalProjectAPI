@@ -29,11 +29,11 @@ Single `AuthController` handles all authentication operations:
 - All BCrypt password operations
 
 **Benefits:**
-- ✅ Single source of truth for authentication
-- ✅ Consistent security implementation across all user types
-- ✅ Easier to maintain and update security practices
-- ✅ Reduced code duplication
-- ✅ Clear separation: AuthController (authentication) vs other controllers (business logic)
+- Single source of truth for authentication
+- Consistent security implementation across all user types
+- Easier to maintain and update security practices
+- Reduced code duplication
+- Clear separation: AuthController (authentication) vs other controllers (business logic)
 
 **Controllers Removed:**
 - `LoginController.cs` - Completely redundant with AuthController
@@ -68,11 +68,11 @@ Two-phase vendor registration:
 - BCrypt password hashing on account creation
 
 **Benefits:**
-- ✅ Admin approval required before vendor account creation
-- ✅ Prevents unauthorized vendor registrations
-- ✅ Time-limited access prevents stale tokens
-- ✅ Secure token transmission via encrypted email
-- ✅ Audit trail through DateUpdated fields
+- Admin approval required before vendor account creation
+- Prevents unauthorized vendor registrations
+- Time-limited access prevents stale tokens
+- Secure token transmission via encrypted email
+- Audit trail through DateUpdated fields
 
 **Implementation Files:**
 - `SQL Scripts/GenerateVendorRegistrationToken.sql`
@@ -108,11 +108,11 @@ Two-phase vendor registration:
 - Password changes: Verify old password, hash new password
 
 **Benefits:**
-- ✅ No plain text passwords ever stored
-- ✅ Each password has unique salt
-- ✅ Timing-safe comparison prevents timing attacks
-- ✅ Configurable difficulty scales with hardware improvements
-- ✅ Industry-proven security
+- No plain text passwords ever stored
+- Each password has unique salt
+- Timing-safe comparison prevents timing attacks
+- Configurable difficulty scales with hardware improvements
+- Industry-proven security
 
 ---
 
@@ -125,11 +125,11 @@ Two-phase vendor registration:
 2. **AP (Accounts Payable):** Vendor and invoice management
 
 **Benefits:**
-- ✅ Clear separation of concerns
-- ✅ Independent scaling (customer traffic vs vendor operations)
-- ✅ Security isolation (vendor financial data separate)
-- ✅ Different backup/recovery strategies per database
-- ✅ Simplified access control per database
+- Clear separation of concerns
+- Independent scaling (customer traffic vs vendor operations)
+- Security isolation (vendor financial data separate)
+- Different backup/recovery strategies per database
+- Simplified access control per database
 
 ### Decision: Stored Procedure-Only Data Access
 
@@ -141,10 +141,10 @@ Two-phase vendor registration:
 - Clear contract between application and database
 
 **Benefits:**
-- ✅ Security: No dynamic SQL in application code
-- ✅ Performance: Cached execution plans
-- ✅ Maintainability: Database logic separate from application
-- ✅ Testability: Can test procedures independently
+- Security: No dynamic SQL in application code
+- Performance: Cached execution plans
+- Maintainability: Database logic separate from application
+- Testability: Can test procedures independently
 
 ---
 
@@ -169,11 +169,52 @@ Two-phase vendor registration:
 - Protected routes based on user roles
 - Clean URL structure
 
+### Decision: Role-Based Navigation and Access Control
+
+**Date Implemented:** November 2025
+
+**Problem:**
+- All users redirected to homepage after login regardless of role
+- Vendors and employees could add products to cart (inappropriate for their roles)
+- Inactive products visible to all users on homepage and search
+
+**Solution:**
+**Role-Based Login Redirects:**
+- Vendors navigate to `/vendor-dashboard` after login
+- Admins/Employees navigate to `/admin-dashboard` after login
+- Customers navigate to `/` (homepage) after login
+
+**Cart Access Restrictions:**
+- CartContext checks user role before allowing addToCart
+- Vendors and Admins/Employees blocked from adding items to cart
+- Console warning displayed for restricted users
+- Only customers and guests can use shopping cart functionality
+
+**Product Visibility Controls:**
+- Products with `isActive: false` filtered from homepage display
+- Inactive products hidden from featured products and best sellers lists
+- ProductDetails page shows error message for inactive products (customers only)
+- Admins can view all products including inactive ones for management
+- "Add to Cart" button only shown for customers and guests
+
+**Implementation:**
+- `LoginForm.js`: Role-based navigation after successful authentication
+- `CartContext.js`: Role validation in addToCart function
+- `HomePage.js`: Filter products by IsActive field before rendering
+- `ProductDetails.js`: Conditional rendering based on product active status and user role
+
 **Benefits:**
-- ✅ Component reusability
-- ✅ Fast development with hot reload
-- ✅ Rich testing ecosystem (React Testing Library)
-- ✅ Excellent user experience with responsive UI
+- Improved user experience with appropriate landing pages
+- Clear separation of functionality by role
+- Prevents inappropriate actions (vendors purchasing, customers accessing vendor tools)
+- Inactive products hidden from customer view while allowing admin management
+- Cleaner cart state (no items from non-customer users)
+
+**Benefits:**
+- Component reusability
+- Fast development with hot reload
+- Rich testing ecosystem (React Testing Library)
+- Excellent user experience with responsive UI
 
 ### Decision: Breadcrumb Navigation
 
@@ -189,9 +230,9 @@ Two-phase vendor registration:
 - Consistent placement at top of pages
 
 **Benefits:**
-- ✅ Improved user orientation
-- ✅ Faster navigation
-- ✅ Professional UX standard
+- Improved user orientation
+- Faster navigation
+- Professional UX standard
 
 ---
 
@@ -216,10 +257,10 @@ Controllers (consume via DI)
 ```
 
 **Benefits:**
-- ✅ Loose coupling between controllers and data access
-- ✅ Easy to swap database providers
-- ✅ Testable with mock repositories
-- ✅ Single responsibility: repositories handle data, controllers handle HTTP
+- Loose coupling between controllers and data access
+- Easy to swap database providers
+- Testable with mock repositories
+- Single responsibility: repositories handle data, controllers handle HTTP
 
 ---
 
@@ -235,10 +276,10 @@ Controllers (consume via DI)
 - Consistent error response format
 
 **Benefits:**
-- ✅ Industry-standard approach
-- ✅ Self-documenting API structure
-- ✅ Easy integration with frontend
-- ✅ Familiar to developers
+- Industry-standard approach
+- Self-documenting API structure
+- Easy integration with frontend
+- Familiar to developers
 
 ---
 
@@ -369,10 +410,10 @@ return StatusCode(500, "Internal server error: Failed to retrieve products.");
 - **ArchitectureDecisions.md:** This file
 
 ### Why Documentation Matters:
-- ✅ Onboarding new developers
-- ✅ Reference during development
-- ✅ Project portfolio demonstration
-- ✅ Academic submission requirements
+- Onboarding new developers
+- Reference during development
+- Project portfolio demonstration
+- Academic submission requirements
 
 ---
 
@@ -399,16 +440,19 @@ return StatusCode(500, "Internal server error: Failed to retrieve products.");
 ## Lessons Learned
 
 ### What Worked Well:
-- ✅ Repository pattern made testing and maintenance easier
-- ✅ Stored procedures provided excellent security and performance
-- ✅ React Context API sufficient for state management needs
-- ✅ BCrypt integration straightforward and secure
+- Repository pattern made testing and maintenance easier
+- Stored procedures provided excellent security and performance
+- React Context API sufficient for state management needs
+- BCrypt integration straightforward and secure
+- Role-based access control implemented successfully
+- Product visibility controls with IsActive field
+- Login redirects based on user roles
 
 ### What Could Be Improved:
-- 🔄 Earlier consolidation of authentication controllers
-- 🔄 More comprehensive automated testing from start
-- 🔄 Earlier implementation of token-based vendor registration
-- 🔄 More detailed API documentation from beginning
+- Earlier consolidation of authentication controllers
+- More comprehensive automated testing from start
+- Earlier implementation of token-based vendor registration
+- More detailed API documentation from beginning
 
 ### Future Enhancements:
 - JWT tokens for stateless authentication

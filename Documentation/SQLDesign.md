@@ -157,6 +157,8 @@ Vendors
 ├── VendorContactFName (NVARCHAR(50))
 ├── VendorEmail (NVARCHAR(255))
 ├── VendorPassword (NVARCHAR(255))  -- BCrypt hash (60 characters)
+├── RegistrationToken (NVARCHAR(50))  -- Secure one-time registration token
+├── RegistrationTokenExpiry (DATETIME)  -- Token expiration (48-hour TTL)
 ├── DefaultTermsID (INT)
 ├── DefaultAccountNo (NVARCHAR(50))
 ├── IsActive (BIT, DEFAULT 1)
@@ -171,6 +173,9 @@ Vendors
 - **Work Factor:** Configured to work factor 12 for security
 - **Vendor Authentication:** Secure login with BCrypt verification
 - **No Plain Text:** Passwords are never stored in plain text
+- **RegistrationToken:** One-time use token for vendor account creation (48-hour expiration)
+- **Token Security:** Admin-generated tokens prevent unauthorized vendor registration
+- **Token Lifecycle:** Cleared after successful registration or regeneration
 
 #### 2. Invoices Table
 ```sql
@@ -280,17 +285,21 @@ ValidateResetToken        -- Verifies reset token validity
 #### Vendor Management
 ```sql
 -- Vendor Operations
-GetAllVendors         -- Retrieves all vendor information
-GetVendorById        -- Gets specific vendor details
-GetVendorByEmail     -- Gets vendor by email address
-GetVendorDashboard   -- Vendor analytics and invoice summary
-AddVendor           -- Creates new vendor accounts
-RegisterVendor      -- Vendor registration with BCrypt password hashing
-UpdateVendor        -- Modifies vendor information
-DeleteVendorById    -- Removes vendor records
-ActivateVendor      -- Enables vendor accounts
-DeactivateVendor    -- Disables vendor access
-VendorLogin         -- Vendor authentication (BCrypt verification)
+GetAllVendors                    -- Retrieves all vendor information
+GetVendorById                   -- Gets specific vendor details
+GetVendorByEmail                -- Gets vendor by email address
+GetVendorDashboard              -- Vendor analytics and invoice summary
+AddVendor                       -- Creates new vendor accounts (admin only)
+UpdateVendor                    -- Modifies vendor information
+DeleteVendorById                -- Removes vendor records
+ActivateVendor                  -- Enables vendor accounts
+DeactivateVendor                -- Disables vendor access
+
+-- Vendor Registration & Security
+GenerateVendorRegistrationToken -- Creates secure token for vendor registration (48-hour expiry)
+VendorRegister                  -- Vendor self-registration using token (BCrypt password hashing)
+ValidateVendorToken             -- Validates registration token and expiry
+VendorLogin                     -- Vendor authentication (BCrypt verification)
 ```
 
 #### Invoice Management
@@ -339,6 +348,12 @@ public interface IDataRepositoryFactory
 - **Hash Format:** Passwords stored as BCrypt hashes (60 characters: `$2a$12$...` or `$2b$12$...`)
 - **Salt Generation:** BCrypt automatically generates and includes salt in each hash
 - **Token-Based Reset:** Secure password reset using unique tokens
+- **Vendor Registration Tokens:** Two-phase vendor registration for admin approval
+  - Admin generates secure registration token (GUID format)
+  - 48-hour token expiration (TTL)
+  - One-time use tokens (cleared after successful registration)
+  - Token invalidation on regeneration
+  - Prevents unauthorized vendor account creation
 - **Role-Based Access:** Separate authentication for customers, vendors, and employees
 - **Password Verification:** BCrypt.Verify for timing-safe password comparison
 - **No Plain Text:** Passwords are never stored or transmitted in plain text
@@ -388,8 +403,9 @@ The system includes comprehensive table alteration scripts:
 - **AlterCustomerTable.sql:** Adds `IsActive`, `DateUpdated`, and `ResetToken` fields
   - Ensures Password field accommodates BCrypt hashes (NVARCHAR(255))
 - **AlterProductsTable.sql:** Adds `IsActive`, `DateCreated`, `DateAdded`, and `ImageURL` fields
-- **AlterVendorTable.sql:** Adds `VendorEmail`, `VendorPassword`, `IsActive`, and `DateUpdated` fields
+- **AlterVendorTable.sql:** Adds `VendorEmail`, `VendorPassword`, `RegistrationToken`, `RegistrationTokenExpiry`, `IsActive`, and `DateUpdated` fields
   - Ensures VendorPassword field accommodates BCrypt hashes (NVARCHAR(255))
+  - RegistrationToken supports secure vendor registration workflow
 
 ### Password Migration Considerations
 When upgrading from plain text or other hashing methods to BCrypt:
@@ -475,3 +491,6 @@ The design supports both current functional requirements and provides a solid fo
 - [Setup Instructions](SetupInstructions.md) - Database setup procedures  
 - [API Endpoints](APIEndpoints.md) - Database-connected API documentation
 - [Testing Plan](TestingPlan.md) - Database testing procedures
+- [OOP Concepts Summary](OOPConceptsSummary.md) - Object-oriented programming implementation
+- [Architecture Decisions](ArchitectureDecisions.md) - System design and architectural choices
+- [Token Security Implementation](TokenSecurityImplementation.md) - Vendor registration token security details

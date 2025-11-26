@@ -162,14 +162,14 @@ namespace FinalProjectAPI.Controllers
         }
 
         /// <summary>
-        /// Deletes a product from the inventory.
+        /// Deletes a product from the inventory (soft delete by default).
         /// </summary>
         /// <param name="productId">The ID of the product to delete.</param>
-        /// <returns>A success message.</returns>
-        /// <response code="200">Returns a confirmation message.</response>
+        /// <returns>No content on successful deletion.</returns>
+        /// <response code="204">Product successfully deactivated.</response>
         /// <response code="400">If the product ID is invalid.</response>
         /// <response code="500">If there is a server error while deleting the product.</response>
-        [HttpDelete("{productId}")]
+        [HttpDelete("{productId}", Name = "DeleteProduct")]
         public async Task<IActionResult> DeleteProduct(int productId)
         {
             try
@@ -179,25 +179,17 @@ namespace FinalProjectAPI.Controllers
                     return BadRequest("Invalid ProductID.");
                 }
                 
+                // Call stored procedure to perform a soft delete (set IsActive = 0)
                 var parameters = new Dictionary<string, object?>
                 {
-                    {"@ProductID", productId}
+                    { "@ProductID", productId },
+                    // Use Delete = 0 to indicate soft-delete (stored proc will set IsActive = 0)
+                    { "@Delete", 0 }
                 };
 
-                var rows = await _repo.GetDataAsync("DeleteProduct", parameters);
-                var result = rows.FirstOrDefault();
-                
-                if (result != null)
-                {
-                    return Ok(new
-                    {
-                        Status = result["Status"]?.ToString(),
-                        Message = result["Message"]?.ToString(),
-                        ProductID = productId
-                    });
-                }
-                
-                return Ok($"Product {productId} deleted successfully.");
+                await _repo.GetDataAsync("DeleteProduct", parameters);
+
+                return NoContent();
             }
             catch (Exception)
             {
@@ -344,9 +336,9 @@ namespace FinalProjectAPI.Controllers
                 var imageUrl = $"/images/{folderPath}/{fileName}";
                 return Ok(new { imageUrl });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, $"Error uploading image: {ex.Message}");
+                return StatusCode(500, "Internal server error: Failed to upload image.");
             }
         }
 
@@ -377,24 +369,24 @@ namespace FinalProjectAPI.Controllers
         /// <summary>
         /// Deactivates a product by setting IsActive to false.
         /// </summary>
-        /// <param name="request">Object containing the ProductID to deactivate.</param>
+        /// <param name="productId">The ID of the product to deactivate.</param>
         /// <returns>The deactivated product.</returns>
         /// <response code="200">Returns the deactivated product.</response>
-        /// <response code="400">If the request is invalid or ProductID is missing.</response>
+        /// <response code="400">If the product ID is invalid.</response>
         /// <response code="500">If there is a server error while deactivating the product.</response>
-        [HttpPost("deactivate")]
-        public async Task<IActionResult> DeactivateProduct([FromBody] DeactivateProductRequest request)
+        [HttpPut("deactivate/{productId}")]
+        public async Task<IActionResult> DeactivateProduct(int productId)
         {
             try
             {
-                if (request?.ProductID == null || request.ProductID <= 0)
+                if (productId <= 0)
                 {
                     return BadRequest("Invalid ProductID.");
                 }
 
                 var parameters = new Dictionary<string, object?>
                 {
-                    { "@ProductID", request.ProductID }
+                    { "@ProductID", productId }
                 };
 
                 var rows = await _repo.GetDataAsync("DeactivateProduct", parameters);
@@ -407,13 +399,5 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
-    }
-
-    /// <summary>
-    /// Request model for deactivating a product.
-    /// </summary>
-    public class DeactivateProductRequest
-    {
-        public int ProductID { get; set; }
     }
 }

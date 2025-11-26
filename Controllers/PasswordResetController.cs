@@ -38,24 +38,31 @@ namespace FinalProjectAPI.Controllers
         [HttpPost("request-reset")]
         public async Task<IActionResult> RequestReset([FromBody] ResetRequestDto request)
         {
-            if (string.IsNullOrEmpty(request.EmailAddress))
-                return BadRequest("Email required.");
-
-            var repo = _factory.Create("MyGuitarShop");
-
-            // Create secure random token
-            var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@ResetToken", token }
-            };
+                if (string.IsNullOrEmpty(request.EmailAddress))
+                    return BadRequest("Email required.");
 
-            await repo.GetDataAsync("SavePasswordResetToken", parameters);
+                var repo = _factory.Create("MyGuitarShop");
 
-            // Normally email would be sent here
-            return Ok(new { message = "Reset link sent.", token = token });
+                // Create secure random token
+                var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress },
+                    { "@ResetToken", token }
+                };
+
+                await repo.GetDataAsync("SavePasswordResetToken", parameters);
+
+                // Normally email would be sent here
+                return Ok(new { message = "Reset link sent.", token = token });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to process password reset request.");
+            }
         }
 
         /// <summary>
@@ -75,24 +82,31 @@ namespace FinalProjectAPI.Controllers
         [HttpPut("reset")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
         {
-            if (!IsValidPassword(request.NewPassword))
-                return BadRequest("Password must be 8+ characters and include at least one number.");
-
-            if (request.NewPassword != request.ConfirmPassword)
-                return BadRequest("Passwords do not match.");
-
-            var repo = _factory.Create("MyGuitarShop");
-
-            var parameters = new Dictionary<string, object?>
+            try
             {
-                { "@EmailAddress", request.EmailAddress },
-                { "@ResetToken", request.ResetToken },
-                { "@NewPassword", request.NewPassword }
-            };
+                if (!IsValidPassword(request.NewPassword))
+                    return BadRequest("Password must be 8+ characters and include at least one number.");
 
-            await repo.GetDataAsync("CustomerResetPassword", parameters);
+                if (request.NewPassword != request.ConfirmPassword)
+                    return BadRequest("Passwords do not match.");
 
-            return Ok(new { message = "Password updated successfully." });
+                var repo = _factory.Create("MyGuitarShop");
+
+                var parameters = new Dictionary<string, object?>
+                {
+                    { "@EmailAddress", request.EmailAddress },
+                    { "@ResetToken", request.ResetToken },
+                    { "@NewPassword", request.NewPassword }
+                };
+
+                await repo.GetDataAsync("CustomerResetPassword", parameters);
+
+                return Ok(new { message = "Password updated successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to reset password.");
+            }
         }
 
         /// <summary>

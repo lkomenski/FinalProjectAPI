@@ -8,7 +8,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/16/2025
 -- Description:	Deactivates a customer and disables their addresses
--- exec DeactivateCustomer @CustomerID 122
+-- exec DeactivateCustomer @CustomerID = 122
 -- =============================================
 CREATE PROCEDURE [dbo].[DeactivateCustomer]
     @CustomerID INT

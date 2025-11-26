@@ -58,38 +58,54 @@ Before setting up the My Guitar Shop Management System, ensure you have the foll
    
    Navigate to the `SQL Scripts` folder in the project and execute the scripts in the following order:
    
+   **IMPORTANT:** Execute ALTER TABLE scripts FIRST before any stored procedures that depend on the modified table structures.
+   
    **For MyGuitarShop Database:**
-   - Execute all scripts that reference `USE [MyGuitarShop]`
-   - Key scripts include:
-     - `AlterCustomerTable.sql`
-     - `AlterProductsTable.sql`
-     - `GetCategories.sql`
-     - `GetAllProducts.sql`
-     - `AddProduct.sql`
-     - `UpdateProduct.sql`
-     - `DeleteCustomer.sql`
-     - `CustomerLogin.sql`
-     - `CustomerRegister.sql`
-     - `GetCustomerDashboard.sql`
-     - `GetEmployeeDashboard.sql`
-     - `GetFeaturedProducts.sql`
-     - `GetBestSellers.sql`
-     - And all other MyGuitarShop-related scripts
+   
+   **Step 1 - Execute ALTER TABLE scripts first:**
+   - `AlterCustomerTable.sql` - Adds EmailAddress, Password, and other required columns
+   - `AlterProductsTable.sql` - Adds IsActive, DateAdded, DateUpdated columns
+   
+   **Step 2 - Execute all other stored procedures:**
+   - `GetCategories.sql`
+   - `GetAllProducts.sql`
+   - `AddProduct.sql`
+   - `UpdateProduct.sql`
+   - `DeleteCustomer.sql`
+   - `CustomerLogin.sql`
+   - `CustomerRegister.sql`
+   - `GetCustomerDashboard.sql`
+   - `GetEmployeeDashboard.sql`
+   - `GetFeaturedProducts.sql`
+   - `GetBestSellers.sql`
+   - `ActivateProduct.sql`
+   - `DeactivateProduct.sql`
+   - And all other MyGuitarShop-related stored procedure scripts
+   
+   **Step 3 - Execute sample data script (OPTIONAL - for display/testing purposes):**
+   - `CreateSampleOrders.sql` - Creates sample order data for Best Sellers functionality
+   - **Note:** This script should ONLY be run AFTER all stored procedures are created, as it depends on `CreateOrder` and `CreateOrderItem` procedures. This is optional and only needed for testing/demonstration purposes to populate the "Best Sellers" section with data.
 
    **For AP Database:**
-   - Execute all scripts that reference `USE [AP]`
-   - Key scripts include:
-     - `AlterVendorTable.sql`
-     - `AddVendor.sql`
-     - `UpdateVendor.sql`
-     - `DeleteVendorById.sql`
-     - `GetAllVendors.sql`
-     - `GetVendorById.sql`
-     - `GetVendorDashboard.sql`
-     - `GetInvoiceById.sql`
-     - `GetInvoiceDetail.sql`
-     - `VendorLogin.sql`
-     - And all other AP-related scripts
+   
+   **Step 1 - Execute ALTER TABLE scripts first:**
+   - `AlterVendorTable.sql` - Adds EmailAddress, VendorPassword, RegistrationToken, and other required columns
+   
+   **Step 2 - Execute all other stored procedures:**
+   - `AddVendor.sql`
+   - `UpdateVendor.sql`
+   - `DeleteVendorById.sql`
+   - `GetAllVendors.sql`
+   - `GetVendorById.sql`
+   - `GetVendorDashboard.sql`
+   - `GetInvoiceById.sql`
+   - `GetInvoiceDetail.sql`
+   - `VendorLogin.sql`
+   - `GenerateVendorRegistrationToken.sql`
+   - `VendorRegister.sql`
+   - And all other AP-related stored procedure scripts
+   
+   **Note:** The ALTER TABLE scripts modify the existing database schema by adding new columns. These columns must exist before creating stored procedures that reference them, otherwise the stored procedure creation will fail.
 
 ### 3. Configure Connection Strings
 

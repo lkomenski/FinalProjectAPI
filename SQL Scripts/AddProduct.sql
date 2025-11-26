@@ -50,19 +50,7 @@ BEGIN
         ,GETDATE()
         ,GETDATE())
 
-    SELECT 
-        ProductID,
-        CategoryID,
-        ProductCode,
-        ProductName,
-        Description,
-        ListPrice,
-        DiscountPercent,
-        ImageURL,
-        QuantityOnHand,
-        IsActive,
-        DateAdded,
-        DateUpdated
-    FROM [dbo].[Products]
-    WHERE ProductID = SCOPE_IDENTITY()
+    -- Return the newly created product using existing GetProductById procedure
+    DECLARE @NewProductID INT = SCOPE_IDENTITY()
+    EXEC GetProductById @ProductID = @NewProductID
 END

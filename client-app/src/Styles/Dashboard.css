@@ -32,6 +32,8 @@
 .dashboard-card { background: white; padding: var(--gap-lg); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); display: flex; flex-direction: column; gap: var(--gap-xs); }
 .dashboard-card h3 { font-size: var(--text-lg); font-weight: 600; color: var(--color-gray-700); margin: 0; }
 .dashboard-card .value { font-size: var(--text-3xl); font-weight: 700; color: var(--color-gray-900); }
+.dashboard-clickable { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.dashboard-clickable:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
 
 /* BUTTON SYSTEM */
 .dashboard-btn { background: var(--color-blue-500); border: none; padding: var(--gap-sm) 16px; border-radius: var(--radius-md); color: white; cursor: pointer; font-size: var(--text-md); font-weight: 500; text-decoration: none; display: inline-block; text-align: center; transition: background-color 0.2s; }

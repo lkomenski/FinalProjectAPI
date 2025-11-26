@@ -117,15 +117,32 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 6. **InvoicesController** - Invoice and payment tracking
 7. **DashboardController** - Analytics and reporting for all user roles
 8. **PasswordResetController** - Secure password recovery system
-9. **LoginController** - Legacy login support (deprecated in favor of AuthController)
 
 ### Data Models
+
+**Core Business Models:**
 - **Customer** - User account and profile information
-- **Product** - Product details, pricing, and inventory
+- **Product** - Product details, pricing, and inventory status
 - **Category** - Product categorization system
-- **Vendor** - Supplier and manufacturer information
-- **Invoice** - Vendor invoicing and payment tracking
-- **Dashboard Models** - Analytics and reporting data structures
+- **Vendor** - Supplier and manufacturer information with registration token support
+- **Address** - Customer shipping and billing address information
+
+**Dashboard & Analytics Models:**
+- **AdminDashboard** - System-wide metrics and analytics
+- **CustomerDashboard** - Customer-specific order history and account summary
+- **VendorDashboard** - Vendor-specific invoice and performance data
+
+**Authentication & Security Models:**
+- **LoginRequest** - User authentication credentials
+- **LoginResponse** - Authentication response with user details and role
+- **CustomerRegistrationRequest** - New customer account registration
+- **VendorRegisterRequest** - Vendor registration with token validation
+- **ChangePasswordRequest** - Password change functionality
+- **ResetPasswordDto** - Password reset data transfer
+- **ResetRequestDto** - Password reset request data
+
+**Request/Response Models:**
+- **CustomerAddressRequest** - Customer address management
 
 ### Security Features
 - **Password Encryption** - BCrypt password hashing with BCrypt.Net-Next (work factor 12)
@@ -242,11 +259,14 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Project Deliverables
 
 ### Documentation
-- [API Endpoints Documentation](APIEndpoints.md)
-- [Database Design Documentation](SQLDesign.md)
-- [Setup Instructions](SetupInstructions.md)
-- [Testing Plan](TestingPlan.md)
-- [OOP Concepts Summary](OOPConceptsSummary.md)
+- [API Endpoints Documentation](Documentation/APIEndpoints.md)
+- [Database Design Documentation](Documentation/SQLDesign.md)
+- [Setup Instructions](Documentation/SetupInstructions.md)
+- [Testing Plan](Documentation/TestingPlan.md)
+- [OOP Concepts Summary](Documentation/OOPConceptsSummary.md)
+- [Project Overview](Documentation/ProjectOverview.md)
+- [Architecture Decisions](Documentation/ArchitectureDecisions.md)
+- [Token Security Implementation](Documentation/TokenSecurityImplementation.md)
 
 ### Code Deliverables
 - Complete ASP.NET Core Web API application (.NET 9.0)

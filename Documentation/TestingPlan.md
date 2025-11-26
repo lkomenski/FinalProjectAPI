@@ -654,36 +654,127 @@ GET http://localhost:5077/api/products/99999
 5. Activate/deactivate products
 6. View product analytics
 
-## 13. Test Data Setup
+## 13. Pre-Configured Test Accounts
 
-### 13.1 Sample Test Data
+### 13.1 Test Accounts Overview
 
-#### Customer Test Accounts
-```sql
--- Test customers for various scenarios
-INSERT INTO Customers (EmailAddress, Password, FirstName, LastName, IsActive)
-VALUES 
-('testcustomer1@example.com', 'TestPass123', 'John', 'Customer', 1),
-('testcustomer2@example.com', 'TestPass456', 'Jane', 'Buyer', 1),
-('inactivecustomer@example.com', 'TestPass789', 'Inactive', 'User', 0);
-```
+The system includes pre-configured test accounts for comprehensive demonstration and testing purposes. These accounts provide access to all user roles and demonstrate both new user experiences and populated user data.
 
-#### Vendor Test Accounts
-```sql
--- Test vendors for AP testing
-INSERT INTO Vendors (VendorName, VendorEmail, VendorPassword, VendorContactFName, VendorContactLName, IsActive)
-VALUES 
-('Test Music Supply', 'vendor1@testmusic.com', 'VendorPass1', 'John', 'Vendor', 1),
-('Guitar World Inc', 'vendor2@guitarworld.com', 'VendorPass2', 'Jane', 'Supplier', 1);
-```
+#### Available Test Accounts
+
+**Admin/Employee Account**
+- **Purpose:** Full administrative access to test dashboard features and management functions
+- **Access Level:** Complete system access including product management, customer management, vendor management, and administrative dashboard
+- **Features to Test:**
+  - Admin dashboard with system-wide analytics
+  - Product catalog management (add, edit, activate/deactivate)
+  - Customer management and viewing customer details
+  - Vendor management and registration token generation
+  - Invoice viewing and management
+
+**Customer Account (New User)**
+- **Purpose:** Fresh customer account to test registration and initial user experience
+- **Profile Status:** Minimal data, clean slate for testing
+- **Features to Test:**
+  - New customer registration flow
+  - First-time login experience
+  - Profile setup and updates
+  - Shopping and cart functionality (customers only)
+  - Initial dashboard view with no order history
+
+**Customer Account (Existing User)**
+- **Purpose:** Customer with order history and profile data to demonstrate populated dashboards
+- **Profile Status:** Pre-populated with orders, addresses, and account history
+- **Features to Test:**
+  - Customer dashboard with order history
+  - Account management with existing data
+  - Address management (billing/shipping)
+  - Order tracking and history viewing
+  - Profile updates with existing information
+
+**Vendor Account**
+- **Purpose:** Test vendor to demonstrate vendor dashboard and invoice management
+- **Account Type:** Registered vendor with business information
+- **Features to Test:**
+  - Vendor login and dashboard access
+  - Invoice viewing and details
+  - Vendor profile information
+  - Dashboard analytics for vendors
+  - Vendor-specific functionality
+
+### 13.2 Test Account Security
+
+**Note:** Test account credentials are available separately for evaluation and demonstration purposes. For security reasons, passwords are not included in this documentation.
+
+**To obtain test credentials:**
+- Contact the developer directly for access details
+- Credentials can be provided via secure communication for course evaluation
+- Test accounts use BCrypt password hashing like production accounts
+
+### 13.3 Test Account Features Matrix
+
+| Account Type | Dashboard | Product Mgmt | Customer Mgmt | Vendor Mgmt | Cart | Invoices |
+|--------------|-----------|--------------|---------------|-------------|------|----------|
+| Admin | Admin Dashboard | Full Control | View/Manage | View/Manage | Restricted | View All |
+| Customer (New) | Customer Dashboard | View Only | Own Profile | No Access | Full Access | No Access |
+| Customer (Existing) | Customer Dashboard | View Only | Own Profile | No Access | Full Access | No Access |
+| Vendor | Vendor Dashboard | View Only | No Access | Own Profile | Restricted | Own Invoices |
+
+**Legend:** 
+- **Dashboard:** Which dashboard the account has access to
+- **Product Mgmt:** Product management capabilities (view/add/edit/activate/deactivate)
+- **Customer Mgmt:** Customer management and viewing capabilities
+- **Vendor Mgmt:** Vendor management and token generation capabilities
+- **Cart:** Shopping cart functionality
+- **Invoices:** Invoice viewing access
+
+### 13.4 Testing Workflows with Pre-Configured Accounts
+
+#### Admin Testing Workflow
+1. Login with admin credentials
+2. Access admin dashboard to view system metrics
+3. Manage products (add, edit, activate/deactivate)
+4. View customer list and customer details modal
+5. Manage vendors and generate registration tokens
+6. Review system-wide analytics
+
+#### New Customer Testing Workflow
+1. Login with new customer credentials
+2. View empty customer dashboard
+3. Update profile information
+4. Browse product catalog (active products only)
+5. Add items to shopping cart
+6. View cart and test cart functionality
+
+#### Existing Customer Testing Workflow
+1. Login with existing customer credentials
+2. View populated customer dashboard with order history
+3. Review account information and addresses
+4. Browse products and use cart
+5. Demonstrate data persistence and user experience
+
+#### Vendor Testing Workflow
+1. Login with vendor credentials
+2. Access vendor dashboard
+3. View vendor-specific invoices
+4. Review business information
+5. Demonstrate vendor portal functionality
+
+### 13.5 Sample Test Data (Non-Sensitive)
 
 #### Product Test Data
 ```sql
--- Sample products for testing
-INSERT INTO Products (CategoryID, ProductCode, ProductName, Description, ListPrice, DiscountPercent, IsActive)
-VALUES 
-(1, 'TEST001', 'Test Electric Guitar', 'For testing purposes', 599.99, 10.0, 1),
-(2, 'TEST002', 'Test Acoustic Guitar', 'For testing purposes', 399.99, 5.0, 1);
+-- Sample products for testing catalog features
+-- Products with various categories, prices, and active status
+SELECT ProductID, ProductName, ListPrice, IsActive 
+FROM Products 
+WHERE ProductCode LIKE 'TEST%' OR Description LIKE '%test%';
+```
+
+#### Category Test Data
+```sql
+-- Verify test categories exist
+SELECT CategoryID, CategoryName FROM Categories;
 ```
 
 ## 14. Test Automation Scripts
@@ -809,3 +900,6 @@ The testing approach covers all user roles, business workflows, and technical co
 - [Setup Instructions](SetupInstructions.md) - Environment setup for testing
 - [API Endpoints](APIEndpoints.md) - Detailed endpoint specifications for testing
 - [SQL Design](SQLDesign.md) - Database testing procedures and validation
+- [OOP Concepts Summary](OOPConceptsSummary.md) - Code architecture for testing
+- [Architecture Decisions](ArchitectureDecisions.md) - System design context
+- [Token Security Implementation](TokenSecurityImplementation.md) - Vendor registration testing

@@ -8,7 +8,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/12/2025
 -- Description:	Activates a product
--- exec ActivateProduct @ProductID 9
+-- exec ActivateProduct @ProductID = 9
 -- =============================================
 
 CREATE PROCEDURE [dbo].[ActivateProduct]

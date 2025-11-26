@@ -5,15 +5,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
--- Drop the procedure if it already exists
-IF OBJECT_ID('GetArchivedInvoiceDetail', 'P') IS NOT NULL
-    DROP PROCEDURE GetArchivedInvoiceDetail;
-GO
-
 -- =============================================
 -- Author:		Leena Komenski
 -- Create date: 11/18/2025
 -- Description:	Gets archived invoice detail by invoice ID
+-- exec GetArchivedInvoiceDetail @InvoiceID = 5
 -- =============================================
 CREATE PROCEDURE [dbo].[GetArchivedInvoiceDetail]
     @InvoiceID INT

@@ -689,12 +689,18 @@ useEffect(() => {
 React Context provides abstraction for global state:
 
 ```javascript
-// CartContext.js - State management abstraction
+// CartContext.js - State management abstraction with role-based access control
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Abstract cart operations
+  // Abstract cart operations with role restrictions
   const addToCart = (product) => {
+    // Prevent vendors and employees from adding to cart (Encapsulation)
+    if (currentUser && (currentUser.role === 'vendor' || currentUser.role === 'admin')) {
+      console.warn('Vendors and employees cannot add items to cart');
+      return; // Access control through encapsulation
+    }
     // Complex cart logic abstracted
   };
 
@@ -703,20 +709,25 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, currentUser }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-// Components use abstract interface
+// Components use abstract interface with conditional rendering
 function ProductCard({ product }) {
-  const { addToCart } = useContext(CartContext); // Abstract cart operations
+  const { addToCart, currentUser } = useContext(CartContext); // Abstract cart operations
   
   return (
-    <button onClick={() => addToCart(product)}>
-      Add to Cart {/* Implementation details hidden */}
-    </button>
+    <div>
+      {/* Role-based UI rendering (Polymorphism) */}
+      {(!currentUser || currentUser.role === 'customer') && (
+        <button onClick={() => addToCart(product)}>
+          Add to Cart {/* Implementation details hidden */}
+        </button>
+      )}
+    </div>
   );
 }
 ```

@@ -10,7 +10,7 @@ GO
 -- Description:	Changes customer password (password verification done in C# with BCrypt)
 -- exec CustomerChangePassword @CustomerID=1, @NewPassword='$2a$11$hashedpassword...'
 -- =============================================
-CREATE OR ALTER PROCEDURE [dbo].[CustomerChangePassword]
+CREATE PROCEDURE [dbo].[CustomerChangePassword]
     @CustomerID INT,
     @OldPassword NVARCHAR(255), -- Kept for compatibility but not used (verification done in C#)
     @NewPassword NVARCHAR(255)

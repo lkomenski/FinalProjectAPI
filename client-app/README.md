@@ -55,33 +55,47 @@ This client application is part of a comprehensive Guitar Shop Management System
 
 ```
 src/
-├── components/           # React components
-│   ├── Api.js           # API service functions
-│   ├── HomePage.js      # Main product browsing page
-│   ├── NavBar.js        # Navigation component
-│   ├── CartPage.js      # Shopping cart management
-│   ├── CheckoutPage.js  # Order checkout process
-│   ├── ProductCard.js   # Product display component
-│   ├── ProductDetails.js # Individual product view
-│   ├── ProductForm.js   # Product management form (admin)
-│   ├── LoginForm.js     # User authentication
-│   ├── RegisterForm.js  # Customer registration
-│   ├── ResetPassword.js # Password reset functionality
-│   ├── ChangePasswordModal.js # Password change modal
-│   ├── CustomerDashboard.js   # Customer account overview
-│   ├── CustomerProfile.js     # Customer profile management
-│   ├── VendorDashboard.js     # Vendor business analytics
-│   ├── VendorAccount.js       # Vendor profile management
-│   ├── VendorForm.js          # Vendor account editing
-│   ├── VendorRegisterForm.js  # Vendor registration form
-│   ├── VendorInvoices.js      # Vendor invoice listing
-│   ├── VendorInvoiceDetail.js # Individual invoice view
-│   ├── EmployeeDashboard.js   # Admin/employee panel
-│   ├── ProtectedRoute.js      # Route authentication guard
-│   ├── ConfirmationModal.js   # Confirmation dialogs
-│   └── shared/               # Reusable UI components
-│       ├── LoadingSpinner.js # Loading state indicator
-│       └── ErrorMessage.js   # Error display component
+├── components/
+│   ├── Admin View/          # Administrator components
+│   │   ├── EmployeeDashboard.js    # Admin dashboard with KPIs
+│   │   ├── CustomerManagement.js   # Customer account management
+│   │   ├── CustomerDetailModal.js  # Customer detail view
+│   │   ├── ProductManagement.js    # Product inventory management
+│   │   ├── ProductForm.js          # Product add/edit form
+│   │   ├── ProductDetailModal.js   # Product detail view
+│   │   ├── VendorManagement.js     # Vendor account management
+│   │   ├── SalesDashboard.js       # Sales analytics and reporting
+│   │   ├── InvoiceArchive.js       # Archived invoices view
+│   │   └── InvoiceDetailModal.js   # Invoice detail view
+│   ├── Customer View/       # Customer-facing components
+│   │   ├── CartPage.js             # Shopping cart management
+│   │   ├── CheckoutPage.js         # Order checkout process
+│   │   ├── CustomerDashboard.js    # Customer account overview
+│   │   ├── CustomerProfile.js      # Profile management
+│   │   └── ChangePasswordModal.js  # Password change modal
+│   ├── Vendor View/         # Vendor-specific components
+│   │   ├── VendorDashboard.js      # Vendor analytics dashboard
+│   │   ├── VendorAccount.js        # Vendor profile management
+│   │   ├── VendorForm.js           # Vendor account editing
+│   │   ├── VendorDetailModal.js    # Vendor detail view
+│   │   ├── VendorRegisterForm.js   # Vendor registration form
+│   │   ├── VendorInvoices.js       # Invoice listing
+│   │   ├── VendorInvoiceDetail.js  # Invoice detail view
+│   │   └── TokenModal.js           # Registration token modal
+│   └── shared/              # Shared/common components
+│       ├── Api.js                  # API service functions
+│       ├── HomePage.js             # Main product browsing page
+│       ├── NavBar.js               # Navigation component
+│       ├── LoginForm.js            # User authentication
+│       ├── RegisterForm.js         # Customer registration
+│       ├── ResetPassword.js        # Password reset functionality
+│       ├── ProductCard.js          # Product display component
+│       ├── ProductDetails.js       # Individual product view
+│       ├── ProductDetailModal.js   # Product detail modal
+│       ├── ProtectedRoute.js       # Route authentication guard
+│       ├── ConfirmationModal.js    # Confirmation dialogs
+│       ├── LoadingSpinner.js       # Loading state indicator
+│       └── ErrorMessage.js         # Error display component
 ├── Styles/              # CSS stylesheets
 │   ├── App.css          # Global application styles
 │   ├── Auth.css         # Authentication form styles
@@ -143,12 +157,11 @@ The frontend communicates with the ASP.NET Core Web API:
 ### Key API Endpoints
 ```
 # Authentication
-POST   /api/auth/login               # Universal login with role selection
-POST   /api/auth/customer/login      # Customer-specific authentication
-POST   /api/auth/vendor/login        # Vendor-specific authentication
+POST   /api/auth/login               # Universal login with role parameter
+POST   /api/auth/register-customer   # Customer registration with BCrypt
+POST   /api/auth/register-vendor     # Vendor registration with token
 
 # Customer Management
-POST   /api/customer/register        # Customer registration with BCrypt
 GET    /api/customer/:id             # Get customer details
 PUT    /api/customer/:id             # Update customer profile
 PUT    /api/customer/change-password # Change password with verification
@@ -174,8 +187,8 @@ GET    /api/categories               # Get all categories
 GET    /api/categories/:id/products  # Get products by category
 
 # Password Reset
-POST   /api/password-reset/request   # Request password reset
-POST   /api/password-reset/reset     # Reset password with token
+POST   /api/password/request-reset   # Request password reset
+PUT    /api/password/reset           # Reset password with token
 ```
 
 ##  UI/UX Features

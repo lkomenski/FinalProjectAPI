@@ -55,6 +55,12 @@ Authenticate users across all roles (customer, vendor, admin/employee).
 - `400 Bad Request` - Email and password are required
 - `401 Unauthorized` - Invalid credentials or BCrypt verification failed
 
+**Frontend Integration:**
+After successful login, the frontend implements role-based redirects:
+- **Vendors** → `/vendor-dashboard`
+- **Admins/Employees** → `/admin-dashboard`
+- **Customers** → `/` (homepage)
+
 **Example:**
 ```bash
 curl -X POST http://localhost:5077/api/auth/login \
@@ -217,6 +223,11 @@ Retrieve all products from the inventory.
 ]
 ```
 
+**Frontend Integration:**
+- **Customers**: Only see products with `isActive: true` on the homepage, search results, and product listings.
+- **Admins/Employees**: Can view all products including inactive ones in the admin management interface.
+- **Cart Access**: Vendors and employees are restricted from adding products to cart (frontend validation).
+
 ---
 
 ### Get Product by ID
@@ -244,6 +255,10 @@ Retrieve a specific product by its ID.
 }
 ```
 
+**Frontend Integration:**
+- **Customers**: If `isActive: false`, an error message is displayed and the "Add to Cart" button is hidden.
+- **Admins**: Can view inactive products without restrictions for management purposes.
+
 ---
 
 ### Get Featured Products
@@ -264,6 +279,9 @@ Retrieve products marked as featured for homepage display.
 ]
 ```
 
+**Frontend Integration:**
+The frontend filters out inactive products (`isActive: false`) before displaying on the homepage and in search results. Only products with `isActive: true` are shown to customers.
+
 ---
 
 ### Get Best Sellers
@@ -283,6 +301,9 @@ Retrieve top-selling products based on sales data.
   }
 ]
 ```
+
+**Frontend Integration:**
+The frontend filters out inactive products (`isActive: false`) before displaying. Only active products appear in the best sellers list for customers.
 
 ---
 
@@ -687,6 +708,92 @@ Retrieve a specific vendor by ID.
   "isActive": "boolean"
 }
 ```
+
+---
+
+### Get All Payment Terms
+Retrieve all payment terms available for vendor configuration.
+
+**Endpoint:** `GET /api/vendors/terms`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "termsID": "integer",
+    "termsDescription": "string",
+    "termsDueDays": "integer"
+  }
+]
+```
+
+**Example Response:**
+```json
+[
+  {
+    "termsID": 1,
+    "termsDescription": "Net due 10 days",
+    "termsDueDays": 10
+  },
+  {
+    "termsID": 2,
+    "termsDescription": "Net due 20 days",
+    "termsDueDays": 20
+  },
+  {
+    "termsID": 3,
+    "termsDescription": "Net due 30 days",
+    "termsDueDays": 30
+  }
+]
+```
+
+**Error Responses:**
+- `500 Internal Server Error` - Failed to retrieve payment terms
+
+**Frontend Integration:**
+This endpoint populates the "Payment Terms" dropdown in the Add/Edit Vendor forms. The `termsID` is stored in the vendor record as `defaultTermsID`.
+
+---
+
+### Get All GL Accounts
+Retrieve all general ledger accounts available for vendor configuration.
+
+**Endpoint:** `GET /api/vendors/accounts`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "accountNo": "integer",
+    "accountDescription": "string"
+  }
+]
+```
+
+**Example Response:**
+```json
+[
+  {
+    "accountNo": 100,
+    "accountDescription": "Cash"
+  },
+  {
+    "accountNo": 200,
+    "accountDescription": "Accounts Payable"
+  },
+  {
+    "accountNo": 570,
+    "accountDescription": "Office Supplies"
+  }
+]
+```
+
+**Error Responses:**
+- `500 Internal Server Error` - Failed to retrieve GL accounts
+
+**Frontend Integration:**
+This endpoint populates the "Default Account" dropdown in the Add/Edit Vendor forms. The `accountNo` is stored in the vendor record as `defaultAccountNo`.
 
 ---
 

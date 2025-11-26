@@ -1,11 +1,16 @@
-USE MyGuitarShop;
+USE [MyGuitarShop]
 GO
-
-IF OBJECT_ID('GetAllCustomers', 'P') IS NOT NULL
-    DROP PROCEDURE GetAllCustomers;
+SET ANSI_NULLS ON
 GO
-
-CREATE PROCEDURE GetAllCustomers
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Leena Komenski
+-- Create date: 11/25/2025
+-- Description:	Retrieves all customers for admin management
+-- exec GetAllCustomers
+-- =============================================
+CREATE PROCEDURE [dbo].[GetAllCustomers]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -18,5 +23,5 @@ BEGIN
         IsActive
     FROM Customers
     ORDER BY LastName, FirstName;
-END;
+END
 GO

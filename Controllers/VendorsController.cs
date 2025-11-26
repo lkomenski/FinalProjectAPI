@@ -337,5 +337,60 @@ namespace FinalProjectAPI.Controllers
                 IsActive = row.ContainsKey("IsActive") && row["IsActive"] != DBNull.Value ? Convert.ToBoolean(row["IsActive"]) : true
             };
         }
+
+        /// <summary>
+        /// Retrieves all payment terms for vendor selection.
+        /// </summary>
+        /// <returns>A list of all payment terms.</returns>
+        /// <response code="200">Returns the list of all payment terms.</response>
+        /// <response code="500">If there is a server error while retrieving terms.</response>
+        [HttpGet("terms")]
+        public async Task<IActionResult> GetAllTerms()
+        {
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetAllTerms");
+                
+                var terms = rows.Select(row => new
+                {
+                    TermsID = row.ContainsKey("TermsID") && row["TermsID"] != DBNull.Value ? Convert.ToInt32(row["TermsID"]) : 0,
+                    TermsDescription = row.ContainsKey("TermsDescription") ? row["TermsDescription"]?.ToString() ?? string.Empty : string.Empty,
+                    TermsDueDays = row.ContainsKey("TermsDueDays") && row["TermsDueDays"] != DBNull.Value ? Convert.ToInt32(row["TermsDueDays"]) : 0
+                }).ToList();
+
+                return Ok(terms);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve payment terms.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all GL accounts for vendor selection.
+        /// </summary>
+        /// <returns>A list of all GL accounts.</returns>
+        /// <response code="200">Returns the list of all GL accounts.</response>
+        /// <response code="500">If there is a server error while retrieving GL accounts.</response>
+        [HttpGet("accounts")]
+        public async Task<IActionResult> GetAllGLAccounts()
+        {
+            try
+            {
+                var rows = await _repo.GetDataAsync("GetAllGLAccounts");
+                
+                var accounts = rows.Select(row => new
+                {
+                    AccountNo = row.ContainsKey("AccountNo") && row["AccountNo"] != DBNull.Value ? Convert.ToInt32(row["AccountNo"]) : 0,
+                    AccountDescription = row.ContainsKey("AccountDescription") ? row["AccountDescription"]?.ToString() ?? string.Empty : string.Empty
+                }).ToList();
+
+                return Ok(accounts);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error: Failed to retrieve GL accounts.");
+            }
+        }
     }
 }

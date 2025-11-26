@@ -307,9 +307,6 @@ export default function CustomerManagement() {
           <option value="active">Active Only</option>
           <option value="inactive">Inactive Only</option>
         </select>
-        <button className="dashboard-btn dashboard-btn-success">
-          + Add Customer
-        </button>
       </div>
 
       {/* Customer List */}

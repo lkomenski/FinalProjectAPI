@@ -8,7 +8,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/11/2025
 -- Description:	Gets an invoice by ID
--- exec GetInvoiceByID @InvoiceID 8
+-- exec GetInvoiceByID @InvoiceID = 8
 -- =============================================
 CREATE PROCEDURE [dbo].[GetInvoiceByID]
     @InvoiceID INT

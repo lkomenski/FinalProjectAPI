@@ -5,6 +5,12 @@ GO
 -- Create date: 11/19/2025
 -- Description:	Creates sample orders and order items for testing
 --              This populates data for Best Sellers to display
+-- 
+-- IMPORTANT:    This script should ONLY be run AFTER all stored 
+--              procedures have been created (especially CreateOrder 
+--              and CreateOrderItem). This is an OPTIONAL script for 
+--              display/testing purposes to populate the "Best Sellers" 
+--              functionality with sample data.
 -- =============================================
 
 -- Declare variables for order IDs

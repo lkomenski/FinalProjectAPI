@@ -8,7 +8,7 @@ GO
 -- Author:		Leena Komenski
 -- Create date: 11/16/2025
 -- Description:	Gets invoice detail by invoice ID
--- exec GetInvoiceDetail @InvoiceID 124
+-- exec GetInvoiceDetail @InvoiceID = 124
 -- =============================================
 CREATE PROCEDURE [dbo].[GetInvoiceDetail]
     @InvoiceID INT

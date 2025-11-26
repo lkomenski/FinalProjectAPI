@@ -127,9 +127,9 @@ namespace FinalProjectAPI.Controllers
                     _ => BadRequest("Invalid role.")
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, $"Error during login: {ex.Message}");
+                return StatusCode(500, "Internal server error: Failed to process login request.");
             }
         }
 
@@ -152,7 +152,7 @@ namespace FinalProjectAPI.Controllers
                     { "@EmailAddress", request.EmailAddress }
                 };
 
-                // Get customer by email (we'll verify password in C# instead of SQL)
+                // Get customer by email 
                 var results = await repo.GetDataAsync("CustomerLogin", parameters);
                 var row = results.FirstOrDefault();
 

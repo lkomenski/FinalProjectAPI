@@ -1,13 +1,16 @@
-USE AP;
+USE [AP]
 GO
-
--- Drop the procedure if it already exists
-IF OBJECT_ID('GetArchivedInvoices', 'P') IS NOT NULL
-    DROP PROCEDURE GetArchivedInvoices;
+SET ANSI_NULLS ON
 GO
-
--- Create the GetArchivedInvoices stored procedure
-CREATE PROCEDURE GetArchivedInvoices
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Leena Komenski
+-- Create date: 11/25/2025
+-- Description:	Retrieves all archived invoices with vendor and terms information
+-- exec GetArchivedInvoices
+-- =============================================
+CREATE PROCEDURE [dbo].[GetArchivedInvoices]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -30,5 +33,5 @@ BEGIN
     LEFT JOIN Vendors v ON ia.VendorID = v.VendorID
     LEFT JOIN Terms t ON ia.TermsID = t.TermsID
     ORDER BY ia.InvoiceDate DESC;
-END;
+END
 GO
