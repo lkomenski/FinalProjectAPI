@@ -27,6 +27,9 @@ namespace FinalProjectAPI.Controllers
             _repo = factory.Create("MyGuitarShop");
         }
 
+        // ---------------------------------------------------------
+        // GET: api/customer   (get all customers)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all customers from the database.
         /// </summary>
@@ -50,6 +53,9 @@ namespace FinalProjectAPI.Controllers
 
 
 
+        // ---------------------------------------------------------
+        // GET: api/customer/exists/{email}   (check if customer exists)
+        // ---------------------------------------------------------
         /// <summary>
         /// Checks if a customer account exists with the given email address.
         /// </summary>
@@ -78,6 +84,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/customer/{customerId}   (get customer profile)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves a customer's profile information.
         /// </summary>
@@ -112,6 +121,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/customer/deactivate/{id}   (deactivate customer)
+        // ---------------------------------------------------------
         /// <summary>
         /// Deactivates a customer account without permanently deleting it.
         /// </summary>
@@ -140,6 +152,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/customer/activate/{id}   (activate customer)
+        // ---------------------------------------------------------
         /// <summary>
         /// Activates a previously deactivated customer account.
         /// </summary>
@@ -168,6 +183,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // DELETE: api/customer/delete/{id}   (delete customer account)
+        // ---------------------------------------------------------
         /// <summary>
         /// Permanently deletes a customer account from the system.
         /// </summary>
@@ -218,6 +236,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/customer/change-password   (change customer password)
+        // ---------------------------------------------------------
         /// <summary>
         /// Changes a customer's password after verifying their current password.
         /// </summary>
@@ -287,6 +308,9 @@ namespace FinalProjectAPI.Controllers
             return password.Length >= 8 && password.Any(char.IsDigit);
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/customer/address   (add or update customer address)
+        // ---------------------------------------------------------
         /// <summary>
         /// Adds or updates a customer's address (shipping or billing).
         /// </summary>
@@ -329,6 +353,9 @@ namespace FinalProjectAPI.Controllers
             return Ok(response);
         }
 
+        // ---------------------------------------------------------
+        // GET: api/customer/{customerId}/addresses   (get customer addresses)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves a customer's addresses (shipping and billing).
         /// </summary>

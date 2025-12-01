@@ -22,6 +22,9 @@ namespace FinalProjectAPI.Controllers
             _repo = factory.Create("MyGuitarShop");
         }
 
+        // ---------------------------------------------------------
+        // GET: api/categories   (get all categories)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all product categories.
         /// </summary>
@@ -43,6 +46,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/categories/{categoryId}/products   (get products by category)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all products belonging to a specific category.
         /// </summary>

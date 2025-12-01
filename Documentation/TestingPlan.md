@@ -127,7 +127,7 @@ POST http://localhost:5077/api/auth/request-password-reset
 Content-Type: application/json
 
 {
-  "EmailAddress": "testcustomer@example.com"
+  "emailAddress": "testcustomer@example.com"
 }
 ```
 
@@ -138,13 +138,12 @@ Content-Type: application/json
 
 #### Test Case: Password Reset Completion
 ```http
-POST http://localhost:5077/api/auth/reset-password
+PUT http://localhost:5077/api/auth/reset-password
 Content-Type: application/json
 
 {
-  "EmailAddress": "testcustomer@example.com",
-  "ResetToken": "[generated_token]",
-  "NewPassword": "NewSecurePass123"
+  "token": "[generated_token]",
+  "newPassword": "NewSecurePass123"
 }
 ```
 
@@ -152,6 +151,59 @@ Content-Type: application/json
 - Status: `200 OK`
 - Password updated in database
 - Customer can login with new password
+
+### 1.5 Password Validation Consistency Testing (November 30, 2025)
+
+#### Test Case: Password Validation - Valid Passwords
+**Test passwords that should pass validation (8+ characters, at least 1 digit):**
+- `password1` - Pass (8 chars, has digit)
+- `MyP@ssw0rd!` - Pass (symbols allowed, has digit)
+- `my guitar 8` - Pass (spaces allowed, has digit)
+- `Testing123` - Pass (mixed case, has digits)
+
+**Test Method:**
+```http
+POST http://localhost:5077/api/auth/register-customer
+Content-Type: application/json
+
+{
+  "firstName": "Test",
+  "lastName": "User",
+  "emailAddress": "test@example.com",
+  "password": "password1",
+  "confirmPassword": "password1"
+}
+```
+
+**Expected Results:**
+- Status: `200 OK`
+- Account created successfully
+- Frontend and backend both accept password
+
+#### Test Case: Password Validation - Invalid Passwords
+**Test passwords that should fail validation:**
+- `short1` - Fail (only 6 characters)
+- `password` - Fail (no digit)
+- `12345678` - Pass (has 8+ chars and digits, no letter required)
+
+**Expected Results:**
+- Status: `400 Bad Request`
+- Error message: "Password must be at least 8 characters long and contain at least one number"
+- Frontend validation matches backend validation
+
+#### Test Case: Frontend-Backend Validation Consistency
+**Validation Points:**
+1. Registration form (frontend validation)
+2. Customer registration API (backend validation)
+3. Password reset form (frontend validation)
+4. Password reset API (backend validation)
+5. Change password form (frontend validation)
+6. Change password API (backend validation)
+
+**Expected Results:**
+- All validation points use same rules: 8+ characters with 1+ digit
+- No discrepancies between frontend and backend
+- Consistent error messages across all entry points
 
 ## 2. Product Management Testing
 
@@ -252,6 +304,93 @@ PUT http://localhost:5077/api/products/deactivate/1
 - Status: `200 OK`
 - IsActive flag toggled appropriately
 
+### 2.3 Product Image Upload Testing (November 30, 2025)
+
+#### Test Case: Upload Valid Product Image
+```http
+POST http://localhost:5077/api/products/upload-image
+Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="guitar.jpg"
+Content-Type: image/jpeg
+
+[binary image data]
+--boundary
+Content-Disposition: form-data; name="categoryName"
+
+guitars
+--boundary--
+```
+
+**Expected Results:**
+- Status: `200 OK`
+- Response: `{ "imageUrl": "/images/guitars/{guid}.jpg" }`
+- File saved to: `client-app/public/images/guitars/`
+- Filename: GUID-based (e.g., `a1b2c3d4-e5f6-7890-abcd-ef1234567890.jpg`)
+
+#### Test Case: Upload Image - Invalid File Type
+```http
+POST http://localhost:5077/api/products/upload-image
+Content-Type: multipart/form-data
+
+file: document.pdf
+categoryName: guitars
+```
+
+**Expected Results:**
+- Status: `400 Bad Request`
+- Error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed."
+
+#### Test Case: Upload Image - File Too Large
+```http
+POST http://localhost:5077/api/products/upload-image
+Content-Type: multipart/form-data
+
+file: large_image.jpg (6MB)
+categoryName: guitars
+```
+
+**Expected Results:**
+- Status: `400 Bad Request`
+- Error: "File size must be less than 5MB."
+
+#### Test Case: Upload Image - No File Provided
+```http
+POST http://localhost:5077/api/products/upload-image
+Content-Type: multipart/form-data
+
+categoryName: guitars
+```
+
+**Expected Results:**
+- Status: `400 Bad Request`
+- Error: "No file uploaded."
+
+#### Test Case: Image Upload - Category Organization
+**Test different categories:**
+- `categoryName: "guitars"` - Saves to `/images/guitars/`
+- `categoryName: "basses"` - Saves to `/images/basses/`
+- `categoryName: "drums"` - Saves to `/images/drums/`
+- `categoryName: "unknown"` - Defaults to `/images/guitars/`
+
+**Expected Results:**
+- Images saved to correct category subfolder
+- Frontend can access images via public path
+- GUID filenames prevent collisions
+
+#### Test Case: Image Upload Security Validation
+**Security Checks:**
+1. File extension validation (whitelist: .jpg, .jpeg, .png, .gif, .webp)
+2. File size limit enforcement (5MB maximum)
+3. GUID-based naming prevents path traversal attacks
+4. No executable file uploads (.exe, .bat, .sh)
+
+**Expected Results:**
+- All security validations enforced
+- Malicious file uploads rejected
+- Safe filename generation
+
 ## 3. Category Management Testing
 
 ### 3.1 Category Retrieval Tests
@@ -288,6 +427,132 @@ Accept: application/json
 ```
 
 **Expected Results:**
+- Status: `200 OK`
+- Returns customer profile with: CustomerID, FirstName, LastName, EmailAddress
+
+### 4.2 GDPR-Compliant Customer Deletion Testing (November 30, 2025)
+
+#### Test Case: Delete Customer - Data Anonymization
+```http
+DELETE http://localhost:5077/api/customer/delete/1
+Accept: application/json
+```
+
+**Expected Results:**
+- Status: `200 OK`
+- Message: "Customer deleted successfully"
+
+**Database Verification:**
+```sql
+-- Verify customer data anonymization
+SELECT CustomerID, EmailAddress, Password, FirstName, LastName, IsActive
+FROM Customers
+WHERE CustomerID = 1;
+```
+
+**Expected Database State:**
+- `EmailAddress`: `deleted_user_1@anonymized.com`
+- `Password`: `[DELETED]` (not NULL, invalid BCrypt hash)
+- `FirstName`: `Deleted`
+- `LastName`: `User`
+- `IsActive`: `0`
+- `CustomerID`: Preserved (for order history integrity)
+- `DateUpdated`: Set to deletion timestamp
+
+**Order History Verification:**
+```sql
+-- Verify order history preserved
+SELECT o.OrderID, o.CustomerID, o.OrderDate, o.OrderTotal
+FROM Orders o
+WHERE o.CustomerID = 1;
+```
+
+**Expected Results:**
+- Order records remain intact
+- Foreign key relationships preserved
+- Financial data unchanged
+
+#### Test Case: Delete Customer - Login Prevention
+```http
+POST http://localhost:5077/api/auth/login
+Content-Type: application/json
+
+{
+  "emailAddress": "deleted_user_1@anonymized.com",
+  "password": "any_password",
+  "role": "customer"
+}
+```
+
+**Expected Results:**
+- Status: `401 Unauthorized`
+- Error: "Invalid credentials"
+- `[DELETED]` password cannot match any BCrypt verification
+
+#### Test Case: Delete Customer - Error Handling
+```http
+DELETE http://localhost:5077/api/customer/delete/99999
+Accept: application/json
+```
+
+**Expected Results:**
+- Status: `500 Internal Server Error` (from stored procedure Status check)
+- Error message from stored procedure: "Customer not found" or similar
+
+### 4.3 Enhanced Error Handling Testing (November 30, 2025)
+
+#### Test Case: Stored Procedure Status Checking - Delete Operations
+**Test DeleteCustomer with invalid ID:**
+```http
+DELETE http://localhost:5077/api/customer/delete/99999
+```
+
+**Expected Results:**
+- Stored procedure returns: `Status: "Error"`, `Message: "Customer not found"`
+- Controller checks Status field
+- Returns: `500 Internal Server Error` with error message
+- No silent failures
+
+**Test DeleteVendor with invalid ID:**
+```http
+DELETE http://localhost:5077/api/vendors/99999
+```
+
+**Expected Results:**
+- Status: `500 Internal Server Error`
+- Error message propagated from stored procedure
+
+**Test DeleteProduct with invalid ID:**
+```http
+DELETE http://localhost:5077/api/products/99999
+```
+
+**Expected Results:**
+- Status: `500 Internal Server Error`
+- Proper error message from stored procedure
+
+#### Test Case: Error Propagation Verification
+**Database Test:**
+```sql
+-- Test stored procedure error responses
+EXEC DeleteCustomer @CustomerID = 99999;
+-- Should return: Status='Error', Message='Customer not found'
+
+EXEC DeleteVendorById @VendorID = 99999, @Delete = 0;
+-- Should return: Status='Error', Message='Vendor not found'
+
+EXEC DeleteProduct @ProductID = 99999;
+-- Should return: Status='Error', Message='Product not found'
+```
+
+**Expected Results:**
+- All stored procedures return Status/Message columns
+- Error states properly identified
+- Messages provide context for debugging
+
+### 4.4 Customer Profile Tests (Continued)
+
+**Expected Results (Get Customer Profile):
 - Status: `200 OK`
 - Returns customer profile information
 - Excludes sensitive data (password)
@@ -892,6 +1157,33 @@ Notes: All validation working correctly
 This comprehensive testing plan ensures the My Guitar Shop Management System meets all functional, security, and performance requirements. The combination of manual testing, automated validation, and continuous monitoring provides confidence in system reliability and user experience.
 
 The testing approach covers all user roles, business workflows, and technical components while maintaining focus on real-world usage scenarios. Regular execution of these tests throughout development and deployment phases ensures a robust, secure, and performant application.
+
+### Recent Enhancements Testing (November 30, 2025)
+
+The testing plan now includes validation for:
+
+1. **GDPR-Compliant Customer Deletion**
+   - Data anonymization verification
+   - Order history preservation
+   - Login prevention with anonymized accounts
+
+2. **Enhanced Error Handling**
+   - Stored procedure status checking
+   - Error propagation from database to API
+   - Proper HTTP status codes for failures
+
+3. **Password Validation Consistency**
+   - Frontend-backend validation alignment
+   - Consistent rules across all password entry points
+   - Support for symbols, spaces, and international characters
+
+4. **Product Image Upload Security**
+   - File type validation
+   - File size enforcement (5MB limit)
+   - GUID-based secure file naming
+   - Category-based organization
+
+These enhancements strengthen data privacy compliance, improve error handling and debugging, ensure consistent user experience, and add secure file upload capabilities.
 
 ---
 

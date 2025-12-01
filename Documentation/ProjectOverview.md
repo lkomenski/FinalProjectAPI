@@ -44,8 +44,11 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Shopping Cart:** Add products, manage quantities, and checkout (restricted to customers only)
 - **Order History:** View past purchases and order status
 - **Password Security:** Complete password reset flow via email and in-app password change functionality
+- **Password Validation:** Consistent frontend-backend validation (8+ characters with at least one digit)
 - **Account Management:** Profile updates with email and personal information
 - **Role-Based Cart Restrictions:** Vendors and administrators cannot access shopping cart functionality
+- **GDPR-Compliant Deletion:** Customer data anonymization preserving order history for compliance
+- **Data Privacy:** Customer deletion anonymizes personal data while maintaining referential integrity
 
 ### Product Catalog Management
 - **Inventory Management:** Complete CRUD operations for products
@@ -53,6 +56,8 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - **Featured Products:** Highlight special or promotional items
 - **Best Sellers Tracking:** Analytics-driven product recommendations
 - **Image Management:** Product photos and galleries with carousel displays
+- **Image Upload System:** Secure product image upload with file validation (max 5MB, .jpg/.png/.gif/.webp)
+- **Organized Storage:** Images categorized by product type (guitars, basses, drums) in public directory
 - **Stock Management:** Inventory tracking and availability
 - **Product Activation:** Activate/deactivate products without deletion
 - **Visibility Control:** Inactive products automatically hidden from customer view
@@ -116,13 +121,15 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ### Controllers & API Endpoints
 1. **AuthController** - Universal authentication, registration, and password management for all user roles (customers, vendors, admins)
-2. **CustomerController** - Customer profile management, addresses, and account operations
-3. **ProductsController** - Product catalog operations with activation/deactivation
+2. **CustomerController** - Customer profile management, addresses, account operations, and GDPR-compliant deletion
+3. **ProductsController** - Product catalog operations with activation/deactivation and secure image upload
 4. **CategoriesController** - Product category management
 5. **VendorsController** - Vendor management with token-based registration
 6. **InvoicesController** - Invoice and payment tracking with detailed vendor invoices
 7. **DashboardController** - Analytics and reporting for customer, vendor, and admin roles
 8. **PasswordResetController** - Secure password recovery system with token generation
+
+**Enhanced Error Handling:** All controllers implement stored procedure status checking for proper error propagation from database to API layer
 
 ### Data Models
 - **Customer** - User account and profile information
@@ -140,14 +147,18 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ### Security Features
 - **Password Encryption** - BCrypt password hashing with BCrypt.Net-Next package (work factor 12)
 - **Password Verification** - BCrypt.Verify for all authentication attempts
+- **Password Validation Consistency** - Aligned frontend-backend validation (8+ characters, at least one digit)
 - **Role-Based Access Control** - User permission management for customer/vendor/admin roles
 - **Session Management** - Secure user session handling with token-based authentication
 - **Input Validation** - Data sanitization and validation on all endpoints
 - **Error Handling** - Comprehensive exception management without exposing sensitive data
+- **Enhanced Error Propagation** - Stored procedures return Status/Message for proper error handling
 - **SQL Injection Prevention** - Parameterized stored procedures for all database operations
-- **Password Requirements** - Minimum 8 characters for all passwords
+- **Password Requirements** - Minimum 8 characters with at least one digit
 - **Password Change Flow** - Verify old password before allowing change with BCrypt
 - **Password Reset Flow** - Secure token-based reset with email verification
+- **File Upload Security** - Image upload validation (type, size, filename sanitization)
+- **GDPR Compliance** - Customer data anonymization with preserved referential integrity
 
 ## Business Logic
 
@@ -157,11 +168,21 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 - Inactive products excluded from search results and category filters
 - Inactive products cannot be accessed directly via URL by customers
 - Administrators can view and manage all products regardless of status
+- Secure image upload with validation (file type, size, GUID-based naming)
+- Images organized by category in public directory for frontend access
 - Inventory tracking with stock levels
 - Dynamic pricing with discount percentages
 - Category-based organization and filtering
 - Featured product promotion system
 - Best seller analytics and recommendations
+
+### Data Privacy & Compliance
+- **GDPR-Compliant Customer Deletion:** Anonymizes personal data while preserving order history
+- **Data Anonymization:** Email, password, name, and phone replaced with generic values
+- **Referential Integrity:** CustomerID preserved for foreign key relationships
+- **Audit Trail:** DateUpdated timestamp maintains deletion record
+- **Reversible Process:** Accounts can be reactivated if needed
+- **Order Preservation:** Financial and transaction records remain intact for legal compliance
 
 ### Order Processing
 - Shopping cart functionality with session persistence
@@ -206,11 +227,14 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 
 ### API Testing
 - **HTTP Client Testing** - Comprehensive endpoint testing with FinalProjectAPI.http file
-- **Error Scenario Testing** - Exception handling validation
+- **Error Scenario Testing** - Exception handling validation and stored procedure status checking
 - **Authentication Testing** - BCrypt security verification and login flow testing
-- **Data Validation Testing** - Input validation checks
+- **Data Validation Testing** - Input validation checks with frontend-backend consistency
 - **Password Security Testing** - BCrypt hashing and verification testing
+- **Password Validation Testing** - Consistent validation rules across all entry points
 - **Registration Flow Testing** - Customer and vendor registration validation
+- **File Upload Testing** - Image upload validation (type, size, security)
+- **GDPR Compliance Testing** - Customer deletion and data anonymization verification
 
 ### Database Testing
 - **Stored Procedure Testing** - Individual procedure validation
@@ -266,11 +290,13 @@ The My Guitar Shop Management System is a comprehensive e-commerce and business 
 ## Project Deliverables
 
 ### Documentation
-- [API Endpoints Documentation](APIEndpoints.md)
-- [Database Design Documentation](SQLDesign.md)
-- [Setup Instructions](SetupInstructions.md)
-- [Testing Plan](TestingPlan.md)
-- [OOP Concepts Summary](OOPConceptsSummary.md)
+- [API Endpoints Documentation](APIEndpoints.md) - Complete API reference with all endpoints
+- [Database Design Documentation](SQLDesign.md) - Database schema and stored procedures
+- [Setup Instructions](SetupInstructions.md) - Installation and configuration guide
+- [Testing Plan](TestingPlan.md) - Comprehensive testing procedures and strategies
+- [OOP Concepts Summary](OOPConceptsSummary.md) - Object-oriented programming concepts implemented
+- [Architecture Decisions](ArchitectureDecisions.md) - Key architectural decisions and design patterns
+- [Token Security Implementation](TokenSecurityImplementation.md) - Vendor registration token system documentation
 
 ### Code Deliverables
 - Complete ASP.NET Core Web API application (.NET 9.0)
@@ -301,7 +327,17 @@ The system provides a solid foundation for a real-world guitar retail business w
 - **Comprehensive Testing:** Includes React Testing Library integration for frontend testing
 - **Role-Based Architecture:** Separate authentication flows for customers, vendors, and administrators
 - **Professional API Design:** RESTful endpoints with comprehensive documentation and error handling
+- **Enhanced Error Propagation:** Stored procedure status checking ensures proper error handling throughout the stack
 - **Scalable Database Design:** Stored procedure architecture with proper separation of concerns
 - **Enhanced UX:** Breadcrumb navigation and modal-based secure token display
+- **GDPR Compliance:** Customer data anonymization while preserving financial records and referential integrity
+- **Validation Consistency:** Aligned password validation rules across frontend and backend (November 30, 2025)
+- **Secure File Upload:** Product image upload with comprehensive validation and organized storage
 
-The modular design, comprehensive feature set, and extensible architecture make this system suitable for both educational demonstration and potential commercial deployment with additional enhancements. The implementation of BCrypt password security and modern frontend frameworks demonstrates adherence to current industry standards and best practices.
+Recent Enhancements (November 30, 2025):
+- **Data Privacy:** GDPR-compliant customer deletion with anonymization strategy
+- **Error Handling:** Enhanced stored procedure status checking across all controllers
+- **Password Validation:** Frontend-backend consistency for better user experience
+- **Image Management:** Secure product image upload system with validation
+
+The modular design, comprehensive feature set, and extensible architecture make this system suitable for both educational demonstration and potential commercial deployment with additional enhancements. The implementation of BCrypt password security, GDPR compliance, and modern frontend frameworks demonstrates adherence to current industry standards and best practices.

@@ -19,9 +19,9 @@ function validateAlphaOnly(value) {
 }
 
 function validatePassword(password) {
-    // check this to make sure it validates the way the c# files say
-    const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    return re.test(password);
+    // Password must be at least 8 characters and contain at least one digit
+    // Matches C# validation: password.Length >= 8 && password.Any(char.IsDigit)
+    return password.length >= 8 && /\d/.test(password);
 }
 
 function validatePhoneNumber(phone) {

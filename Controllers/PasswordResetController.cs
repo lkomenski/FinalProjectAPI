@@ -24,6 +24,9 @@ namespace FinalProjectAPI.Controllers
             _factory = factory;
         }
 
+        // ---------------------------------------------------------
+        // POST: api/password/request-reset   (request password reset)
+        // ---------------------------------------------------------
         /// <summary>
         /// Initiates a password reset request by generating a secure reset token.
         /// </summary>
@@ -65,6 +68,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/password/reset   (reset password with token)
+        // ---------------------------------------------------------
         /// <summary>
         /// Resets a customer's password using a valid reset token.
         /// </summary>

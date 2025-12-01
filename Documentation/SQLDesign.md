@@ -260,7 +260,7 @@ UpdateCustomerProfile -- Modifies customer data
 UpdateCustomerPassword -- Updates customer password (BCrypt hashing)
 GetCustomerDashboard  -- Customer analytics and order history
 DeactivateCustomer    -- Disables customer accounts
-DeleteCustomer        -- Removes customer records
+DeleteCustomer        -- GDPR-compliant customer data anonymization (preserves order history)
 CheckCustomerExists   -- Validates customer existence
 ```
 
@@ -369,14 +369,92 @@ public interface IDataRepositoryFactory
 - **Email Uniqueness:** Enforced through stored procedure logic
 - **Required Fields:** NOT NULL constraints on essential fields
 - **Data Types:** Appropriate data types for all fields (MONEY for currency, BIT for boolean)
-- **Password Complexity:** Minimum 8 characters enforced at application layer
+- **Password Complexity:** Minimum 8 characters with at least one digit enforced at application layer
+- **Password Validation Consistency:** Frontend and backend validation rules aligned
 - **Input Sanitization:** Parameterized queries prevent SQL injection
+
+### Data Privacy & Compliance
+
+#### GDPR-Compliant Customer Deletion
+The `DeleteCustomer` stored procedure implements data anonymization instead of hard deletion:
+
+**Anonymization Strategy:**
+- **Email:** Replaced with `deleted_user_{CustomerID}@anonymized.com`
+- **Password:** Set to `[DELETED]` (invalid BCrypt hash, prevents login)
+- **Name:** Changed to `Deleted` / `User`
+- **Phone:** Set to `000-000-0000`
+- **IsActive:** Set to `0` (soft delete flag)
+- **Preserved Data:** CustomerID, DateAdded (for referential integrity)
+
+**Why `[DELETED]` Instead of NULL:**
+- Password column has NOT NULL constraint
+- `[DELETED]` is an invalid BCrypt hash format (can never match login attempt)
+- Clear indicator in database of anonymized account
+- Simpler than refactoring multiple stored procedures
+
+**Benefits:**
+- **GDPR/CCPA Compliant:** Personal data removed
+- **Financial Records Preserved:** Order history intact for legal/accounting requirements
+- **Referential Integrity:** No orphaned foreign key references
+- **Audit Trail:** DateUpdated timestamp shows when anonymization occurred
+- **Reversible:** Account can be reactivated if needed
+- **Security:** Cannot be used for login (invalid password hash)
+
+**Implementation:**
+```sql
+UPDATE Customers
+SET 
+    EmailAddress = 'deleted_user_' + CAST(@CustomerID AS VARCHAR) + '@anonymized.com',
+    Password = '[DELETED]',  -- Invalid BCrypt hash
+    FirstName = 'Deleted',
+    LastName = 'User',
+    IsActive = 0,
+    DateUpdated = GETDATE()
+WHERE CustomerID = @CustomerID;
+```
+
+**Related Addresses:**
+- Customer addresses are also anonymized with generic values
+- Preserves address structure for order history
+- Updates Disabled flag to prevent future use
+
+### Enhanced Error Handling
+
+#### Stored Procedure Status Checking (November 30, 2025)
+Key stored procedures now return Status/Message columns for proper error propagation:
+
+**Implementation Pattern:**
+```sql
+-- Error case
+IF @@ROWCOUNT = 0
+BEGIN
+    SELECT 'Error' AS Status, 'Customer not found' AS Message;
+    RETURN;
+END
+
+-- Success case
+SELECT 'Success' AS Status, 'Customer deleted successfully' AS Message;
+```
+
+**Applied To:**
+- `DeleteCustomer` - Customer anonymization operations
+- `DeleteVendorById` - Vendor deletion operations
+- `DeleteProduct` - Product deletion operations
+
+**Benefits:**
+- Proper error propagation from database to API layer
+- Controllers can check Status field and return appropriate HTTP status codes
+- Better user feedback with context-specific error messages
+- Easier debugging with specific error details
+- Consistent error handling pattern across all deletion operations
 
 ### Transaction Management
 - **ACID Compliance:** All operations maintain data consistency
 - **Rollback Support:** Error handling with transaction rollback capabilities
 - **Concurrent Access:** SQL Server handles concurrent user access
 - **Password Updates:** Atomic operations for password changes
+- **Status Propagation:** Error states returned to application layer for proper handling
+- **Status Propagation:** Error states returned to application layer for proper handling
 
 ## Performance Considerations
 

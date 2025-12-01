@@ -116,7 +116,7 @@ Register a new customer account with BCrypt password hashing.
 ### Password Reset Request
 Request a password reset token.
 
-**Endpoint:** `POST /api/password/request-reset`
+**Endpoint:** `POST /api/auth/request-password-reset`
 
 **Request Body:**
 ```json
@@ -142,7 +142,7 @@ Request a password reset token.
 ### Reset Password
 Reset password using a valid token. New password is hashed with BCrypt.
 
-**Endpoint:** `POST /api/password/reset`
+**Endpoint:** `PUT /api/auth/reset-password`
 
 **Security:** New password hashed with BCrypt before storage
 
@@ -194,6 +194,30 @@ Change a customer's password after verifying their current password.
 - `400 Bad Request` - Old password is incorrect (BCrypt verification failed)
 - `400 Bad Request` - New password does not meet requirements (min 8 characters)
 - `404 Not Found` - Customer not found
+
+---
+
+## Customer Management
+
+### Get All Customers
+Retrieve all customers from the system (admin access).
+
+**Endpoint:** `GET /api/customer`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "customerID": "integer",
+    "firstName": "string",
+    "lastName": "string",
+    "emailAddress": "string",
+    "shippingAddressID": "integer|null",
+    "billingAddressID": "integer|null",
+    "isActive": "boolean"
+  }
+]
+```
 
 ---
 
@@ -438,6 +462,37 @@ Deactivate a product without deleting it.
 
 ---
 
+### Upload Product Image
+Upload an image file for a product.
+
+**Endpoint:** `POST /api/products/upload-image`
+
+**Request (multipart/form-data):**
+- `file` (file, required) - The image file to upload
+- `categoryName` (string, required) - The category name (guitars, basses, drums)
+
+**Response (200 OK):**
+```json
+{
+  "imageUrl": "/images/{category}/{filename}"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - No file uploaded
+- `400 Bad Request` - Invalid file type (only JPEG, PNG, GIF, WebP allowed)
+- `400 Bad Request` - File size must be less than 5MB
+- `500 Internal Server Error` - Failed to upload image
+
+**Notes:**
+- Accepted file types: .jpg, .jpeg, .png, .gif, .webp
+- Maximum file size: 5MB
+- Images are saved to client-app/public/images/{category}/
+- Filenames are automatically generated using GUID to avoid collisions
+- Category determines subfolder: guitars, basses, or drums (defaults to guitars)
+
+---
+
 ## Category Management
 
 ### Get All Categories
@@ -481,7 +536,7 @@ Retrieve all products in a specific category.
 
 ---
 
-## Customer Management
+## Customer Profile Management
 
 ### Get Customer Profile
 Retrieve customer profile information.
@@ -505,36 +560,79 @@ Retrieve customer profile information.
 
 ---
 
-### Update Customer Profile
-Update customer profile information.
+---
 
-**Endpoint:** `PUT /api/customer/{customerId}`
+### Add or Update Customer Address
+Add or update a customer's shipping or billing address.
 
-**Path Parameters:**
-- `customerId` (integer, required) - The ID of the customer
+**Endpoint:** `PUT /api/customer/address`
 
 **Request Body:**
 ```json
 {
   "customerID": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string"
+  "addressType": "shipping|billing",
+  "line1": "string",
+  "line2": "string",
+  "city": "string",
+  "state": "string",
+  "zipCode": "string",
+  "phone": "string"
 }
 ```
 
 **Response (200 OK):**
 ```json
 {
-  "customerID": "integer",
-  "firstName": "string",
-  "lastName": "string",
-  "emailAddress": "string",
-  "message": "Profile updated successfully"
+  "success": 1,
+  "addressID": "integer",
+  "message": "Address saved successfully"
 }
 ```
 
+**Error Responses:**
+- `400 Bad Request` - Invalid customer ID or address type
+- `400 Bad Request` - Failed to save address
 
+**Notes:**
+- Address type must be either "shipping" or "billing"
+- If address doesn't exist, it will be created
+- If address exists, it will be updated
+- Empty fields will be filled from existing record if updating
+
+---
+
+### Get Customer Addresses
+Retrieve a customer's shipping and billing addresses.
+
+**Endpoint:** `GET /api/customer/{customerId}/addresses`
+
+**Path Parameters:**
+- `customerId` (integer, required) - The ID of the customer
+
+**Response (200 OK):**
+```json
+{
+  "customerID": "integer",
+  "shippingAddressID": "integer|null",
+  "shippingLine1": "string",
+  "shippingLine2": "string",
+  "shippingCity": "string",
+  "shippingState": "string",
+  "shippingZipCode": "string",
+  "shippingPhone": "string",
+  "billingAddressID": "integer|null",
+  "billingLine1": "string",
+  "billingLine2": "string",
+  "billingCity": "string",
+  "billingState": "string",
+  "billingZipCode": "string",
+  "billingPhone": "string"
+}
+```
+
+**Error Responses:**
+- `404 Not Found` - Customer not found
 
 ---
 
@@ -959,6 +1057,36 @@ Deactivate a vendor without deleting it.
 
 ## Invoice Management
 
+### Get All Invoices
+Retrieve all invoices from the system (admin access).
+
+**Endpoint:** `GET /api/invoices`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "invoiceID": "integer",
+    "vendorID": "integer|null",
+    "vendorName": "string",
+    "customerName": "string|null",
+    "invoiceNumber": "string",
+    "invoiceDate": "datetime",
+    "totalAmount": "decimal",
+    "paymentTotal": "decimal",
+    "creditTotal": "decimal",
+    "amountDue": "decimal",
+    "dueDate": "datetime|null",
+    "isPaid": "boolean"
+  }
+]
+```
+
+**Error Responses:**
+- `500 Internal Server Error` - Failed to retrieve invoices
+
+---
+
 ### Get Vendor Invoices
 Retrieve all invoices for a specific vendor.
 
@@ -1015,6 +1143,80 @@ Retrieve detailed information for a specific invoice.
   "vendorPhone": "string"
 }
 ```
+
+---
+
+### Get Archived Invoices
+Retrieve all archived invoices from the system.
+
+**Endpoint:** `GET /api/invoices/archived`
+
+**Response (200 OK):**
+```json
+[
+  {
+    "invoiceID": "integer",
+    "vendorID": "integer|null",
+    "vendorName": "string",
+    "invoiceNumber": "string",
+    "invoiceDate": "datetime",
+    "totalAmount": "decimal",
+    "paymentTotal": "decimal",
+    "creditTotal": "decimal",
+    "amountDue": "decimal",
+    "dueDate": "datetime|null",
+    "paymentDate": "datetime|null",
+    "isPaid": "boolean",
+    "termsDescription": "string"
+  }
+]
+```
+
+**Error Responses:**
+- `500 Internal Server Error` - Failed to retrieve archived invoices
+
+---
+
+### Get Archived Invoice Detail
+Retrieve detailed information for a specific archived invoice.
+
+**Endpoint:** `GET /api/invoices/archived/{invoiceId}`
+
+**Path Parameters:**
+- `invoiceId` (integer, required) - The ID of the archived invoice
+
+**Response (200 OK):**
+```json
+{
+  "invoiceID": "integer",
+  "vendorID": "integer",
+  "invoiceNumber": "string",
+  "invoiceDate": "datetime",
+  "invoiceTotal": "decimal",
+  "paymentTotal": "decimal",
+  "creditTotal": "decimal",
+  "termsID": "integer|null",
+  "termsDescription": "string",
+  "termsDueDays": "integer|null",
+  "invoiceDueDate": "datetime|null",
+  "paymentDate": "datetime|null",
+  "vendorName": "string",
+  "vendorContactFName": "string",
+  "vendorContactLName": "string",
+  "vendorAddress1": "string",
+  "vendorAddress2": "string",
+  "vendorCity": "string",
+  "vendorState": "string",
+  "vendorZipCode": "string",
+  "vendorPhone": "string",
+  "vendorEmail": "string"
+}
+```
+
+**Error Responses:**
+- `400 Bad Request` - Invalid invoice ID
+- `404 Not Found` - Archived invoice not found
+- `500 Internal Server Error` - Failed to retrieve archived invoice details
 
 ---
 
@@ -1262,7 +1464,7 @@ curl -X POST http://localhost:5077/api/auth/login \
 
 **Request Password Reset:**
 ```bash
-curl -X POST http://localhost:5077/api/password-reset/request \
+curl -X POST http://localhost:5077/api/auth/request-password-reset \
   -H "Content-Type: application/json" \
   -d '{
     "email": "customer@example.com"
@@ -1315,21 +1517,20 @@ Currently no rate limiting is implemented. Consider adding rate limiting for pro
 - **Version:** 1.0
 - **Base Path:** `/api/`
 - **Documentation Date:** November 2025
-
-### Future Versions
-Future API versions will be implemented using URL versioning:
-- Version 1.0: `/api/v1/`
-- Version 2.0: `/api/v2/`
+ 
 
 ---
 
 ## Support and Documentation
 
 ### Additional Resources
-- [Project Overview](ProjectOverview.md) - Complete project description
-- [Setup Instructions](SetupInstructions.md) - Installation and configuration guide  
-- [Database Design](SQLDesign.md) - Database schema documentation
-- [Testing Plan](TestingPlan.md) - Comprehensive testing procedures
+- [Project Overview](ProjectOverview.md) - Complete project description and requirements
+- [Setup Instructions](SetupInstructions.md) - Installation and configuration guide
+- [Database Design](SQLDesign.md) - Database schema and SQL stored procedures documentation
+- [Testing Plan](TestingPlan.md) - Comprehensive testing procedures and strategies
+- [Architecture Decisions](ArchitectureDecisions.md) - Key architectural decisions and design patterns
+- [OOP Concepts Summary](OOPConceptsSummary.md) - Object-oriented programming concepts implemented
+- [Token Security Implementation](TokenSecurityImplementation.md) - Vendor registration token system documentation
 
 ### Contact Information
 - **Developer:** Leena Komenski

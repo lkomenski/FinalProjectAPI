@@ -114,6 +114,99 @@ Two-phase vendor registration:
 - Configurable difficulty scales with hardware improvements
 - Industry-proven security
 
+### Decision: Frontend-Backend Password Validation Consistency
+
+**Date Implemented:** November 26, 2025
+
+**Problem:**
+- JavaScript password validation was too restrictive (alphanumeric only)
+- C# backend allowed any characters with 8+ length and 1+ digit
+- Users could create passwords in one place that were rejected in another
+- Frontend regex: `/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/` (only letters and numbers)
+- Backend validation: `password.Length >= 8 && password.Any(char.IsDigit)` (any characters)
+
+**Solution:**
+Aligned JavaScript validation to match C# backend:
+```javascript
+// Old (too restrictive)
+return /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password);
+
+// New (matches backend)
+return password.length >= 8 && /\d/.test(password);
+```
+
+**Validation Rules (Frontend & Backend):**
+1. Minimum 8 characters
+2. Must contain at least one digit (0-9)
+3. Any characters allowed (letters, numbers, symbols, spaces, unicode)
+
+**Applied To:**
+- `client-app/src/utils/scripts.js` (validatePassword function)
+- `Controllers/CustomerController.cs` (IsValidPassword method)
+- `Controllers/PasswordResetController.cs` (password validation)
+- `Controllers/AuthController.cs` (registration validation)
+
+**Benefits:**
+- Consistent user experience across all password entry points
+- More flexible password options for users (symbols, spaces allowed)
+- Prevents frustrating validation mismatches
+- Single source of truth for password requirements
+- Documented in code comments for future maintainers
+
+**User Experience:**
+- Users can now use complex passwords with symbols: `MyP@ssw0rd!`
+- Passphrases with spaces allowed: `my guitar shop 2025`
+- International characters supported: `MiContraseña8`
+- Validation errors are consistent across login, registration, and password reset
+
+---
+
+## Data Privacy & Compliance
+
+### Decision: GDPR-Compliant Customer Deletion
+
+**Date Implemented:** November 16, 2025
+
+**Problem:**
+- Need to comply with data privacy regulations (GDPR, CCPA)
+- Customer deletion must preserve order history for financial/legal records
+- Database constraints prevented NULL password values
+- Need audit trail of deleted accounts
+
+**Solution:**
+Customer anonymization instead of hard deletion:
+- Email: `deleted_user_{CustomerID}@anonymized.com`
+- Password: `[DELETED]` (placeholder string, not NULL)
+- Name: `Deleted User`
+- Phone: `000-000-0000`
+- IsActive: `0` (soft delete flag)
+- Preserves: CustomerID, DateAdded (for referential integrity)
+
+**Technical Details:**
+- Stored Procedure: `DeleteCustomer`
+- Addresses also anonymized with generic values
+- Order history remains intact (foreign key preserved)
+- Updates DateUpdated timestamp for audit trail
+
+**Why `[DELETED]` Instead of NULL:**
+- Database Password column has NOT NULL constraint
+- Changing constraint would affect existing stored procedures
+- `[DELETED]` is an invalid BCrypt hash (can never match login attempt)
+- Clear indicator in database of anonymized account
+- Simpler than refactoring multiple stored procedures
+
+**Benefits:**
+- GDPR/CCPA compliant (personal data removed)
+- Financial records preserved (order totals, dates)
+- No orphaned foreign key references
+- Clear audit trail of deletion
+- Cannot be used for login (invalid password hash)
+- Reversible if needed (customer can contact support)
+
+**Implementation Files:**
+- `SQL Scripts/DeleteCustomer.sql`
+- `Controllers/CustomerController.cs` (DeleteCustomer endpoint)
+
 ---
 
 ## Database Architecture
@@ -146,6 +239,59 @@ Two-phase vendor registration:
 - Maintainability: Database logic separate from application
 - Testability: Can test procedures independently
 
+### Decision: Stored Procedure Status Checking
+
+**Date Implemented:** November 2025
+
+**Problem:**
+- Controllers always returned success messages even when stored procedures failed
+- Silent failures made debugging difficult
+- No error propagation from database to API layer
+- Users saw "success" messages for failed operations
+
+**Solution:**
+Stored procedures return Status/Message columns:
+```sql
+-- Example from DeleteCustomer
+IF @@ROWCOUNT = 0
+BEGIN
+    SELECT 'Error' AS Status, 'Customer not found' AS Message;
+    RETURN;
+END
+SELECT 'Success' AS Status, 'Customer deleted successfully' AS Message;
+```
+
+Controllers check Status field:
+```csharp
+var result = rows.FirstOrDefault();
+var status = result["Status"]?.ToString();
+var message = result["Message"]?.ToString();
+
+if (status == "Error")
+{
+    return StatusCode(500, message ?? "Operation failed.");
+}
+return Ok(message);
+```
+
+**Implementation:**
+- Applied to: DeleteCustomer, DeleteVendorById, DeleteProduct
+- Controllers: CustomerController, VendorsController, ProductsController
+- Status values: "Success" or "Error"
+- Message provides context-specific details
+
+**Benefits:**
+- Proper error propagation from database to client
+- Accurate HTTP status codes (500 for errors)
+- Better user feedback on failures
+- Easier debugging with specific error messages
+- Consistent error handling pattern across controllers
+
+**Missing Parameters Fix:**
+- VendorsController DeleteVendorById was missing `@Delete` parameter
+- Added: `{ "@Delete", 0 }` (0 = soft delete, 1 = hard delete)
+- Prevents stored procedure execution errors
+
 ---
 
 ## Frontend Architecture
@@ -168,6 +314,75 @@ Two-phase vendor registration:
 - React Router 7.x for declarative routing
 - Protected routes based on user roles
 - Clean URL structure
+
+### Decision: Product Image Upload System
+
+**Date Implemented:** November 16, 2025
+
+**Problem:**
+- Admins needed ability to upload product images
+- Images must be accessible to React frontend
+- Need file validation for security
+- Files must be organized by product category
+
+**Solution:**
+Multipart form upload endpoint with server-side file handling:
+- Endpoint: `POST /api/products/upload-image`
+- Accepts: `multipart/form-data` with file and categoryName
+- Storage: `client-app/public/images/{category}/`
+- Returns: Relative URL path for database storage
+
+**Security Validations:**
+1. **File Type:** Only .jpg, .jpeg, .png, .gif, .webp allowed
+2. **File Size:** Maximum 5MB per image
+3. **Filename:** GUID-based to prevent collisions and path traversal
+4. **Category:** Validated against known categories (guitars, basses, drums)
+
+**File Organization:**
+```
+client-app/public/images/
+  ├── guitars/
+  │   └── {guid}.jpg
+  ├── basses/
+  │   └── {guid}.png
+  └── drums/
+      └── {guid}.webp
+```
+
+**Technical Implementation:**
+```csharp
+// Generate unique filename
+var fileName = $"{Guid.NewGuid()}{extension}";
+
+// Save to public directory
+var clientAppPath = Path.Combine(
+    Directory.GetCurrentDirectory(), 
+    "..", "client-app", "public", "images", folderPath
+);
+
+// Return URL for database
+var imageUrl = $"/images/{folderPath}/{fileName}";
+```
+
+**Benefits:**
+- Secure file upload with validation
+- Images accessible to React frontend (public directory)
+- GUID filenames prevent name collisions
+- Organized by category for better management
+- URLs stored in database reference public path
+- No direct file path exposure to clients
+
+**Frontend Integration:**
+- React serves images from `/images/` path automatically
+- Admin dashboard has file upload form
+- Image preview before saving product
+- URL returned from upload saved to Product.ImageURL field
+
+**Implementation Files:**
+- `Controllers/ProductsController.cs` (UploadImage endpoint)
+- `client-app/public/images/` (storage directory)
+
+---
 
 ### Decision: Role-Based Navigation and Access Control
 
@@ -447,12 +662,18 @@ return StatusCode(500, "Internal server error: Failed to retrieve products.");
 - Role-based access control implemented successfully
 - Product visibility controls with IsActive field
 - Login redirects based on user roles
+- GDPR-compliant customer deletion with data preservation
+- Stored procedure status checking catches errors effectively
+- Frontend-backend validation consistency improves UX
+- Image upload system with security validations
 
 ### What Could Be Improved:
 - Earlier consolidation of authentication controllers
 - More comprehensive automated testing from start
 - Earlier implementation of token-based vendor registration
 - More detailed API documentation from beginning
+- Earlier implementation of stored procedure status checking (would have caught issues sooner)
+- Password validation consistency should have been established from day one
 
 ### Future Enhancements:
 - JWT tokens for stateless authentication
@@ -465,12 +686,20 @@ return StatusCode(500, "Internal server error: Failed to retrieve products.");
 
 ## Conclusion
 
-The My Guitar Shop Management System demonstrates thoughtful architectural decisions that balance security, maintainability, scalability, and developer experience. The consolidation of authentication logic, implementation of token-based vendor registration, and use of industry-standard security practices (BCrypt) create a robust foundation for a production-ready application.
+The My Guitar Shop Management System demonstrates thoughtful architectural decisions that balance security, maintainability, scalability, and developer experience. The consolidation of authentication logic, implementation of token-based vendor registration, GDPR-compliant data handling, and use of industry-standard security practices (BCrypt) create a robust foundation for a production-ready application.
 
 Key architectural strengths:
-- **Security-First Design:** BCrypt, token expiration, role-based access
-- **Maintainable Code:** Repository pattern, single responsibility controllers
-- **Scalable Architecture:** Dual-database design, stateless API
+- **Security-First Design:** BCrypt, token expiration, role-based access, secure file uploads
+- **Maintainable Code:** Repository pattern, single responsibility controllers, consistent error handling
+- **Scalable Architecture:** Dual-database design, stateless API, organized file storage
 - **Professional Standards:** RESTful API, comprehensive documentation, testing strategy
+- **Compliance-Ready:** GDPR-compliant customer deletion with data preservation
+- **User Experience:** Consistent validation, proper error propagation, role-appropriate interfaces
 
-These decisions create a system that is both academically rigorous and commercially viable, suitable for portfolio demonstration and real-world deployment.
+Recent architectural improvements (November 30, 2025):
+- Enhanced error handling with stored procedure status checking
+- GDPR-compliant customer anonymization strategy
+- Frontend-backend password validation consistency
+- Secure product image upload system
+
+These decisions create a system that is both academically rigorous and commercially viable, suitable for portfolio demonstration and real-world deployment. The iterative improvements demonstrate real-world software development practices: identifying issues, implementing solutions, and documenting decisions for future maintainers.

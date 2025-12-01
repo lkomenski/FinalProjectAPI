@@ -22,6 +22,9 @@ namespace FinalProjectAPI.Controllers
             _repo = factory.Create("MyGuitarShop");
         }
 
+        // ---------------------------------------------------------
+        // GET: api/products   (get all products)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all products from the inventory.
         /// </summary>
@@ -43,6 +46,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/products/{productId}   (get product by ID)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves a specific product by its ID.
         /// </summary>
@@ -76,6 +82,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // POST: api/products   (add new product)
+        // ---------------------------------------------------------
         /// <summary>
         /// Adds a new product to the inventory.
         /// </summary>
@@ -115,6 +124,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/products/{productId}   (update product)
+        // ---------------------------------------------------------
         /// <summary>
         /// Updates an existing product in the inventory.
         /// </summary>
@@ -161,6 +173,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // DELETE: api/products/{productId}   (delete product)
+        // ---------------------------------------------------------
         /// <summary>
         /// Deletes a product from the inventory (soft delete by default).
         /// </summary>
@@ -209,6 +224,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/products/activate/{productId}   (activate product)
+        // ---------------------------------------------------------
         /// <summary>
         /// Activates a previously deactivated product.
         /// </summary>
@@ -240,6 +258,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/products/featured   (get featured products)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves featured products for display (products with highest discounts).
         /// </summary>
@@ -261,6 +282,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/products/best-sellers   (get best-selling products)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves the top-selling products based on sales data.
         /// </summary>
@@ -282,6 +306,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // POST: api/products/upload-image   (upload product image)
+        // ---------------------------------------------------------
         /// <summary>
         /// Uploads a product image to the appropriate category folder.
         /// </summary>
@@ -378,6 +405,9 @@ namespace FinalProjectAPI.Controllers
                 DateUpdated = row.ContainsKey("DateUpdated") && row["DateUpdated"] != DBNull.Value ? Convert.ToDateTime(row["DateUpdated"]) : null
             };
         }
+        // ---------------------------------------------------------
+        // PUT: api/products/deactivate/{productId}   (deactivate product)
+        // ---------------------------------------------------------
         /// <summary>
         /// Deactivates a product by setting IsActive to false.
         /// </summary>

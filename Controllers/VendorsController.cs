@@ -22,6 +22,9 @@ namespace FinalProjectAPI.Controllers
             _repo = factory.Create("AP"); // use AP database for vendors
         }
 
+        // ---------------------------------------------------------
+        // GET: api/vendors   (get all vendors)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all vendors from the AP database.
         /// </summary>
@@ -43,6 +46,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/vendors/{id}   (get vendor by ID)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves a specific vendor by their ID.
         /// </summary>
@@ -81,6 +87,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // POST: api/vendors/add   (add new vendor)
+        // ---------------------------------------------------------
         /// <summary>
         /// Adds a new vendor to the system.
         /// </summary>
@@ -125,6 +134,9 @@ namespace FinalProjectAPI.Controllers
         }
         
 
+        // ---------------------------------------------------------
+        // DELETE: api/vendors/{id}   (delete vendor)
+        // ---------------------------------------------------------
         /// <summary>
         /// Deletes a vendor from the system.
         /// </summary>
@@ -178,6 +190,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/vendors/update   (update vendor)
+        // ---------------------------------------------------------
         /// <summary>
         /// Updates an existing vendor's information.
         /// </summary>
@@ -229,6 +244,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/vendors/deactivate/{vendorId}   (deactivate vendor)
+        // ---------------------------------------------------------
         /// <summary>
         /// Deactivates a vendor account without deleting it.
         /// </summary>
@@ -256,6 +274,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
         
+        // ---------------------------------------------------------
+        // PUT: api/vendors/activate/{vendorId}   (activate vendor)
+        // ---------------------------------------------------------
         /// <summary>
         /// Activates a previously deactivated vendor account.
         /// </summary>
@@ -283,6 +304,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // POST: api/vendors/generate-token/{vendorId}   (generate vendor registration token)
+        // ---------------------------------------------------------
         /// <summary>
         /// Generates a registration token for a vendor to create their login account.
         /// Token expires in 48 hours and invalidates any previous tokens.
@@ -347,6 +371,9 @@ namespace FinalProjectAPI.Controllers
             };
         }
 
+        // ---------------------------------------------------------
+        // GET: api/vendors/terms   (get payment terms)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all payment terms for vendor selection.
         /// </summary>
@@ -375,6 +402,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // GET: api/vendors/accounts   (get GL accounts)
+        // ---------------------------------------------------------
         /// <summary>
         /// Retrieves all GL accounts for vendor selection.
         /// </summary>

@@ -118,6 +118,9 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // LOGIN ENDPOINT
         // --------------------------------------------------------
+        // ---------------------------------------------------------
+        // POST: api/auth/login   (user login)
+        // ---------------------------------------------------------
         /// <summary>
         /// Authenticates a user based on their email, password, and role.
         /// </summary>
@@ -302,6 +305,9 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // CUSTOMER REGISTRATION
         // --------------------------------------------------------
+        // ---------------------------------------------------------
+        // POST: api/auth/register-customer   (register new customer)
+        // ---------------------------------------------------------
         /// <summary>
         /// Registers a new customer account in the system.
         /// </summary>
@@ -366,6 +372,9 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // PASSWORD RESET 
         // --------------------------------------------------------
+        // ---------------------------------------------------------
+        // POST: api/auth/request-password-reset   (request password reset)
+        // ---------------------------------------------------------
         /// <summary>
         /// Initiates a password reset request for a user by generating a reset token.
         /// </summary>
@@ -405,7 +414,7 @@ namespace FinalProjectAPI.Controllers
                 
                 await repo.GetDataAsync("SavePasswordResetToken", saveParams);
 
-                // In real apps, you'd email token — for now return it
+                // In real world, this would be emailed securely — for now return it
                 return Ok(new { token = token, message = "Reset token generated successfully." });
             }
             catch (Exception)
@@ -414,6 +423,9 @@ namespace FinalProjectAPI.Controllers
             }
         }
 
+        // ---------------------------------------------------------
+        // PUT: api/auth/reset-password   (reset password with token)
+        // ---------------------------------------------------------
         /// <summary>
         /// Resets a user's password using a valid reset token.
         /// </summary>
@@ -456,6 +468,9 @@ namespace FinalProjectAPI.Controllers
         // --------------------------------------------------------
         // VENDOR REGISTRATION
         // --------------------------------------------------------
+        // ---------------------------------------------------------
+        // POST: api/auth/register-vendor   (register vendor account)
+        // ---------------------------------------------------------
         /// <summary>
         /// Registers a vendor account using a registration token provided by admin.
         /// </summary>
